@@ -10,11 +10,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class UserController extends AbstractController
 {
-    #[Route('/profile')]
-    public function profile(): Response
-    {
-        $user = $this->getUser();
-
-        return;
-    }
+//    #[Route('/profile')]
+//    public function profile(): Response
+//    {
+//        $user = $this->getUser();
+//
+//        return;
+//    }
 }

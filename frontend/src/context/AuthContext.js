@@ -7,14 +7,14 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const profile = await getProfile();
-            setUser(profile);
-            setLoading(false);
-        };
-        fetchProfile();
-    }, []);
+    // useEffect(() => {
+    //     const fetchProfile = async () => {
+    //         const profile = await getProfile();
+    //         setUser(profile);
+    //         setLoading(false);
+    //     };
+    //     fetchProfile();
+    // }, []);
 
     const login = async (credentials) => {
         const userData = await loginUser(credentials);
@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('token'); // Очищаем токен при выходе
+        localStorage.removeItem('token');
     };
 
     return (
