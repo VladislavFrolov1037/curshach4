@@ -5,6 +5,8 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true
+    cache:
+        directory: '%kernel.project_dir%/tmp/cache'
 
     #esi: true
     #fragments: true

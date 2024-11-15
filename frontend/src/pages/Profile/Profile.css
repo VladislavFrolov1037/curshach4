@@ -1,0 +1,61 @@
+/* Основные стили для профиля */
+
+.container {
+    background-color: #f8f9fa;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+.card-title {
+    font-size: 2rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.text-muted {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.mb-4 {
+    margin-bottom: 20px;
+}
+
+h5 {
+    color: #495057;
+    font-weight: 500;
+}
+
+button {
+    font-size: 1.1rem;
+    padding: 12px;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.list-group-item {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1;
+}
+
+.badge {
+    font-size: 1rem;
+}
+
+.mt-5 {
+    margin-top: 50px;
+}

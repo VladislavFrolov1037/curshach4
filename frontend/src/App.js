@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
     return (
         <Router>
-            <AuthProvider> {/* Оберните в AuthProvider */}
+            <AuthProvider>
                 <div className="App">
                     <Header />
                     <AppRoutes />
