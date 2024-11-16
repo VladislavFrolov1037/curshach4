@@ -47,6 +47,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     private ?string $phone = null;
 
+    #[ORM\Column]
+    private ?bool $isSeller = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -177,6 +180,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhone(string $phone): static
     {
         $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function isSeller(): ?bool
+    {
+        return $this->isSeller;
+    }
+
+    public function setSeller(bool $isSeller): static
+    {
+        $this->isSeller = $isSeller;
 
         return $this;
     }

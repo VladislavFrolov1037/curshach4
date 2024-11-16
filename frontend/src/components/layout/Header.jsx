@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, {useContext, useState} from 'react';
+import {Link} from 'react-router-dom';
 import Sidebar from "./Sidebar";
+import AuthContext from "../../context/AuthContext";
 
 function Header() {
     const [searchTerm, setSearchTerm] = useState('');
+    const {user, logout} = useContext(AuthContext);
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
@@ -17,7 +19,7 @@ function Header() {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container-fluid">
-                <Sidebar />
+                <Sidebar/>
                 <button
                     className="navbar-toggler"
                     type="button"
@@ -49,11 +51,19 @@ function Header() {
                                 Пользователь
                             </a>
                             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <Link className="dropdown-item" to="/profile">Личный кабинет</Link>
-                                <div className="dropdown-divider"></div>
-                                <Link className="dropdown-item" to="/login">Войти</Link>
-                                <Link className="dropdown-item" to="/register">Зарегистрироваться</Link>
-                                <Link className="dropdown-item" to="/logout">Выйти</Link>
+                                {user ? (
+                                    <>
+                                        <Link className="dropdown-item" to="/profile">Личный кабинет</Link>
+                                        <div className="dropdown-divider"></div>
+                                        <button className="dropdown-item" onClick={logout}>Выйти</button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link className="dropdown-item" to="/login">Войти</Link>
+                                        <Link className="dropdown-item" to="/register">Зарегистрироваться</Link>
+                                    </>
+                                )}
+
                             </div>
                         </li>
                     </ul>

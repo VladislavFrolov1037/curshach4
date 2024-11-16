@@ -1,61 +1,27 @@
-/* Основные стили для профиля */
-
-.container {
-    background-color: #f8f9fa;
+.card-profile {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card {
-    background-color: #ffffff;
-    border-radius: 8px;
-}
-
-.card-title {
-    font-size: 2rem;
-    color: #333;
-    font-weight: 600;
-}
-
-.text-muted {
-    font-size: 1.1rem;
-    color: #6c757d;
-}
-
-.mb-4 {
-    margin-bottom: 20px;
-}
-
-h5 {
-    color: #495057;
-    font-weight: 500;
-}
-
-button {
-    font-size: 1.1rem;
-    padding: 12px;
-    border-radius: 8px;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-button:hover {
+.card-profile:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.list-group-item {
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 10px;
+.card-profile.text-decoration-none {
+    color: black;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.list-group-item:hover {
-    background-color: #f1f1f1;
+.card-profile.text-decoration-none:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.badge {
-    font-size: 1rem;
+.logout {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.mt-5 {
-    margin-top: 50px;
+.logout:hover {
+    background-color: #f8d7da;
 }
