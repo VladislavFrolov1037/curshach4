@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { FaHeart, FaShoppingCart, FaSignOutAlt, FaEye } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Profile.css'; // Импорт стилей
+import './Profile.css';
 import AuthContext from "../../context/AuthContext";
 import { Link } from 'react-router-dom';
 
@@ -24,7 +24,7 @@ const Profile = () => {
                             <h5>Основная информация</h5>
                             <p><strong>Почта:</strong> {user.email}</p>
                             <p><strong>Имя:</strong> {user.name}</p>
-                            <p><strong>Пол:</strong> {user.gender === 'male' ? 'Мужчина' : 'Женщина'}</p>
+                            <p><strong>Пол:</strong> {user.gender}</p>
                             <p><strong>Телефон:</strong> {user.phone || 'Не указан'}</p>
                             <p><strong>Привязанная карта:</strong> {user.card || 'Не указана'}</p>
                             <p><strong>Текущая скидка:</strong> {user.discount || '0%'}</p>

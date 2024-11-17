@@ -24,6 +24,7 @@ class UserService
             ->setPassword($this->passwordHasher->hashPassword(new User(), $dto->password))
             ->setName($dto->name)
             ->setGender($dto->gender ?? null)
-            ->setPhone($dto->phone ?? null);
+            ->setPhone($dto->phone ?? null)
+            ->setSeller(false);
     }
 }

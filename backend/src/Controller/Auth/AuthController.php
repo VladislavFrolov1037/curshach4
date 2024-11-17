@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Auth;
 
 use App\Dto\User\RegisterUserDto;
+use App\Exception\ValidationException;
 use App\Repository\UserRepository;
 use App\Services\UserService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AuthController extends AbstractController
@@ -20,33 +22,27 @@ class AuthController extends AbstractController
     private UserService $userService;
     private ValidatorInterface $validator;
     private UserRepository $userRepository;
+    private SerializerInterface $serializer;
 
-    public function __construct(EntityManagerInterface $entityManager, UserService $userService, ValidatorInterface $validator, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $entityManager, UserService $userService, ValidatorInterface $validator, UserRepository $userRepository, SerializerInterface $serializer)
     {
         $this->entityManager = $entityManager;
         $this->userService = $userService;
         $this->validator = $validator;
         $this->userRepository = $userRepository;
+        $this->serializer = $serializer;
     }
 
     #[Route('/api/register', name: 'api_register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-
-        $dto = new RegisterUserDTO($this->userRepository);
-        $dto->populate($data);
+        $data = $request->getContent();
+        $dto = $this->serializer->deserialize($data, RegisterUserDto::class, 'json');
 
         $errors = $this->validator->validate($dto);
 
         if (count($errors) > 0) {
-            $errorMessages = [];
-
-            foreach ($errors as $error) {
-                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
-            }
-
-            return $this->json(['errors' => $errorMessages], 400);
+            throw new ValidationException($errors);
         }
 
         $user = $this->userService->registerUser($dto);
