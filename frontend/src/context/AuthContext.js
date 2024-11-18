@@ -1,6 +1,6 @@
-import React, {createContext, useState, useEffect} from 'react';
-import {loginUser, registerUser, getProfile} from '../services/auth';
-import {useNavigate} from "react-router-dom";
+import React, {createContext, useEffect, useState} from 'react';
+import {getProfile, loginUser, registerUser} from '../services/auth';
+import {useNavigate} from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -22,10 +22,12 @@ export const AuthProvider = ({children}) => {
     }, []);
 
     const login = async (credentials) => {
-        const userData = await loginUser(credentials);
-        setUser(userData);
-    };
+        await loginUser(credentials);
 
+        const userProfile = await getProfile(localStorage.getItem('token'));
+
+        setUser(userProfile);
+    };
 
     const register = async (data) => {
         await registerUser(data);
@@ -33,10 +35,8 @@ export const AuthProvider = ({children}) => {
 
     const logout = () => {
         setUser(null);
-
         localStorage.removeItem('token');
-
-        navigator('/login')
+        navigator('/login');
     };
 
     return (

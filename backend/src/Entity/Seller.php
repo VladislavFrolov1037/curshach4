@@ -23,7 +23,7 @@ class Seller
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
-    #[ORM\Column(type: "string", length: 30)]
+    #[ORM\Column(type: "string", length: 30, enumType: SellerStatus::class)]
     private ?SellerStatus $status = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -56,8 +56,14 @@ class Seller
     #[ORM\Column(length: 255)]
     private ?string $address = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $admin_comment = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $image = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $balance = null;
 
     public function __construct()
     {
@@ -239,6 +245,30 @@ class Seller
     public function setAdminComment(string $admin_comment): static
     {
         $this->admin_comment = $admin_comment;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getBalance(): ?string
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(string $balance): static
+    {
+        $this->balance = $balance;
 
         return $this;
     }

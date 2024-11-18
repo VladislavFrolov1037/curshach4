@@ -22,7 +22,7 @@ const Login = () => {
             navigate('/profile')
         } catch (e) {
             credentials.password = '';
-
+            console.log(e)
             setError(e.response.data.message);
         }
     };

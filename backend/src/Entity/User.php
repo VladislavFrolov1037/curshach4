@@ -38,9 +38,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 10)]
     private ?string $gender = null;
 
-    #[ORM\Column(length: 50, nullable: true)]
-    private ?string $card = null;
-
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $discount = null;
 
@@ -49,6 +46,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?bool $isSeller = null;
+
+    #[ORM\Column]
+    private ?array $address = [];
 
     public function getId(): ?int
     {
@@ -148,18 +148,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCard(): ?string
-    {
-        return $this->card;
-    }
-
-    public function setCard(?string $card): static
-    {
-        $this->card = $card;
-
-        return $this;
-    }
-
     public function getDiscount(): ?string
     {
         return $this->discount;
@@ -192,6 +180,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSeller(bool $isSeller): static
     {
         $this->isSeller = $isSeller;
+
+        return $this;
+    }
+
+    public function getAddress(): ?array
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?array $address): static
+    {
+        $this->address = $address;
 
         return $this;
     }

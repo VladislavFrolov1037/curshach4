@@ -20,12 +20,17 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\Security\AuthenticationSuccessHandler:
-        tags:
-            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccess }
     App\EventListener\ValidationExceptionListener:
         tags:
             - { name: 'kernel.event_listener', event: 'kernel.exception', method: 'onKernelException' }
 
+
+#    Normalizer
+    App\Serializer\Normalizer\UserNormalizer:
+        tags:
+            - { name: 'serializer.normalizer' }
+    App\Serializer\Normalizer\SellerNormalizer:
+        tags:
+            - { name: 'serializer.normalizer' }
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

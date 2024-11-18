@@ -10,6 +10,7 @@ function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/become-seller" element={<Profile />} />
         </Routes>
     );
 }

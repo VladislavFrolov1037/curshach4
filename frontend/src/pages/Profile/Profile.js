@@ -24,10 +24,10 @@ const Profile = () => {
                             <h5>Основная информация</h5>
                             <p><strong>Почта:</strong> {user.email}</p>
                             <p><strong>Имя:</strong> {user.name}</p>
-                            <p><strong>Пол:</strong> {user.gender}</p>
+                            <p><strong>Пол:</strong> {user.gender === 'male' ? 'Мужчина' : 'Женщина'}</p>
                             <p><strong>Телефон:</strong> {user.phone || 'Не указан'}</p>
-                            <p><strong>Привязанная карта:</strong> {user.card || 'Не указана'}</p>
                             <p><strong>Текущая скидка:</strong> {user.discount || '0%'}</p>
+                            <p><strong>Адрес</strong> {user.address || 'Адрес не указан'}</p>
                         </div>
                         {!user.isSeller && (
                             <Link to="/become-seller" className="btn btn-primary w-100 mt-3">

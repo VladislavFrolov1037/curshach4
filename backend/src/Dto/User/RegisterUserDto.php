@@ -2,10 +2,8 @@
 
 namespace App\Dto\User;
 
-use App\Repository\UserRepository;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use App\Validator as AcmeAssert;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class RegisterUserDto
 {
