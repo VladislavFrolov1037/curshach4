@@ -2,7 +2,7 @@ import React, {createContext, useEffect, useState} from 'react';
 import {getProfile, loginUser, registerUser} from '../services/auth';
 import {useNavigate} from 'react-router-dom';
 
-const AuthContext = createContext();
+const  AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
@@ -24,7 +24,7 @@ export const AuthProvider = ({children}) => {
     const login = async (credentials) => {
         await loginUser(credentials);
 
-        const userProfile = await getProfile(localStorage.getItem('token'));
+        const userProfile = await getProfile();
 
         setUser(userProfile);
     };

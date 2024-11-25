@@ -17,7 +17,7 @@ class UniqueEmailValidator extends ConstraintValidator
 
     public function validate($value, Constraint $constraint)
     {
-       if ($this->userRepository->findOneBy(['email' => $value])) {
+        if ($this->userRepository->findOneBy(['email' => $value])) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)
                 ->addViolation();

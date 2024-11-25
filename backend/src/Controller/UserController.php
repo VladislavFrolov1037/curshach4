@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Dto\User\EditUserDto;
 use App\Exception\ValidationException;
-use App\Repository\UserRepository;
 use App\Services\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,15 +20,13 @@ class UserController extends AbstractController
 {
     private SerializerInterface $serializer;
     private ValidatorInterface $validator;
-    private UserRepository $userRepository;
     private EntityManagerInterface $entityManager;
     private UserService $userService;
 
-    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, UserRepository $userRepository, EntityManagerInterface $entityManager, UserService $userService)
+    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, UserService $userService)
     {
         $this->serializer = $serializer;
         $this->validator = $validator;
-        $this->userRepository = $userRepository;
         $this->entityManager = $entityManager;
         $this->userService = $userService;
     }
@@ -43,23 +40,12 @@ class UserController extends AbstractController
             return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->json([
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'name' => $user->getName(),
-            'gender' => $user->getGender(),
-            'discount' => $user->getDiscount(),
-            'phone' => $user->getPhone(),
-            'isSeller' => $user->isSeller(),
-            'address' => $user->getAddress(),
-        ]);
+        return $this->json($user);
     }
 
     #[Route('/api/user/profile', name: 'edit_user_profile', methods: ['PATCH'])]
-    public function editUserProfile(Request $request)
+    public function editUserProfile(Request $request): JsonResponse
     {
-        $user = $this->getUser();
-
         $dto = $this->serializer->deserialize($request->getContent(), EditUserDto::class, 'json');
         $errors = $this->validator->validate($dto);
 
@@ -67,10 +53,10 @@ class UserController extends AbstractController
             throw new ValidationException($errors);
         }
 
-        $this->userService->updateUser($dto);
+        $user = $this->userService->updateUser($dto);
 
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Профиль успешно обновлен'], 200);
+        return $this->json($user);
     }
 }

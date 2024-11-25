@@ -54,6 +54,9 @@ function Header() {
                                 {user ? (
                                     <>
                                         <Link className="dropdown-item" to="/profile">Личный кабинет</Link>
+                                        {user.isSeller && (
+                                            <Link className="dropdown-item" to="/seller">Профиль продавца</Link>
+                                        )}
                                         <div className="dropdown-divider"></div>
                                         <button className="dropdown-item" onClick={logout}>Выйти</button>
                                     </>

@@ -7,16 +7,22 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class UserNormalizer implements NormalizerInterface
 {
-    public function supportsNormalization($data, string $format = null, array $context = []): bool
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof User;
     }
 
-    public function normalize($object, string $format = null, array $context = []): array
+    public function normalize($object, ?string $format = null, array $context = []): array
     {
         return [
             'id' => $object->getId(),
             'name' => $object->getName(),
+            'email' => $object->getEmail(),
+            'gender' => $object->getGender(),
+            'discount' => $object->getDiscount(),
+            'phone' => $object->getPhone(),
+            'createdAt' => $object->getCreatedAt()->format('d.m.Y H:i:s'),
+            'isSeller' => $object->isSeller(),
         ];
     }
 

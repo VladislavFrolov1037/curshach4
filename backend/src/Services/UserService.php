@@ -30,31 +30,27 @@ class UserService
             ->setName($dto->name)
             ->setGender($dto->gender ?? null)
             ->setPhone($dto->phone ?? null)
-            ->setSeller(false);
+            ->setCreatedAt(new \DateTimeImmutable());
     }
 
     public function updateUser(EditUserDto $dto): ?UserInterface
     {
         $user = $this->security->getUser();
 
-        if ($dto->getEmail() !== null) {
+        if (null !== $dto->getEmail()) {
             $user->setEmail($dto->getEmail());
         }
 
-        if ($dto->getName() !== null) {
+        if (null !== $dto->getName()) {
             $user->setName($dto->getName());
         }
 
-        if ($dto->getGender() !== null) {
+        if (null !== $dto->getGender()) {
             $user->setGender($dto->getGender());
         }
 
-        if ($dto->getPhone() !== null) {
+        if (null !== $dto->getPhone()) {
             $user->setPhone($dto->getPhone());
-        }
-
-        if ($dto->getAddress() !== null) {
-            $user->setAddress($dto->getAddress());
         }
 
         return $user;

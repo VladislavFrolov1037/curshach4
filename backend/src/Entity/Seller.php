@@ -23,7 +23,7 @@ class Seller
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
-    #[ORM\Column(type: "string", length: 30, enumType: SellerStatus::class)]
+    #[ORM\Column(type: 'string', length: 30, enumType: SellerStatus::class)]
     private ?SellerStatus $status = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]

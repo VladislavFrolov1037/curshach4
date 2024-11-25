@@ -2,26 +2,24 @@
 
 namespace App\Services;
 
+use App\Dto\Seller\EditSellerDto;
 use App\Dto\Seller\RegisterSellerDto;
 use App\Entity\Seller;
 use App\Enum\SellerStatus;
+use App\Utils\EntityMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class SellerService
 {
-    private EntityManagerInterface $entityManager;
-    private Security $security;
-
-    public function __construct(EntityManagerInterface $entityManager, Security $security)
+    public function __construct(private EntityManagerInterface $em, private EntityMapper $entityMapper, private FileService $fileService)
     {
-        $this->entityManager = $entityManager;
-        $this->security = $security;
     }
 
-    public function createSeller(RegisterSellerDto $dto): Seller
+    public function createSeller(RegisterSellerDto $dto, UserInterface $user): Seller
     {
-        $user = $this->security->getUser();
+        $user->setRoles(['ROLE_SELLER']);
 
         $seller = (new Seller())
             ->setName($dto->name)
@@ -34,12 +32,22 @@ class SellerService
             ->setPhone($dto->phone)
             ->setEmail($dto->email)
             ->setAddress($dto->address)
-            ->setImage($dto->image)
+            ->setImage($this->fileService->upload($dto->image))
             ->setBalance(0);
 
-        $this->entityManager->persist($seller);
+        $this->em->persist($user);
+        $this->em->persist($seller);
+        $this->em->flush();
 
-        $this->entityManager->flush();
+        return $seller;
+    }
+
+    public function editSeller(EditSellerDto $dto, Seller $seller): Seller
+    {
+        $this->entityMapper->mapDtoToEntity($dto, $seller);
+
+        $this->em->persist($seller);
+        $this->em->flush();
 
         return $seller;
     }

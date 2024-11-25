@@ -3,9 +3,9 @@
 namespace App\EventListener;
 
 use App\Exception\ValidationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class ValidationExceptionListener
@@ -29,6 +29,7 @@ class ValidationExceptionListener
             $field = explode('.', $error->getPropertyPath())[1] ?? $error->getPropertyPath();
             $errorMessages[$field] = $error->getMessage();
         }
+
         return $errorMessages;
     }
 }

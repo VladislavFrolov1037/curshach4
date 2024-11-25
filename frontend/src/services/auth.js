@@ -13,12 +13,18 @@ export const registerUser = async (data) => {
 };
 
 export const getProfile = async () => {
-    const token = localStorage.getItem('token');
+    try {
+        const response = await axios.get('/profile');
 
-    if (!token) return null;
+        return response.data;
+    } catch (e) {
+        return null;
+    }
+};
 
-    const response = await axios.get('/profile', {
-        headers: {Authorization: `Bearer ${token}`}
-    });
+export const editProfile = async (data) => {
+    console.log(data)
+    const response = await axios.patch('/user/profile', data);
+
     return response.data;
 };

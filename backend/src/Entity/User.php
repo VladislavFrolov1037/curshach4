@@ -45,10 +45,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phone = null;
 
     #[ORM\Column]
-    private ?bool $isSeller = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    private ?array $address = [];
+    #[ORM\OneToOne(targetEntity: Seller::class, mappedBy: 'user')]
+    private ?Seller $seller = null;
 
     public function getId(): ?int
     {
@@ -79,6 +79,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @see UserInterface
+     *
      * @return list<string>
      */
     public function getRoles(): array
@@ -172,27 +173,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isSeller(): ?bool
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->isSeller;
+        return $this->createdAt;
     }
 
-    public function setSeller(bool $isSeller): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->isSeller = $isSeller;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getAddress(): ?array
+    public function isSeller(): bool
     {
-        return $this->address;
+        return in_array('ROLE_SELLER', $this->getRoles());
     }
 
-    public function setAddress(?array $address): static
+    public function getSeller(): ?Seller
     {
-        $this->address = $address;
-
-        return $this;
+        return $this->seller;
     }
 }

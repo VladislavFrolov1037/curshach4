@@ -2,8 +2,8 @@
 
 namespace App\Dto\User;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator as AcmeAssert;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class EditUserDto
 {
