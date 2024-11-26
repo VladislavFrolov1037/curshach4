@@ -20,8 +20,8 @@ class UserFixtures extends Fixture
     {
         $user = new User();
         $manager->persist($user
-            ->setEmail("admin@bk.ru")
-            ->setRoles(["ROLE_ADMIN"])
+            ->setEmail('admin@bk.ru')
+            ->setRoles(['ROLE_ADMIN'])
             ->setPassword($this->hasher->hashPassword($user, 'admin'))
             ->setName('admin')
             ->setGender('male')
@@ -31,8 +31,8 @@ class UserFixtures extends Fixture
 
         $user = new User();
         $manager->persist($user
-            ->setEmail("vladoperation@bk.ru")
-            ->setRoles(["ROLE_USER"])
+            ->setEmail('vladoperation@bk.ru')
+            ->setRoles(['ROLE_USER'])
             ->setPassword($this->hasher->hashPassword($user, '1'))
             ->setName('vladislav')
             ->setGender('male')

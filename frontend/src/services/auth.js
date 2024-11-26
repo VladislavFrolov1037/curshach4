@@ -23,7 +23,6 @@ export const getProfile = async () => {
 };
 
 export const editProfile = async (data) => {
-    console.log(data)
     const response = await axios.patch('/user/profile', data);
 
     return response.data;

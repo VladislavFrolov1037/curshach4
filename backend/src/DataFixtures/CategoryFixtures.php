@@ -10,12 +10,12 @@ class CategoryFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-//        $category = new Category();
-//
-//
-//
-//         $manager->persist();
-//
-//        $manager->flush();
+        //        $category = new Category();
+        //
+        //
+        //
+        //         $manager->persist();
+        //
+        //        $manager->flush();
     }
 }

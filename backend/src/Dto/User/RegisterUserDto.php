@@ -13,7 +13,7 @@ class RegisterUserDto
     public string $email;
 
     #[Assert\NotBlank()]
-    #[Assert\Length(min: 6, minMessage: 'Минимальная длина пароля 8 символов')]
+    #[Assert\Length(min: 6, minMessage: 'Минимальная длина пароля 6 символов')]
     public string $password;
 
     #[Assert\NotBlank()]

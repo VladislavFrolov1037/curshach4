@@ -1,11 +1,13 @@
 import React, {useContext, useState} from 'react';
 import AuthContext from '../../context/AuthContext';
 import {useNavigate} from "react-router-dom";
+import Loader from "../../components/Loader";
 
 const Login = () => {
     const {login} = useContext(AuthContext);
     const [credentials, setCredentials] = useState({email: '', password: ''});
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -17,15 +19,25 @@ const Login = () => {
         e.preventDefault();
 
         try {
+            setLoading(true);
+
             await login(credentials);
 
             navigate('/profile')
         } catch (e) {
+            setLoading(false);
+
             credentials.password = '';
-            console.log(e)
+
             setError(e.response.data.message);
         }
     };
+
+    if (loading) {
+        return (
+            <Loader />
+        )
+    }
 
     return (
         <div className="container mt-5 d-flex justify-content-center">

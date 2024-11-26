@@ -42,6 +42,6 @@ class RegisterSellerDto
     public ?string $address = null;
 
     #[Assert\NotBlank()]
-    #[Assert\Image(mimeTypes: ["image/jpeg", "image/png"], mimeTypesMessage: "Файл должен быть изображением в формате JPEG или PNG.")]
+    #[Assert\Image(mimeTypes: ['image/jpeg', 'image/png'], mimeTypesMessage: 'Файл должен быть изображением в формате JPEG или PNG.')]
     public ?UploadedFile $image = null;
 }

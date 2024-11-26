@@ -1,25 +1,27 @@
 import React, { useState } from "react";
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
+import styles from './style.css';
 
 export default function UniversalModal({
-                                           title = "Модальное окно", // Заголовок окна
-                                           buttonLabel = "Открыть модальное окно", // Текст кнопки
-                                           buttonIcon = "pi pi-pencil", // Иконка кнопки
-                                           buttonClass = "p-button-primary mt-3", // Классы кнопки
-                                           children, // Содержание модального окна
-                                           footer, // Пользовательский футер
-                                           onConfirm = () => {}, // Callback при нажатии "Сохранить"
-                                           onCancel = () => {}, // Callback при закрытии
+                                           title = "Модальное окно",
+                                           buttonLabel = "Открыть модальное окно",
+                                           buttonIcon = "pi pi-pencil",
+                                           buttonClass = "p-button-primary mt-3 custom-button",
+                                           children,
+                                           footer,
+                                           onConfirm = () => false,
+                                           onCancel = () => {},
                                        }) {
     const [visible, setVisible] = useState(false);
 
-    const handleConfirm = (e) => {
+    const handleConfirm = async (e) => {
         e.preventDefault();
 
-        onConfirm();
-
-        setVisible(false);
+        const shouldClose = await onConfirm();
+        if (shouldClose) {
+            setVisible(false);
+        }
     };
 
     const handleCancel = () => {
@@ -38,7 +40,7 @@ export default function UniversalModal({
 
     return (
         <>
-            <Button label={buttonLabel} icon={buttonIcon} onClick={show} className={buttonClass} />
+            <Button label={buttonLabel} icon={buttonIcon} onClick={show} className={`${buttonClass} ${styles.customButton}`} />
             <Dialog
                 header={title}
                 visible={visible}

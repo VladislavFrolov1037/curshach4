@@ -10,6 +10,8 @@ export const getSeller = async () => {
     return response.data;
 }
 
-export const editSeller = async (data) => {
-    const response = await axios.post('/seller/seller', data);
+export const editSeller = async (id, data) => {
+    const response = await axios.patch(`/seller/${id}`, data);
+
+    return response.data;
 }

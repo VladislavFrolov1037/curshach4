@@ -6,10 +6,14 @@ import AuthContext from "../../context/AuthContext";
 import {Link} from 'react-router-dom';
 import UniversalModal from "../../components/modals/UniversalModal";
 import {editProfile} from "../../services/auth";
-import data from "bootstrap/js/src/dom/data";
+import {filterChangedFields} from "../../utils/objectUtils";
+import Loader from "../../components/Loader";
+import Error from "../../components/Error";
 
 const Profile = () => {
-    const {user, logout} = useContext(AuthContext);
+    const {user, updateUser, logout} = useContext(AuthContext);
+
+    const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
         name: '',
@@ -30,7 +34,7 @@ const Profile = () => {
     }, [user]);
 
     if (!user) {
-        return <div>Загрузка...</div>;
+        return <Loader />;
     }
 
     const handleChange = (e) => {
@@ -40,10 +44,15 @@ const Profile = () => {
 
     const handleSubmit = async () => {
         try {
-            console.log(formData)
-            const response = await editProfile(formData);
+            setErrors('');
+
+            const response = await editProfile(filterChangedFields(formData, user));
+
+            updateUser(response);
+
+            return true;
         } catch (e) {
-            console.log(e.response)
+           setErrors(e.response.data.errors)
         }
     }
 
@@ -68,7 +77,6 @@ const Profile = () => {
                         <UniversalModal
                             title="Редактировать профиль"
                             buttonLabel="Редактировать профиль"
-                            buttonIcon="pi pi-user-edit"
                             onConfirm={handleSubmit}
                         >
                             <form>
@@ -77,42 +85,45 @@ const Profile = () => {
                                     <input
                                         type="text"
                                         id="name"
-                                        className="form-control"
+                                        className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                                         name="name"
                                         value={formData.name}
                                         placeholder="Введите имя"
                                         onChange={handleChange}
                                     />
+                                    {errors.name && <Error error={errors.name} />}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="email" className="form-label">Почта</label>
                                     <input
                                         type="email"
                                         id="email"
-                                        className="form-control"
+                                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                                         name="email"
                                         placeholder="Введите почту"
                                         onChange={handleChange}
                                         value={formData.email}
                                     />
+                                    {errors.email && <Error error={errors.email} />}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="phone" className="form-label">Телефон</label>
                                     <input
                                         type="text"
                                         id="phone"
-                                        className="form-control"
+                                        className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                                         placeholder="Введите телефон"
                                         name="phone"
                                         onChange={handleChange}
                                         value={formData.phone}
                                     />
+                                    {errors.phone && <Error error={errors.phone} />}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="gender" className="form-label">Пол</label>
                                     <select
                                         id="gender"
-                                        className="form-select"
+                                        className={`form-select ${errors.gender ? 'is-invalid' : ''}`}
                                         name="gender"
                                         onChange={handleChange}
                                         value={formData.gender}
@@ -120,6 +131,7 @@ const Profile = () => {
                                         <option value="male">Мужчина</option>
                                         <option value="female">Женщина</option>
                                     </select>
+                                    {errors.gender && <Error error={errors.gender} />}
                                 </div>
                             </form>
                         </UniversalModal>

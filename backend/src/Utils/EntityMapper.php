@@ -12,13 +12,12 @@ class EntityMapper
         foreach ($reflectionDto->getProperties() as $property) {
             $value = $property->getValue($dto);
 
-            if ($value !== null) {
-                $setter = 'set' . ucfirst($property->getName());
+            if (null !== $value) {
+                $setter = 'set'.ucfirst($property->getName());
                 if ($reflectionEntity->hasMethod($setter)) {
                     $entity->$setter($value);
                 }
             }
         }
     }
-
 }

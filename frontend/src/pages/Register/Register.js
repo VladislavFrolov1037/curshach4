@@ -3,10 +3,13 @@ import AuthContext from '../../context/AuthContext';
 import {useNavigate} from "react-router-dom";
 import {InputMask} from 'primereact/inputmask';
 import {Password} from "primereact/password";
+import Loader from "../../components/Loader";
+import Error from "../../components/Error";
 
 const Register = () => {
     const {register} = useContext(AuthContext);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         email: '',
@@ -28,16 +31,26 @@ const Register = () => {
         e.preventDefault();
 
         try {
+            setLoading(true);
+
             await register(formData);
 
             navigate('/login');
         } catch (e) {
+            setLoading(false);
+
             formData.password = '';
             formData.confirmPassword = '';
 
             setErrors(e.response?.data.errors || {});
         }
     };
+
+    if (loading) {
+        return (
+            <Loader />
+        )
+    }
 
     return (
         <div className="container mt-5">
@@ -58,7 +71,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                                    {errors.email && <Error error={errors.email} />}
                                 </div>
 
                                 <div className="mb-3">
@@ -72,7 +85,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                                    {errors.name && <Error error={errors.name} />}
                                 </div>
 
                                 <div className="mb-3">
@@ -89,7 +102,7 @@ const Register = () => {
                                         <option value="male">Мужской</option>
                                         <option value="female">Женский</option>
                                     </select>
-                                    {errors.gender && <div className="invalid-feedback">{errors.gender}</div>}
+                                    {errors.gender && <Error error={errors.gender} />}
                                 </div>
 
                                 <div className="mb-3">
@@ -100,7 +113,7 @@ const Register = () => {
                                         value={formData.phone} onChange={handleChange} mask="89999999999"
                                         placeholder="89999999999"
                                     />
-                                    {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                                    {errors.phone && <Error error={errors.phone} />}
                                 </div>
 
                                 <div className="mb-3">
@@ -113,8 +126,13 @@ const Register = () => {
                                         value={formData.password}
                                         onChange={handleChange}
                                         required
+                                        promptLabel="Введите пароль"
+                                        weakLabel="Слишком простой"
+                                        mediumLabel="Средняя сложность"
+                                        strongLabel="Сложный пароль"
+                                        toggleMask
                                     />
-                                    {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                                    {errors.password && <Error error={errors.password} />}
                                 </div>
 
                                 <div className="mb-3">
@@ -128,8 +146,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.confirmPassword &&
-                                        <div className="invalid-feedback">{errors.confirmPassword}</div>}
+                                    {errors.confirmPassword && <Error error={errors.confirmPassword} />}
                                 </div>
 
                                 <button type="submit" className="btn btn-primary w-100">Зарегистрироваться</button>

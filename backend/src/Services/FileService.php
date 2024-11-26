@@ -15,10 +15,10 @@ class FileService
 
     public function upload(UploadedFile $file): string
     {
-        $fileName = uniqid() . '.' . $file->guessExtension();
+        $fileName = uniqid().'.'.$file->guessExtension();
 
         $file->move($this->uploadDir, $fileName);
 
-        return 'uploads/' . $fileName;
+        return 'uploads/'.$fileName;
     }
 }

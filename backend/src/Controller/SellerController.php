@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Dto\Seller\EditSellerDto;
 use App\Dto\Seller\RegisterSellerDto;
+use App\Entity\Seller;
 use App\Exception\ValidationException;
 use App\Repository\SellerRepository;
 use App\Services\FileService;
@@ -74,5 +76,21 @@ class SellerController extends AbstractController
         $seller = $this->sellerService->createSeller($dto, $user);
 
         return $this->json($seller, Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/seller/{id}', name: 'edit_seller', methods: ['PATCH'])]
+    public function editSeller(Request $request, Seller $seller): JsonResponse
+    {
+        $dto = $this->serializer->deserialize($request->getContent(), EditSellerDto::class, 'json');
+
+        $errors = $this->validator->validate($dto);
+
+        if (count($errors) > 0) {
+            throw new ValidationException($errors);
+        }
+
+        $this->sellerService->editSeller($dto, $seller);
+
+        return $this->json($seller);
     }
 }

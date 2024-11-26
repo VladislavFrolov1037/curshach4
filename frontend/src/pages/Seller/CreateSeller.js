@@ -45,7 +45,7 @@ const CreateSeller = () => {
         try {
             await registerSeller(data);
 
-            // navigate('/seller/profile');
+            navigate('/seller');
         } catch (e) {
             console.log(e.response);
             setErrors(e.response.data.errors || {});

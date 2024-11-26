@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+.custom-error-container {
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px;
+}
+
+.p-message {
+  background-color: transparent !important;
+  color: #ff0000 !important;
+  border: none !important;
+  font-size: 1rem;
+}
+
+.p-message-icon {
+  display: none;
+}
+
+.p-password .p-inputtext {
+  width: 100% !important;
+}

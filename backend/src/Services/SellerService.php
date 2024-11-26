@@ -8,7 +8,6 @@ use App\Entity\Seller;
 use App\Enum\SellerStatus;
 use App\Utils\EntityMapper;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class SellerService
