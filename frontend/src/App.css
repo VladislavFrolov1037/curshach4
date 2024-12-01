@@ -54,6 +54,10 @@
   display: none;
 }
 
-.p-password .p-inputtext {
+.prime-react-password {
   width: 100% !important;
+}
+
+.p-icon-field {
+  width: 100%;
 }

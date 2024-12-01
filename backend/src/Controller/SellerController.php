@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -53,19 +55,9 @@ class SellerController extends AbstractController
             return $this->json(['error' => 'Вы уже зарегистрированы как продавец.'], Response::HTTP_CONFLICT);
         }
 
-        $dto = new RegisterSellerDto();
-        $dto->email = $request->request->get('email');
-        $dto->name = $request->request->get('name');
-        $dto->description = $request->request->get('description');
-        $dto->type = $request->request->get('type');
-        $dto->phone = $request->request->get('phone');
-        $dto->taxId = $request->request->get('tax_id');
+        $serializer = new Serializer([new ObjectNormalizer()]);
+        $dto = $serializer->denormalize($request->request->all(), RegisterSellerDto::class);
 
-        if ($request->request->get('passport')) {
-            $dto->passport = $request->request->get('passport');
-        }
-
-        $dto->address = $request->request->get('address');
         $dto->image = $request->files->get('image');
 
         $errors = $this->validator->validate($dto);
@@ -81,7 +73,10 @@ class SellerController extends AbstractController
     #[Route('/api/seller/{id}', name: 'edit_seller', methods: ['PATCH'])]
     public function editSeller(Request $request, Seller $seller): JsonResponse
     {
-        $dto = $this->serializer->deserialize($request->getContent(), EditSellerDto::class, 'json');
+        $serializer = new Serializer([new ObjectNormalizer()]);
+
+        $dto = $serializer->denormalize($request->request->all(), EditSellerDto::class);
+        $dto->image = $request->files->get('image');
 
         $errors = $this->validator->validate($dto);
 

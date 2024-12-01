@@ -1,5 +1,4 @@
 import axios from 'axios';
-import login from "../pages/Login/Login";
 
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:8000/api',
@@ -24,7 +23,7 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            if (!error.config.url.includes('/login')) {
+            if (!error.config.url.includes('/login') || !error.config.url.includes('/register')) {
                 localStorage.removeItem('token');
                 if (window.location.pathname !== '/login') {
                     window.location.href = '/login';

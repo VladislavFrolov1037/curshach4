@@ -2,13 +2,21 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
-use Doctrine\DBAL\Types\Types;
+use App\Enum\ProductStatus;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[ORM\Entity]
 class Product
 {
+
+    public function __construct()
+    {
+        $this->attributes = new ArrayCollection();
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -20,7 +28,7 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     private ?string $price = null;
 
     #[ORM\Column]
@@ -29,8 +37,17 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $image = null;
 
-    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
+    private ?Category $category = null;
+
+    #[ORM\ManyToOne(targetEntity: Seller::class, inversedBy: 'products')]
     private ?Seller $seller = null;
+
+    #[ORM\OneToMany(targetEntity: ProductAttribute::class, mappedBy: 'product', cascade: ['remove'])]
+    private Collection $attributes;
+
+    #[ORM\Column(length: 30)]
+    private ?string $status = null;
 
     public function getId(): ?int
     {
@@ -82,6 +99,10 @@ class Product
     {
         $this->quantity = $quantity;
 
+        if ($this->quantity <= 0) {
+            $this->status = ProductStatus::STATUS_OUT_OF_STOCK;
+        }
+
         return $this;
     }
 
@@ -105,6 +126,40 @@ class Product
     public function setSeller(?Seller $seller): static
     {
         $this->seller = $seller;
+
+        return $this;
+    }
+
+    public function getAttributes(): ArrayCollection|Collection
+    {
+        return $this->attributes;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function isOwnedBy(UserInterface $user): bool
+    {
+        return $this->getSeller()->getId() === $user->getSeller()->getId();
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

@@ -33,7 +33,7 @@ function Header() {
                 </button>
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav">
-                        {['Каталог', 'О нас', 'Избранное', 'Корзина', 'Заказы'].map((item, index) => (
+                        {['Каталог', 'Избранное', 'Корзина'].map((item, index) => (
                             <li className="nav-item" key={index}>
                                 <Link className="nav-link" to="/">{item}</Link>
                             </li>
@@ -55,7 +55,10 @@ function Header() {
                                     <>
                                         <Link className="dropdown-item" to="/profile">Личный кабинет</Link>
                                         {user.isSeller && (
-                                            <Link className="dropdown-item" to="/seller">Профиль продавца</Link>
+                                            <>
+                                                <Link className="dropdown-item" to="/seller">Профиль продавца</Link>
+                                                <Link className="dropdown-item" to="/my-products">Мои товары</Link>
+                                            </>
                                         )}
                                         <div className="dropdown-divider"></div>
                                         <button className="dropdown-item" onClick={logout}>Выйти</button>

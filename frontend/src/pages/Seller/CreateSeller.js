@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import {InputMask} from "primereact/inputmask";
 import {registerSeller} from "../../services/seller";
+import seller from "./Seller";
 
 const CreateSeller = () => {
     const navigate = useNavigate();
@@ -47,7 +48,6 @@ const CreateSeller = () => {
 
             navigate('/seller');
         } catch (e) {
-            console.log(e.response);
             setErrors(e.response.data.errors || {});
         }
     };
@@ -131,14 +131,11 @@ const CreateSeller = () => {
 
                                 <div className="mb-3">
                                     <label htmlFor="tax_id" className="form-label">ИНН</label>
-                                    <input
-                                        type="text"
-                                        id="tax_id"
-                                        name="tax_id"
-                                        className={`form-control ${errors.tax_id ? 'is-invalid' : ''}`}
-                                        value={formData.tax_id}
-                                        onChange={handleChange}
-                                        required
+                                    <InputMask
+                                        type="text" id="tax_id" name="tax_id"
+                                        className={`form-control ${errors.tax_id ? 'is-invalid' : ''}`} required
+                                        value={formData.tax_id} onChange={handleChange} mask={seller.type === "individual" ? "999999999999" : "9999999999"}
+                                        placeholder="ИНН"
                                     />
                                     {errors.tax_id && <div className="invalid-feedback">{errors.tax_id}</div>}
                                 </div>
@@ -146,14 +143,11 @@ const CreateSeller = () => {
                                 {(formData.type === 'individual' || formData.type === '') && (
                                     <div className="mb-3">
                                         <label htmlFor="passport" className="form-label">Паспорт</label>
-                                        <input
-                                            type="text"
-                                            id="passport"
-                                            name="passport"
-                                            className={`form-control ${errors.passport ? 'is-invalid' : ''}`}
-                                            value={formData.passport}
-                                            onChange={handleChange}
-                                            required
+                                        <InputMask
+                                            type="text" id="passport" name="passport"
+                                            className={`form-control ${errors.passport ? 'is-invalid' : ''}`} required
+                                            value={formData.passport} onChange={handleChange} mask="9999 999999"
+                                            placeholder="Паспорт"
                                         />
                                         {errors.passport && <div className="invalid-feedback">{errors.passport}</div>}
                                     </div>
@@ -168,6 +162,7 @@ const CreateSeller = () => {
                                         className={`form-control ${errors.address ? 'is-invalid' : ''}`}
                                         value={formData.address}
                                         onChange={handleChange}
+                                        placeholder="Город, улица дом"
                                         required
                                     />
                                     {errors.address && <div className="invalid-feedback">{errors.address}</div>}

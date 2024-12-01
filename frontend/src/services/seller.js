@@ -1,6 +1,7 @@
 import axios from '../services/axiosInstance';
 
 export const registerSeller = async (data) => {
+    console.log(data)
     await axios.post('/seller/become', data);
 }
 
@@ -11,7 +12,17 @@ export const getSeller = async () => {
 }
 
 export const editSeller = async (id, data) => {
-    const response = await axios.patch(`/seller/${id}`, data);
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+    });
+
+    const response = await axios.post(`/seller/${id}?_method=PATCH`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
 
     return response.data;
-}
+};

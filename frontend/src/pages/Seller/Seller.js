@@ -5,10 +5,12 @@ import UniversalModal from "../../components/modals/UniversalModal";
 import {filterChangedFields} from "../../utils/objectUtils";
 import Loader from "../../components/Loader";
 import Error from "../../components/Error";
+import {getSellerProducts} from "../../services/product";
+import Card from "../../components/Card/Card";
 
 const Seller = () => {
     const [seller, setSeller] = useState(null);
-    const [listings, setListings] = useState([]);
+    const [products, setProducts] = useState([]);
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
@@ -20,13 +22,9 @@ const Seller = () => {
 
         setFormData(sellerData);
 
-        setLoading(false);
+        setProducts(await getSellerProducts(sellerData.id));
 
-        // Если продавец имеет объявления, мы их подтягиваем
-        if (sellerData && sellerData.id) {
-            const listingsData = await getSellerListings(sellerData.id); // Функция для получения объявлений
-            setListings(listingsData);
-        }
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -54,33 +52,7 @@ const Seller = () => {
     }
 
     const getSellerListings = async (sellerId) => {
-        // Здесь пока условие на случай, если объявлений нет
-        return sellerId ? [
-            {
-                id: 1,
-                name: "Продажа телевизора",
-                description: "Телевизор LG 42 дюйма",
-                price: "15000 ₽",
-                quantity: 10,
-                image: "https://via.placeholder.com/200x150"
-            },
-            {
-                id: 2,
-                name: "Продажа смартфона",
-                description: "iPhone 13, 128GB",
-                price: "25000 ₽",
-                quantity: 5,
-                image: "https://via.placeholder.com/200x150"
-            },
-            {
-                id: 3,
-                name: "Продажа ноутбука",
-                description: "Ноутбук ASUS, 16GB RAM",
-                price: "35000 ₽",
-                quantity: 2,
-                image: "https://via.placeholder.com/200x150"
-            }
-        ] : [];
+        return await getSellerProducts(sellerId);
     };
 
     if (loading) {
@@ -139,7 +111,8 @@ const Seller = () => {
                                 buttonLabel="Редактировать профиль"
                                 onConfirm={handleSubmit}
                             >
-                                <form>
+                                <form encType="multipart/form-data">
+                                    <input type="hidden" name="_method" value="PATCH"/>
                                     <div className="mb-3">
                                         <label htmlFor="name" className="form-label">Имя</label>
                                         <input
@@ -241,42 +214,16 @@ const Seller = () => {
                 </div>
             </div>
 
-            {/* Блок с карточками товаров */}
             <div className="mt-5">
                 <h3>Ваши товары</h3>
-                {listings.length > 0 ? (
-                    <div className="row">
-                        {listings.map((listing) => (
-                            <div key={listing.id} className="col-md-4 mb-4">
-                                <div className="card h-100">
-                                    <img
-                                        src={listing.image}
-                                        className="card-img-top"
-                                        alt={listing.name}
-                                        style={{maxHeight: "200px", objectFit: "cover"}}
-                                    />
-                                    <div className="card-body">
-                                        <h5 className="card-title">{listing.name}</h5>
-                                        <p className="card-text">{listing.description}</p>
-                                        <p className="card-text">
-                                            <strong>{listing.price}</strong>
-                                        </p>
-                                        <p className="card-text">
-                                            <small>Остаток: {listing.quantity} шт.</small>
-                                        </p>
-                                    </div>
-                                    <div className="card-footer text-center">
-                                        <button className="btn btn-outline-success">Подробнее</button>
-                                    </div>
-                                </div>
-                            </div>
+                <div className="container py-5">
+                    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        {products.map((product) => (
+                            <Card product={product} key={product.id} />
                         ))}
                     </div>
-                ) : (
-                    <p>У вас нет товаров. <strong>Добавьте их, чтобы начать продавать!</strong></p>
-                )}
+                </div>
 
-                {/* Кнопка для перехода ко всем объявлениям */}
                 <div className="mt-3 text-center">
                     <button className="btn btn-primary">Перейти ко всем товарам</button>
                 </div>

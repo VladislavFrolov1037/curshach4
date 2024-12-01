@@ -48,7 +48,7 @@ const Register = () => {
 
     if (loading) {
         return (
-            <Loader />
+            <Loader/>
         )
     }
 
@@ -71,7 +71,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.email && <Error error={errors.email} />}
+                                    {errors.email && <Error error={errors.email}/>}
                                 </div>
 
                                 <div className="mb-3">
@@ -85,7 +85,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.name && <Error error={errors.name} />}
+                                    {errors.name && <Error error={errors.name}/>}
                                 </div>
 
                                 <div className="mb-3">
@@ -102,7 +102,7 @@ const Register = () => {
                                         <option value="male">Мужской</option>
                                         <option value="female">Женский</option>
                                     </select>
-                                    {errors.gender && <Error error={errors.gender} />}
+                                    {errors.gender && <Error error={errors.gender}/>}
                                 </div>
 
                                 <div className="mb-3">
@@ -113,28 +113,42 @@ const Register = () => {
                                         value={formData.phone} onChange={handleChange} mask="89999999999"
                                         placeholder="89999999999"
                                     />
-                                    {errors.phone && <Error error={errors.phone} />}
+                                    {errors.phone && <Error error={errors.phone}/>}
                                 </div>
 
                                 <div className="mb-3">
                                     <label htmlFor="password" className="form-label">Пароль</label>
-                                    <Password
-                                        type="password"
-                                        id="password"
-                                        name="password"
-                                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        required
-                                        promptLabel="Введите пароль"
-                                        weakLabel="Слишком простой"
-                                        mediumLabel="Средняя сложность"
-                                        strongLabel="Сложный пароль"
-                                        toggleMask
-                                    />
-                                    {errors.password && <Error error={errors.password} />}
+                                    <div style={{ display: 'flex', width: '100%' }}>
+                                        <Password
+                                            type="password"
+                                            id="password"
+                                            name="password"
+                                            pt={{
+                                                iconField: {
+                                                    root: {
+                                                        style: { width: "100%" },
+                                                    },
+                                                },
+                                                input: {
+                                                    style: { width: "100%" },
+                                                },
+                                                root: {
+                                                    style: { width: "100%" },
+                                                },
+                                            }}
+                                            className={`${errors.password ? 'is-invalid' : ''}`}
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            required
+                                            promptLabel="Введите пароль"
+                                            weakLabel="Слишком простой"
+                                            mediumLabel="Средняя сложность"
+                                            strongLabel="Сложный пароль"
+                                            toggleMask
+                                        />
+                                        {errors.password && <Error error={errors.password}/>}
+                                    </div>
                                 </div>
-
                                 <div className="mb-3">
                                     <label htmlFor="confirmPassword" className="form-label">Подтвердите пароль</label>
                                     <input
@@ -146,7 +160,7 @@ const Register = () => {
                                         onChange={handleChange}
                                         required
                                     />
-                                    {errors.confirmPassword && <Error error={errors.confirmPassword} />}
+                                    {errors.confirmPassword && <Error error={errors.confirmPassword}/>}
                                 </div>
 
                                 <button type="submit" className="btn btn-primary w-100">Зарегистрироваться</button>

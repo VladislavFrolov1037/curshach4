@@ -5,6 +5,8 @@ import Register from "./pages/Register/Register";
 import Profile from "./pages/Profile/Profile";
 import CreateSeller from "./pages/Seller/CreateSeller";
 import Seller from "./pages/Seller/Seller";
+import MyProducts from "./pages/Product/MyProducts";
+import ProductDetails from "./pages/Product/ProductDetails";
 
 function AppRoutes() {
     return (
@@ -14,6 +16,8 @@ function AppRoutes() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/become-seller" element={<CreateSeller />} />
             <Route path="/seller" element={<Seller />} />
+            <Route path="/my-products" element={<MyProducts />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
         </Routes>
     );
 }
