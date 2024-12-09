@@ -4,63 +4,80 @@ namespace App\DataFixtures;
 
 use App\Entity\Category;
 use App\Entity\CategoryAttribute;
-use App\Entity\Product;
-use App\Entity\ProductAttribute;
+use App\Entity\ValidValue;
+use App\Repository\CategoryAttributeRepository;
+use App\Repository\CategoryRepository;
+use App\Repository\ProductAttributeRepository;
+use App\Repository\SellerRepository;
+use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(private readonly CategoryRepository $categoryRepository, private readonly CategoryAttributeRepository $categoryAttributeRepository, private readonly UserPasswordHasherInterface $hasher, private readonly ProductAttributeRepository $productAttributeRepository, private readonly SellerRepository $sellerRepository, private readonly UserRepository $userRepository)
+    {
+    }
+
     public function load(ObjectManager $manager): void
     {
+        $userFixturess = new UserFixtures($this->hasher);
+        $userFixturess->load($manager);
+
+        $shoesCategory = new Category();
+        $shoesCategory->setName('Обувь');
+        $manager->persist($shoesCategory);
+
+        $manShoes = new Category();
+        $manShoes->setName('Мужская');
+        $manShoes->setParentCategory($shoesCategory);
+        $manager->persist($manShoes);
+
         $category = new Category();
-        $category->setName('Техника');
+        $category->setName('Кеды');
+        $category->setParentCategory($manShoes);
         $manager->persist($category);
+
+        $this->setAttributeModel('Бренд', true, $category, $manager, ['Adidas', 'Nike']);
+        $this->setAttributeModel('Размер обуви', true, $category, $manager, ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']);
+        $this->setAttributeModel('Цвет', true, $category, $manager);
+        $this->setAttributeModel('Материал', true, $category, $manager);
+
+        $category = new Category();
+        $category->setName('Кроссовки');
+        $category->setParentCategory($manShoes);
+        $manager->persist($category);
+
+        $this->setAttributeModel('Бренд', true, $category, $manager, ['Adidas', 'Nike']);
+        $this->setAttributeModel('Размер обуви', true, $category, $manager, ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']);
+        $this->setAttributeModel('Сезон', true, $category, $manager, ['Лето', 'Зима']);
+        $this->setAttributeModel('Цвет', true, $category, $manager);
+        $this->setAttributeModel('Материал', true, $category, $manager);
+
+
+        (new SellerFixtures($this->userRepository))->load($manager);
         $manager->flush();
 
-        $subcategory = new Category();
-        $subcategory->setName('Телефоны');
-        $subcategory->setParentCategory($category);
-        $manager->persist($subcategory);
-        $manager->flush();
+        $productFixtures = new ProductFixtures($this->categoryRepository, $this->categoryAttributeRepository, $this->productAttributeRepository, $this->sellerRepository);
+        $productFixtures->load($manager);
+    }
 
+    public function setAttributeModel(string $name, bool $isRequired, Category $category, ObjectManager $manager, ?array $values = null): void
+    {
         $attributeModel = new CategoryAttribute();
-        $attributeModel->setAttributeKey('Модель');
-        $attributeModel->setIsRequired(1);
-        $attributeModel->setCategory($subcategory);
+        $attributeModel->setAttributeKey($name);
+        $attributeModel->setIsRequired($isRequired);
+        $attributeModel->setCategory($category);
         $manager->persist($attributeModel);
-        $manager->flush();
 
-        $attributeBrand = new CategoryAttribute();
-        $attributeBrand->setAttributeKey('Марка');
-        $attributeBrand->setIsRequired(true);
-        $attributeBrand->setCategory($subcategory);
-        $manager->persist($attributeBrand);
-        $manager->flush();
-
-        $product = new Product();
-        $product->setName('iPhone 13');
-        $product->setDescription('Мощный смартфон с отличной камерой');
-        $product->setPrice(999.99);
-        $product->setQuantity(10);
-        $product->setImage('iphone13.jpg');
-        $product->setCategory($subcategory);
-        $manager->persist($product);
-        $manager->flush();
-
-        $productAttributeModel = new ProductAttribute();
-        $productAttributeModel->setAttributeKey('Модель');
-        $productAttributeModel->setValue('iPhone 13');
-        $productAttributeModel->setProduct($product);
-        $manager->persist($productAttributeModel);
-
-        $productAttributeBrand = new ProductAttribute();
-        $productAttributeBrand->setAttributeKey('Марка');
-        $productAttributeBrand->setValue('Apple');
-        $productAttributeBrand->setProduct($product);
-        $manager->persist($productAttributeBrand);
-        $manager->flush();
-
-        $manager->flush();
+        if ($values) {
+            foreach ($values as $value) {
+                $validValue = new ValidValue();
+                $validValue->setCategoryAttribute($attributeModel);
+                $validValue->setValue($value);
+                $manager->persist($validValue);
+            }
+        }
     }
 }

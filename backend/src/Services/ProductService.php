@@ -4,33 +4,34 @@ namespace App\Services;
 
 use App\Dto\Product\CreateProductDto;
 use App\Dto\Product\EditProductDto;
+use App\Entity\Image;
 use App\Entity\Product;
 use App\Entity\ProductAttribute;
+use App\Entity\ViewedProduct;
 use App\Enum\ProductStatus;
 use App\Exception\ValidationException;
 use App\Repository\CategoryAttributeRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductAttributeRepository;
+use App\Repository\ViewedProductRepository;
 use App\Utils\EntityMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProductService
 {
     public function __construct(
-        private EntityManagerInterface      $em,
-        private ValidatorInterface          $validator,
-        private FileService                 $fileService,
-        private Security                    $security,
+        private EntityManagerInterface $em,
+        private ValidatorInterface $validator,
+        private FileService $fileService,
+        private Security $security,
         private CategoryAttributeRepository $categoryAttributeRepository,
-        private CategoryRepository          $categoryRepository,
-        private readonly EntityMapper       $entityMapper, private readonly ProductAttributeRepository $productAttributeRepository,
-    )
-    {
+        private CategoryRepository $categoryRepository,
+        private readonly EntityMapper $entityMapper, private readonly ProductAttributeRepository $productAttributeRepository,
+        private ViewedProductRepository $viewedProductRepository,
+    ) {
     }
 
     public function createProduct(array $data): Product
@@ -45,7 +46,8 @@ class ProductService
         $dto->description = $data['description'] ?? null;
         $dto->price = $data['price'] ?? null;
         $dto->quantity = $data['quantity'] ?? null;
-        $dto->image = $data['image'] ?? null;
+        $dto->images = $data['images'] ?? null;
+        $dto->orders = $data['orders'] ?? null;
         $dto->categoryId = $data['categoryId'] ?? null;
 
         $errors = $this->validator->validate($dto);
@@ -75,12 +77,24 @@ class ProductService
             ->setDescription($dto->description)
             ->setPrice($dto->price)
             ->setQuantity($dto->quantity)
-            ->setImage($this->fileService->upload($dto->image))
             ->setSeller($this->security->getUser()->getSeller())
             ->setCategory($this->categoryRepository->find($dto->categoryId))
-            ->setStatus(ProductStatus::STATUS_AVAILABLE);
+            ->setStatus(ProductStatus::STATUS_AVAILABLE)
+            ->setViewsCount(0);
 
         $this->em->persist($product);
+
+        foreach ($dto->images as $index => $image) {
+            $filePath = $this->fileService->upload($image);
+            $order = $index + 1;
+
+            $productImage = (new Image())
+                ->setUrl($filePath)
+                ->setSequence($order)
+                ->setProduct($product);
+
+            $this->em->persist($productImage);
+        }
 
         $additionalProductAttributes = array_merge($additionalProductAttributes, $categoryAttributes);
 
@@ -116,5 +130,27 @@ class ProductService
         $this->em->flush();
 
         return $product;
+    }
+
+    public function registerView(Product $product): void
+    {
+        $user = $this->security->getUser();
+
+        if ($user) {
+            $viewedProduct = $this->viewedProductRepository->findOneBy(['product' => $product, 'user' => $user]);
+
+            if (!$viewedProduct) {
+                $viewedProduct = (new ViewedProduct())
+                ->setProduct($product)
+                ->setUser($user)
+                ->setViewedAt(new \DateTimeImmutable());
+
+                $this->em->persist($viewedProduct);
+
+                $product->setViewsCount($product->getViewsCount() + 1);
+
+                $this->em->flush();
+            }
+        }
     }
 }

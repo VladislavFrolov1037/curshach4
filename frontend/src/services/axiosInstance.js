@@ -23,7 +23,9 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            if (!error.config.url.includes('/login') || !error.config.url.includes('/register')) {
+            const requiresAuthRedirect = error.config.requiresAuthRedirect ?? true;
+
+            if (requiresAuthRedirect) {
                 localStorage.removeItem('token');
                 if (window.location.pathname !== '/login') {
                     window.location.href = '/login';
@@ -33,5 +35,6 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
 
 export default axiosInstance;

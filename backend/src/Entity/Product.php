@@ -15,6 +15,8 @@ class Product
     public function __construct()
     {
         $this->attributes = new ArrayCollection();
+        $this->images = new ArrayCollection();
+        $this->viewedProducts = new ArrayCollection();
     }
 
     #[ORM\Id]
@@ -34,9 +36,6 @@ class Product
     #[ORM\Column]
     private ?int $quantity = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $image = null;
-
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
     private ?Category $category = null;
 
@@ -48,6 +47,21 @@ class Product
 
     #[ORM\Column(length: 30)]
     private ?string $status = null;
+
+    /**
+     * @var Collection<int, Image>
+     */
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'product', fetch: 'EAGER', cascade: ['persist', 'remove'])]
+    private Collection $images;
+
+    #[ORM\Column]
+    private ?int $views_count = null;
+
+    /**
+     * @var Collection<int, ViewedProduct>
+     */
+    #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'product')]
+    private Collection $viewedProducts;
 
     public function getId(): ?int
     {
@@ -106,18 +120,6 @@ class Product
         return $this;
     }
 
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(string $image): static
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
     public function getSeller(): ?Seller
     {
         return $this->seller;
@@ -160,6 +162,78 @@ class Product
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getProduct() === $this) {
+                $image->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getViewsCount(): ?int
+    {
+        return $this->views_count;
+    }
+
+    public function setViewsCount(int $views_count): static
+    {
+        $this->views_count = $views_count;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ViewedProduct>
+     */
+    public function getViewedProducts(): Collection
+    {
+        return $this->viewedProducts;
+    }
+
+    public function addViewedProduct(ViewedProduct $viewedProduct): static
+    {
+        if (!$this->viewedProducts->contains($viewedProduct)) {
+            $this->viewedProducts->add($viewedProduct);
+            $viewedProduct->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeViewedProduct(ViewedProduct $viewedProduct): static
+    {
+        if ($this->viewedProducts->removeElement($viewedProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($viewedProduct->getProduct() === $this) {
+                $viewedProduct->setProduct(null);
+            }
+        }
 
         return $this;
     }

@@ -3,10 +3,14 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Product;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ProductNormalizer implements NormalizerInterface
+class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
+    use NormalizerAwareTrait;
+
     public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         if ($context['detailed'] ?? false) {
@@ -17,7 +21,11 @@ class ProductNormalizer implements NormalizerInterface
                 'price' => $object->getPrice(),
                 'quantity' => $object->getQuantity(),
                 'status' => $object->getStatus(),
-                'image' => $object->getImage(),
+                'viewsCount' => $object->getViewsCount(),
+                'images' => array_map(
+                    fn ($image) => $this->normalizer->normalize($image, $format, $context),
+                    $object->getImages()->toArray()
+                ),
                 'seller' => [
                     'id' => $object->getSeller()->getId(),
                     'name' => $object->getSeller()->getName(),
@@ -27,15 +35,15 @@ class ProductNormalizer implements NormalizerInterface
                     'id' => $object->getCategory()->getId(),
                     'name' => $object->getCategory()->getName(),
                 ],
-//                'rating' => $object->getRating(),
-//                'comment' => $object->getComment(),
+                //                'rating' => $object->getRating(),
+                //                'comment' => $object->getComment(),
                 'product_attributes' => array_map(
-                    fn($attribute) => [
+                    fn ($attribute) => [
                         'name' => $attribute->getAttributeKey(),
                         'value' => $attribute->getValue(),
                     ],
                     $object->getAttributes()->toArray()
-                )
+                ),
             ];
         }
 
@@ -45,7 +53,11 @@ class ProductNormalizer implements NormalizerInterface
             'price' => $object->getPrice(),
             'quantity' => $object->getQuantity(),
             'status' => $object->getStatus(),
-            'image' => $object->getImage(),
+            'viewsCount' => $object->getViewsCount(),
+            'images' => array_map(
+                fn ($image) => $this->normalizer->normalize($image, $format, $context),
+                $object->getImages()->toArray()
+            ),
             'seller' => [
                 'id' => $object->getSeller()->getId(),
                 'name' => $object->getSeller()->getName(),

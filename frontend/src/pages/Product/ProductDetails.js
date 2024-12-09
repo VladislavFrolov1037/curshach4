@@ -1,25 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-
-import "./ProductDetails.css";
-import {getProductDetails} from "../../services/product";
+import React, {useContext, useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
+import AuthContext from "../../context/AuthContext";
+import {addView, getProductDetails} from "../../services/product";
 import Loader from "../../components/Loader";
+import {SplitButton} from "primereact/splitbutton";
+import "./ProductDetails.css";
 
 const ProductDetails = () => {
-    const { id } = useParams();
+    const {id} = useParams();
     const [product, setProduct] = useState(null);
-    const [activeTab, setActiveTab] = useState("description");
     const [loading, setLoading] = useState(true);
+    const [currentImage, setCurrentImage] = useState("");
+    const [activeTab, setActiveTab] = useState("description");
+    const {user} = useContext(AuthContext);
 
     const fetchProductDetails = async () => {
         try {
             const response = await getProductDetails(id);
 
             setProduct(response);
+            setCurrentImage(response.images?.[0]?.url || "");
+
+            const updatedViewsCount = await addView(id);
+            setProduct((prev) => ({
+                ...prev,
+                viewsCount: updatedViewsCount,
+            }));
 
             setLoading(false);
         } catch (error) {
             console.error("Ошибка при получении данных о продукте:", error);
+            setLoading(false);
         }
     };
 
@@ -27,53 +38,113 @@ const ProductDetails = () => {
         fetchProductDetails();
     }, [id]);
 
+    const handleImageClick = (imageUrl) => {
+        setCurrentImage(imageUrl);
+    };
+
     const handleTabChange = (tab) => {
         setActiveTab(tab);
     };
 
     if (loading) {
-        return (
-            <Loader />
-        );
+        return <Loader/>;
+    }
+
+    if (!product) {
+        return <div>Товар не найден или произошла ошибка загрузки.</div>;
     }
 
     const {
         name,
         description,
         price,
-        image,
+        images = [],
         product_attributes,
         category,
         seller,
         status,
     } = product;
 
+    const isOwner = user?.id === seller?.userId;
+
+    const menuItems = [
+        {
+            label: "Добавить в избранное",
+            icon: "pi pi-heart",
+            command: () => alert(`Товар ${product?.id} добавлен в избранное`),
+        },
+        {
+            label: "Пожаловаться",
+            icon: "pi pi-flag",
+            command: () => alert(`Жалоба на товар ${product?.id}`),
+        },
+        ...(isOwner
+            ? [
+                {
+                    label: "Редактировать",
+                    icon: "pi pi-pencil",
+                    command: () => alert(`Редактирование товара ${product?.id}`),
+                },
+                {
+                    label:
+                        status === "available"
+                            ? "Снять с продажи"
+                            : "Вернуть в продажу",
+                    icon: "pi pi-eye-slash",
+                    command: () =>
+                        alert(
+                            `Смена статуса товара: ${
+                                status === "available"
+                                    ? "discontinued"
+                                    : "available"
+                            }`
+                        ),
+                },
+                {
+                    label: "Удалить",
+                    icon: "pi pi-trash",
+                    command: () => alert(`Удаление товара ${product?.id}`),
+                },
+            ]
+            : []),
+    ];
+
     return (
         <div className="product-details container">
             <div className="row">
-                {/* Левая часть: Картинка и слайдер */}
                 <div className="col-md-4">
                     <div className="image-container">
                         <img
-                            src={`${process.env.REACT_APP_API_BASE_URL}/${image}`}
+                            src={`${process.env.REACT_APP_API_BASE_URL}/${currentImage}`}
                             alt={name}
                             className="main-image"
                         />
                         <div className="image-slider">
-                            {[...Array(3)].map((_, index) => (
+                            {images.map((img, index) => (
                                 <img
                                     key={index}
-                                    src={`${process.env.REACT_APP_API_BASE_URL}/${image}`}
+                                    src={`${process.env.REACT_APP_API_BASE_URL}/${img.url}`}
                                     alt={`Thumbnail ${index}`}
-                                    className="thumbnail"
+                                    className={`thumbnail ${
+                                        currentImage === img.url
+                                            ? "active-thumbnail"
+                                            : ""
+                                    }`}
+                                    onClick={() => handleImageClick(img.url)}
                                 />
                             ))}
                         </div>
                     </div>
                 </div>
-
                 <div className="col-md-4">
-                    <h1>{name}</h1>
+                    <h1 style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+                        {name}
+                        <span style={{fontSize: "14px", color: "#777", display: "flex", alignItems: "center"}}>
+                            <i className="pi pi-eye" style={{marginRight: "5px"}}></i>
+                            {product.viewsCount}
+                        </span>
+                    </h1>
+
                     <p>Категория: {category.name}</p>
                     <p>Продавец: {seller.name}</p>
                     <div className="product-attributes">
@@ -87,31 +158,37 @@ const ProductDetails = () => {
                         </ul>
                     </div>
                 </div>
-
                 <div className="col-md-4">
-                    <p className="product-price">{`₽${parseFloat(price).toFixed(2)}`}</p>
-                    {status === "discontinued" ? (
-                        <button className="btn btn-danger w-100" disabled>
-                            Товар снят с продажи
-                        </button>
-                    ) : (
-                        <button className="btn btn-success w-100">
-                            Добавить в корзину
-                        </button>
-                    )}
+                    <p className="product-price">{`₽${parseFloat(price).toFixed(
+                        2
+                    )}`}</p>
+                    <div className="actions d-flex justify-content-between">
+                        <SplitButton
+                            label="Добавить в корзину"
+                            icon="pi pi-shopping-cart"
+                            className="p-button-success"
+                            onClick={() =>
+                                alert(`Товар ${product?.id} добавлен в корзину`)
+                            }
+                            model={menuItems}
+                        />
+                    </div>
                 </div>
             </div>
-
             <div className="tabs mt-5">
                 <div className="tab-buttons">
                     <button
-                        className={`tab-button ${activeTab === "description" ? "active" : ""}`}
+                        className={`tab-button ${
+                            activeTab === "description" ? "active" : ""
+                        }`}
                         onClick={() => handleTabChange("description")}
                     >
                         О товаре
                     </button>
                     <button
-                        className={`tab-button ${activeTab === "reviews" ? "active" : ""}`}
+                        className={`tab-button ${
+                            activeTab === "reviews" ? "active" : ""
+                        }`}
                         onClick={() => handleTabChange("reviews")}
                     >
                         Отзывы
@@ -132,24 +209,6 @@ const ProductDetails = () => {
                     )}
                 </div>
             </div>
-
-            {/* Похожие товары */}
-            {/* Пока что можно оставить как комментарий, чтобы позже добавить */}
-            {/* <div className="similar-products mt-5">
-                <h4>Похожие товары</h4>
-                <div className="product-slider">
-                    {similarProducts.map((similarProduct) => (
-                        <div key={similarProduct.id} className="similar-product-card">
-                            <img
-                                src={`${process.env.REACT_APP_API_BASE_URL}/${similarProduct.image}`}
-                                alt={similarProduct.name}
-                                className="similar-product-image"
-                            />
-                            <p>{similarProduct.name}</p>
-                        </div>
-                    ))}
-                </div>
-            </div> */}
         </div>
     );
 };

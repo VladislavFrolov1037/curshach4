@@ -7,6 +7,7 @@ import Loader from "../../components/Loader";
 import Error from "../../components/Error";
 import {getSellerProducts} from "../../services/product";
 import Card from "../../components/Card/Card";
+import {Link} from "react-router-dom";
 
 const Seller = () => {
     const [seller, setSeller] = useState(null);
@@ -14,6 +15,7 @@ const Seller = () => {
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [activeMenuRef, setActiveMenuRef] = useState(null);
 
     const fetchSellerData = async () => {
         const sellerData = await getSeller();
@@ -124,7 +126,7 @@ const Seller = () => {
                                             placeholder="Введите имя"
                                             onChange={handleChange}
                                         />
-                                        {errors.name && <Error error={errors.name} />}
+                                        {errors.name && <Error error={errors.name}/>}
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="description" className="form-label">Описание</label>
@@ -137,7 +139,7 @@ const Seller = () => {
                                             placeholder="Введите описание"
                                             onChange={handleChange}
                                         />
-                                        {errors.description &&  <Error error={errors.description} />}
+                                        {errors.description && <Error error={errors.description}/>}
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="taxId" className="form-label">ИНН</label>
@@ -165,7 +167,7 @@ const Seller = () => {
                                                 onChange={handleChange}
                                             />
                                             {errors.passport &&
-                                                <Error error={errors.passport} />}
+                                                <Error error={errors.passport}/>}
                                         </div>
                                     )}
                                     <div className="mb-3">
@@ -179,7 +181,7 @@ const Seller = () => {
                                             onChange={handleChange}
                                             value={formData.email}
                                         />
-                                        {errors.email && <Error error={errors.email} />}
+                                        {errors.email && <Error error={errors.email}/>}
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="phone" className="form-label">Телефон</label>
@@ -192,7 +194,7 @@ const Seller = () => {
                                             onChange={handleChange}
                                             value={formData.phone}
                                         />
-                                        {errors.phone && <Error error={errors.phone} />}
+                                        {errors.phone && <Error error={errors.phone}/>}
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="address" className="form-label">Адрес</label>
@@ -205,7 +207,7 @@ const Seller = () => {
                                             onChange={handleChange}
                                             value={formData.address}
                                         />
-                                        {errors.address && <Error error={errors.address} />}
+                                        {errors.address && <Error error={errors.address}/>}
                                     </div>
                                 </form>
                             </UniversalModal>
@@ -216,17 +218,27 @@ const Seller = () => {
 
             <div className="mt-5">
                 <h3>Ваши товары</h3>
-                <div className="container py-5">
-                    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                        {products.map((product) => (
-                            <Card product={product} key={product.id} />
-                        ))}
-                    </div>
-                </div>
+                <Link to="/create-product" className="btn btn-success">
+                    Создать товар
+                </Link>
+                {products && products.length > 0 ? (
+                    <div className="container py-5">
+                        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                            {products.map((product) => (
+                                <Card product={product} key={product.id} activeMenuRef={activeMenuRef}
+                                      setActiveMenuRef={setActiveMenuRef}/>
+                            ))}
+                        </div>
 
-                <div className="mt-3 text-center">
-                    <button className="btn btn-primary">Перейти ко всем товарам</button>
-                </div>
+                        <div className="mt-5 text-center">
+                            <Link to="/my-products" className="btn btn-primary">Перейти ко всем товарам</Link>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mt-5 text-center">
+                        <p>У вас ещё нет товаров. Создайте свой первый товар!</p>
+                    </div>
+                )}
             </div>
         </div>
     );

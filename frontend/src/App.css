@@ -61,3 +61,12 @@
 .p-icon-field {
   width: 100%;
 }
+
+.navbar {
+  position: relative;
+  z-index: 1100;
+}
+
+.custom-sidebar .p-sidebar-mask {
+  z-index: 1000;
+}

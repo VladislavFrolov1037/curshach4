@@ -18,27 +18,33 @@ class UserFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $user = new User();
-        $manager->persist($user
-            ->setEmail('admin@bk.ru')
-            ->setRoles(['ROLE_ADMIN'])
-            ->setPassword($this->hasher->hashPassword($user, 'admin'))
-            ->setName('admin')
-            ->setGender('male')
-            ->setPhone('89938543143')
-            ->setCreatedAt(new \DateTimeImmutable())
-        );
+        $existingUser = $manager->getRepository(User::class)->findOneBy(['email' => 'admin@bk.ru']);
+        if (!$existingUser) {
+            $user = new User();
+            $manager->persist($user
+                ->setEmail('admin@bk.ru')
+                ->setRoles(['ROLE_ADMIN'])
+                ->setPassword($this->hasher->hashPassword($user, 'admin'))
+                ->setName('admin')
+                ->setGender('male')
+                ->setPhone('89938543143')
+                ->setCreatedAt(new \DateTimeImmutable())
+            );
+        }
 
-        $user = new User();
-        $manager->persist($user
-            ->setEmail('vladoperation@bk.ru')
-            ->setRoles(['ROLE_USER'])
-            ->setPassword($this->hasher->hashPassword($user, '1'))
-            ->setName('vladislav')
-            ->setGender('male')
-            ->setPhone('89938543143')
-            ->setCreatedAt(new \DateTimeImmutable())
-        );
+        $existingUser2 = $manager->getRepository(User::class)->findOneBy(['email' => 'vladoperation@bk.ru']);
+        if (!$existingUser2) {
+            $user = new User();
+            $manager->persist($user
+                ->setEmail('vladoperation@bk.ru')
+                ->setRoles(['ROLE_USER'])
+                ->setPassword($this->hasher->hashPassword($user, '1'))
+                ->setName('vladislav')
+                ->setGender('male')
+                ->setPhone('89938543143')
+                ->setCreatedAt(new \DateTimeImmutable())
+            );
+        }
 
         $manager->flush();
     }

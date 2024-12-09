@@ -16,28 +16,46 @@ class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
-    //    /**
-    //     * @return Category[] Returns an array of Category objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findCategoriesWithFields()
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.categoryAttributes', 'ca')
+            ->leftJoin('ca.validValues', 'vv')
+            ->addSelect('ca')
+            ->where('c.parentCategory IS NOT NULL')
+            ->andWhere('vv.value IS NOT NULL')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Category
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findCategoryTree(): array
+    {
+        $categories = $this->createQueryBuilder('c')
+            ->leftJoin('c.parentCategory', 'p')
+            ->addSelect('p')
+            ->getQuery()
+            ->getResult();
+
+        $categoryMap = [];
+        foreach ($categories as $category) {
+            $categoryMap[$category->getId()] = [
+                'id' => $category->getId(),
+                'name' => $category->getName(),
+                'icon' => $category->getIcon(),
+                'subcategories' => [],
+            ];
+        }
+
+        $tree = [];
+        foreach ($categories as $category) {
+            $parent = $category->getParentCategory();
+            if ($parent) {
+                $categoryMap[$parent->getId()]['subcategories'][] = &$categoryMap[$category->getId()];
+            } else {
+                $tree[] = &$categoryMap[$category->getId()];
+            }
+        }
+
+        return $tree;
+    }
 }

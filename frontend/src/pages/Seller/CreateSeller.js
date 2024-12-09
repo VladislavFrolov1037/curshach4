@@ -12,7 +12,7 @@ const CreateSeller = () => {
         name: '',
         description: '',
         type: '',
-        tax_id: '',
+        taxId: '',
         passport: '',
         phone: '',
         address: '',
@@ -48,6 +48,7 @@ const CreateSeller = () => {
 
             navigate('/seller');
         } catch (e) {
+            console.log(e.response.data.errors)
             setErrors(e.response.data.errors || {});
         }
     };
@@ -130,14 +131,14 @@ const CreateSeller = () => {
                                 </div>
 
                                 <div className="mb-3">
-                                    <label htmlFor="tax_id" className="form-label">ИНН</label>
+                                    <label htmlFor="taxId" className="form-label">ИНН</label>
                                     <InputMask
-                                        type="text" id="tax_id" name="tax_id"
-                                        className={`form-control ${errors.tax_id ? 'is-invalid' : ''}`} required
-                                        value={formData.tax_id} onChange={handleChange} mask={seller.type === "individual" ? "999999999999" : "9999999999"}
+                                        type="text" id="taxId" name="taxId"
+                                        className={`form-control ${errors.taxId ? 'is-invalid' : ''}`} required
+                                        value={formData.taxId} onChange={handleChange} mask={seller.type === "individual" ? "999999999999" : "9999999999"}
                                         placeholder="ИНН"
                                     />
-                                    {errors.tax_id && <div className="invalid-feedback">{errors.tax_id}</div>}
+                                    {errors.taxId && <div className="invalid-feedback">{errors.taxId}</div>}
                                 </div>
 
                                 {(formData.type === 'individual' || formData.type === '') && (
@@ -177,7 +178,7 @@ const CreateSeller = () => {
                                         id="image"
                                         name="image"
                                         className={`form-control ${errors.image ? "is-invalid" : ""}`}
-                                        onChange={handleFileChange} // Используем handleFileChange для файлов
+                                        onChange={handleFileChange}
                                         required
                                     />
                                     {errors.image && <div className="invalid-feedback">{errors.image}</div>}

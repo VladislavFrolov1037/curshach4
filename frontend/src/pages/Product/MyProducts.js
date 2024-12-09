@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { getSellerProducts } from '../../services/product';
-import { useNavigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {deleteProduct, getSellerProducts, hideProduct} from '../../services/product';
+import {Link, useNavigate} from 'react-router-dom';
 import './MyProducts.css';
 import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader";
 
-const MyProducts = ({ products }) => {
+const MyProducts = () => {
     const [productList, setProductList] = useState([]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [activeMenuRef, setActiveMenuRef] = useState(null);
 
     const getProductList = async () => {
         return await getSellerProducts();
@@ -17,31 +18,59 @@ const MyProducts = ({ products }) => {
     useEffect(() => {
         const fetchData = async () => {
             const data = await getProductList();
-
             setProductList(data);
-
             setLoading(false);
         };
         fetchData();
     }, []);
 
-    const handleAddToCart = (productId) => {
-        console.log(`Товар с id ${productId} добавлен в корзину`);
+    const handleHideProduct = async (productId) => {
+        await hideProduct(productId);
+        setProductList(prevList =>
+            prevList.map(product =>
+                product.id === productId
+                    ? {
+                        ...product,
+                        status: product.status === "available" ? "discontinued" : "available",
+                    }
+                    : product
+            )
+        );
     };
 
-    if(loading) {
-        return (
-            <Loader/>
-        )
+    const handleDeleteProduct = async (productId) => {
+        await deleteProduct(productId);
+        setProductList(prevList => prevList.filter(product => product.id !== productId));
+    }
+
+    if (loading) {
+        return <Loader/>;
     }
 
     return (
         <div className="container py-5">
-            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                {productList.map((product) => (
-                    <Card product={product} key={product.id} />
-                ))}
-            </div>
+            {productList && productList.length > 0 ? (
+                <div className="row row-cols-5 g-5">
+                    {productList.map((product) => (
+                        <div className="col" key={product.id}>
+                            <Card
+                                product={product}
+                                activeMenuRef={activeMenuRef}
+                                setActiveMenuRef={setActiveMenuRef}
+                                handleHideProduct={handleHideProduct}
+                                handleDeleteProduct={handleDeleteProduct}
+                            />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="mt-5 text-center">
+                    <p>У вас ещё нет товаров. Создайте свой первый товар!</p>
+                    <Link to="/create-product" className="btn btn-success">
+                        Создать товар
+                    </Link>
+                </div>
+            )}
         </div>
     );
 };

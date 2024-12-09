@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -49,6 +51,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToOne(targetEntity: Seller::class, mappedBy: 'user')]
     private ?Seller $seller = null;
+
+    /**
+     * @var Collection<int, ViewedProduct>
+     */
+    #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'user')]
+    private Collection $viewedProducts;
+
+    public function __construct()
+    {
+        $this->viewedProducts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -193,5 +206,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getSeller(): ?Seller
     {
         return $this->seller;
+    }
+
+    /**
+     * @return Collection<int, ViewedProduct>
+     */
+    public function getViewedProducts(): Collection
+    {
+        return $this->viewedProducts;
+    }
+
+    public function addViewedProduct(ViewedProduct $viewedProduct): static
+    {
+        if (!$this->viewedProducts->contains($viewedProduct)) {
+            $this->viewedProducts->add($viewedProduct);
+            $viewedProduct->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeViewedProduct(ViewedProduct $viewedProduct): static
+    {
+        if ($this->viewedProducts->removeElement($viewedProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($viewedProduct->getUser() === $this) {
+                $viewedProduct->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

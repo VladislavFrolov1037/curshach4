@@ -18,11 +18,29 @@ class CategoryAttributeRepository extends ServiceEntityRepository
 
     public function findByCategory(int $categoryId): array
     {
-        return $this->createQueryBuilder('ca')
-            ->select('ca.attribute_key', 'ca.isRequired')
+        $results = $this->createQueryBuilder('ca')
+            ->leftJoin('ca.validValues', 'vv')
+            ->select('ca.attribute_key', 'ca.isRequired', 'vv.value')
             ->andWhere('ca.category = :categoryId')
             ->setParameter('categoryId', $categoryId)
             ->getQuery()
             ->getResult();
+
+        $grouped = [];
+        foreach ($results as $result) {
+            $key = $result['attribute_key'];
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = [
+                    'attribute_key' => $key,
+                    'isRequired' => $result['isRequired'],
+                    'validValues' => [],
+                ];
+            }
+            if (null !== $result['value']) {
+                $grouped[$key]['validValues'][] = $result['value'];
+            }
+        }
+
+        return array_values($grouped);
     }
 }

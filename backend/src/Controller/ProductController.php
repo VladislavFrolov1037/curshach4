@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\Product\EditProductDto;
+use App\Entity\Category;
 use App\Entity\Product;
 use App\Enum\ProductStatus;
 use App\Exception\ValidationException;
@@ -30,7 +31,8 @@ class ProductController extends AbstractController
     public function createProduct(Request $request): JsonResponse
     {
         $data = $request->request->all();
-        $data['image'] = $request->files->get('image');
+
+        $data['images'] = $request->files->get('images');
 
         $product = $this->productService->createProduct($data);
 
@@ -40,9 +42,9 @@ class ProductController extends AbstractController
     #[Route('/api/products', name: 'list_products', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        $product = $this->productRepository->findAll();
+        $products = $this->productRepository->getProductsForFeed();
 
-        return $this->json($product);
+        return $this->json($products);
     }
 
     #[Route('api/product/{id}', name: 'get_product', methods: ['GET'])]
@@ -88,9 +90,12 @@ class ProductController extends AbstractController
     #[Route('/api/product/change/{id}', name: 'change_status_product', methods: ['POST'])]
     public function changeProductStatus(Product $product): JsonResponse
     {
-        $product->setStatus(ProductStatus::STATUS_DISCONTINUED);
+        if (ProductStatus::STATUS_AVAILABLE === $product->getStatus()) {
+            $product->setStatus(ProductStatus::STATUS_DISCONTINUED);
+        } else if (ProductStatus::STATUS_DISCONTINUED === $product->getStatus()) {
+            $product->setStatus(ProductStatus::STATUS_AVAILABLE);
+        }
 
-        $this->em->persist($product);
         $this->em->flush();
 
         return $this->json($product, 200, [], ['detailed' => true]);
@@ -100,6 +105,24 @@ class ProductController extends AbstractController
     public function getMyProducts(): JsonResponse
     {
         $products = $this->productRepository->findBy(['seller' => $this->getUser()->getSeller()]);
+
+        return $this->json($products);
+    }
+
+    #[Route('/api/product/view/{id}', name: 'view_product', methods: ['POST'])]
+    public function addView(Product $product): JsonResponse
+    {
+        $this->productService->registerView($product);
+
+        return $this->json([
+            'viewsCount' => $product->getViewsCount(),
+        ]);
+    }
+
+    #[Route('/api/products/category/{id}', name: 'get_products_by_category', methods: ['GET'])]
+    public function getProductsByCategory(Category $category): JsonResponse
+    {
+        $products = $this->productRepository->findBy(['category' => $category]);
 
         return $this->json($products);
     }

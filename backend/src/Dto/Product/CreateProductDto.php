@@ -2,7 +2,6 @@
 
 namespace App\Dto\Product;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CreateProductDto
@@ -25,6 +24,11 @@ class CreateProductDto
     public ?string $categoryId = null;
 
     #[Assert\NotBlank()]
-    #[Assert\Image(mimeTypes: ['image/jpeg', 'image/png'], mimeTypesMessage: 'Файл должен быть изображением в формате JPEG или PNG.')]
-    public ?UploadedFile $image = null;
+    #[Assert\All([
+        new Assert\Image(
+            mimeTypes: ['image/jpeg', 'image/png'],
+            mimeTypesMessage: 'Файл должен быть изображением в формате JPEG или PNG.'
+        ),
+    ])]
+    public array $images = [];
 }
