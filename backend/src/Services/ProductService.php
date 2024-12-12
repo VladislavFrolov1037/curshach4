@@ -66,6 +66,17 @@ class ProductService
                     $categoryAttributeValue
                 );
             }
+
+            if (isset($categoryAttributeValue) && !empty($attribute['validValues']) && !in_array($categoryAttributeValue, $attribute['validValues'])) {
+                $errors[] = new ConstraintViolation(
+                    "{$key} — не может содержать данное значение.",
+                    null,
+                    [],
+                    null,
+                    $key,
+                    $categoryAttributeValue
+                );
+            }
         }
 
         if (count($errors) > 0) {

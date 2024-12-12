@@ -22,7 +22,6 @@ class ProductRepository extends ServiceEntityRepository
             ->andWhere('p.status = :status')
             ->setParameter('status', 'available')
             ->getQuery()
-            ->setMaxResults(50)
             ->getResult();
     }
 }

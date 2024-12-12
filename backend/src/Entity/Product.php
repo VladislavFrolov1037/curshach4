@@ -17,6 +17,7 @@ class Product
         $this->attributes = new ArrayCollection();
         $this->images = new ArrayCollection();
         $this->viewedProducts = new ArrayCollection();
+        $this->cartItems = new ArrayCollection();
     }
 
     #[ORM\Id]
@@ -40,7 +41,7 @@ class Product
     private ?Category $category = null;
 
     #[ORM\ManyToOne(targetEntity: Seller::class, inversedBy: 'products')]
-    private ?Seller $seller = null;
+    private Seller $seller;
 
     #[ORM\OneToMany(targetEntity: ProductAttribute::class, mappedBy: 'product', cascade: ['remove'])]
     private Collection $attributes;
@@ -62,6 +63,12 @@ class Product
      */
     #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'product')]
     private Collection $viewedProducts;
+
+    /**
+     * @var Collection<int, CartItem>
+     */
+    #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'product')]
+    private Collection $cartItems;
 
     public function getId(): ?int
     {
@@ -120,12 +127,12 @@ class Product
         return $this;
     }
 
-    public function getSeller(): ?Seller
+    public function getSeller(): Seller
     {
         return $this->seller;
     }
 
-    public function setSeller(?Seller $seller): static
+    public function setSeller(Seller $seller): static
     {
         $this->seller = $seller;
 
@@ -232,6 +239,36 @@ class Product
             // set the owning side to null (unless already changed)
             if ($viewedProduct->getProduct() === $this) {
                 $viewedProduct->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CartItem>
+     */
+    public function getCartItems(): Collection
+    {
+        return $this->cartItems;
+    }
+
+    public function addCartItem(CartItem $cartItem): static
+    {
+        if (!$this->cartItems->contains($cartItem)) {
+            $this->cartItems->add($cartItem);
+            $cartItem->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCartItem(CartItem $cartItem): static
+    {
+        if ($this->cartItems->removeElement($cartItem)) {
+            // set the owning side to null (unless already changed)
+            if ($cartItem->getProduct() === $this) {
+                $cartItem->setProduct(null);
             }
         }
 

@@ -2,22 +2,24 @@
 
 namespace App\Validator;
 
-use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class UniqueEmailValidator extends ConstraintValidator
 {
-    private UserRepository $userRepository;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->userRepository = $userRepository;
+        $this->entityManager = $entityManager;
     }
 
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
-        if ($this->userRepository->findOneBy(['email' => $value])) {
+        $repository = $this->entityManager->getRepository($constraint->entityClass);
+
+        if ($repository->findOneBy(['email' => $value])) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)
                 ->addViolation();

@@ -2,6 +2,7 @@
 
 namespace App\Dto\User;
 
+use App\Entity\User;
 use App\Validator as AcmeAssert;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -9,7 +10,7 @@ class RegisterUserDto
 {
     #[Assert\NotBlank()]
     #[Assert\Email()]
-    #[AcmeAssert\UniqueEmail()]
+    #[AcmeAssert\UniqueEmail(['entityClass' => User::class])]
     public string $email;
 
     #[Assert\NotBlank()]

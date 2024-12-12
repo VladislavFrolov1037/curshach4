@@ -1,19 +1,20 @@
-import React, {useEffect, useState} from 'react';
-import {deleteProduct, getSellerProducts, hideProduct} from '../../services/product';
-import {Link, useNavigate} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { deleteProduct, getSellerProducts, hideProduct } from '../../services/product';
+import { Link, useNavigate } from 'react-router-dom';
 import './MyProducts.css';
 import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader";
+import { getCart } from "../../services/cart"; // Импорт функции получения корзины
 
 const MyProducts = () => {
     const [productList, setProductList] = useState([]);
-    const navigate = useNavigate();
+    const [cartItems, setCartItems] = useState([]);  // Состояние для корзины
     const [loading, setLoading] = useState(true);
     const [activeMenuRef, setActiveMenuRef] = useState(null);
 
     const getProductList = async () => {
         return await getSellerProducts();
-    }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,6 +23,14 @@ const MyProducts = () => {
             setLoading(false);
         };
         fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchCart = async () => {
+            const cart = await getCart();  // Загружаем корзину один раз
+            setCartItems(cart.cartItems);
+        };
+        fetchCart();
     }, []);
 
     const handleHideProduct = async (productId) => {
@@ -41,10 +50,10 @@ const MyProducts = () => {
     const handleDeleteProduct = async (productId) => {
         await deleteProduct(productId);
         setProductList(prevList => prevList.filter(product => product.id !== productId));
-    }
+    };
 
     if (loading) {
-        return <Loader/>;
+        return <Loader />;
     }
 
     return (
@@ -55,6 +64,7 @@ const MyProducts = () => {
                         <div className="col" key={product.id}>
                             <Card
                                 product={product}
+                                cartItems={cartItems}  // Передаем корзину в компонент Card
                                 activeMenuRef={activeMenuRef}
                                 setActiveMenuRef={setActiveMenuRef}
                                 handleHideProduct={handleHideProduct}

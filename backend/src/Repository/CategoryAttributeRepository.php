@@ -20,7 +20,7 @@ class CategoryAttributeRepository extends ServiceEntityRepository
     {
         $results = $this->createQueryBuilder('ca')
             ->leftJoin('ca.validValues', 'vv')
-            ->select('ca.attribute_key', 'ca.isRequired', 'vv.value')
+            ->select('ca.id', 'ca.attribute_key', 'ca.isRequired', 'vv.value')
             ->andWhere('ca.category = :categoryId')
             ->setParameter('categoryId', $categoryId)
             ->getQuery()
@@ -31,6 +31,7 @@ class CategoryAttributeRepository extends ServiceEntityRepository
             $key = $result['attribute_key'];
             if (!isset($grouped[$key])) {
                 $grouped[$key] = [
+                    'id' => $result['id'],
                     'attribute_key' => $key,
                     'isRequired' => $result['isRequired'],
                     'validValues' => [],

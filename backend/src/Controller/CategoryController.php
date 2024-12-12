@@ -36,7 +36,7 @@ class CategoryController extends AbstractController
     #[Route('/api/category/{id}', name: 'get_category_attributes', methods: ['GET'])]
     public function getCategoryAttributes(Category $category): JsonResponse
     {
-        $attributes = $this->categoryAttributeRepository->findBy(['category' => $category]);
+        $attributes = $this->categoryAttributeRepository->findByCategory($category->getId());
 
         return $this->json($attributes);
     }

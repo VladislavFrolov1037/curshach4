@@ -1,27 +1,25 @@
 import React, {useContext, useRef} from "react";
 import {ContextMenu} from "primereact/contextmenu";
 import {Button} from "primereact/button";
-import {FiEye} from "react-icons/fi"; // Иконка глазика из react-icons
+import {FiEye} from "react-icons/fi";
 import AuthContext from "../../context/AuthContext";
 import {useNavigate} from "react-router-dom";
+import {Toast} from "primereact/toast";
 import "./Card.css";
+import {addToCart} from "../../services/cart";
 
 export default function Card({
                                  product,
-                                 handleAddToCart,
                                  activeMenuRef,
                                  setActiveMenuRef,
                                  handleHideProduct,
-                                 handleDeleteProduct
+                                 handleDeleteProduct,
+                                 cartItems = null,
                              }) {
     const {user} = useContext(AuthContext);
-    const navigate = useNavigate();
+    const toast = useRef(null);
     const menuRef = useRef(null);
-
-    if (!product) {
-        return null;
-    }
-
+    const navigate = useNavigate();
     const isOwner = user ? user.id === product.seller.userId : null;
 
     const handleCardClick = (productId) => {
@@ -30,14 +28,30 @@ export default function Card({
 
     const handleMenuClick = (e) => {
         e.preventDefault();
-
         if (activeMenuRef && activeMenuRef.current !== menuRef.current) {
             activeMenuRef.current.hide();
         }
-
         setActiveMenuRef(menuRef);
-
         menuRef.current.show(e);
+    };
+
+    const handleAddToCart = async (id) => {
+        await addToCart(id)
+        toast.current.show({severity: 'success', summary: 'Товар добавлен в корзину!', life: 3000});
+    };
+
+    const handleCartAction = async () => {
+        if (isProductInCart(product.id)) {
+            navigate("/cart");
+        } else {
+            await handleAddToCart(product.id);
+        }
+    };
+
+    const isProductInCart = (productId) => {
+        console.log(cartItems)
+        if (cartItems && cartItems.length > 0)
+            return cartItems.some((item) => item.product.id === productId);
     };
 
     const handleAddToFavorites = async () => {
@@ -87,6 +101,7 @@ export default function Card({
 
     return (
         <div className="col-12 col-md-2_4">
+            <Toast ref={toast}/>
             <div
                 className="card h-100 shadow-sm border-0 rounded-3 product-card"
                 onClick={() => handleCardClick(product.id)}
@@ -130,20 +145,21 @@ export default function Card({
                         <small className="text-muted">Продавец: {product.seller.name}</small>
                         <br/>
                         {user && (
-                            <div className="views-count">
-                                <FiEye/> {product.viewsCount || 0} просмотров
-                            </div>
+                            <span className="views-count">
+                <FiEye/> {product.viewsCount || 0} просмотров
+              </span>
                         )}
                     </p>
                     <button
-                        className="btn btn-success w-100"
+                        className={
+                            isProductInCart(product.id) ? "btn btn-secondary w-100" : "btn btn-success w-100 p-button-success"
+                        }
                         onClick={(e) => {
                             e.stopPropagation();
-                            if (!isOwner) handleAddToCart(product.id);
+                            handleCartAction();
                         }}
-                        disabled={isOwner}
                     >
-                        {isOwner ? "Ваш товар" : "Добавить в корзину"}
+                        {isProductInCart(product.id) ? "Перейти в корзину" : "Добавить в корзину"}
                     </button>
                 </div>
             </div>

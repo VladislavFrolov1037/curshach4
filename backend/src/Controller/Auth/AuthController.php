@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Auth;
 
 use App\Dto\User\RegisterUserDto;
+use App\Entity\Cart;
 use App\Exception\ValidationException;
 use App\Repository\UserRepository;
 use App\Services\UserService;
@@ -48,6 +49,12 @@ class AuthController extends AbstractController
         $user = $this->userService->registerUser($dto);
 
         $this->entityManager->persist($user);
+
+        $cart = new Cart();
+        $cart->setUser($user);
+        $cart->setTotalPrice(0);
+
+        $this->entityManager->persist($cart);
         $this->entityManager->flush();
 
         return $this->json(['message' => 'Регистрация прошла успешно'], 201);

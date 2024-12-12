@@ -1,18 +1,23 @@
-import React, {useContext, useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
-import {addView, getProductDetails} from "../../services/product";
+import { addView, getProductDetails } from "../../services/product";
 import Loader from "../../components/Loader";
-import {SplitButton} from "primereact/splitbutton";
+import { SplitButton } from "primereact/splitbutton";
+import { Toast } from "primereact/toast";
 import "./ProductDetails.css";
+import { addToCart, getCart } from "../../services/cart";
 
 const ProductDetails = () => {
-    const {id} = useParams();
+    const toast = useRef(null);
+    const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentImage, setCurrentImage] = useState("");
     const [activeTab, setActiveTab] = useState("description");
-    const {user} = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
+    const [cartItems, setCartItems] = useState([]);
+    const navigate = useNavigate();
 
     const fetchProductDetails = async () => {
         try {
@@ -34,8 +39,22 @@ const ProductDetails = () => {
         }
     };
 
+    const fetchCart = async () => {
+        try {
+            const cart = await getCart();
+            setCartItems(cart.cartItems);
+        } catch (error) {
+            console.error("Ошибка при загрузке корзины:", error);
+        }
+    };
+
+    const isProductInCart = (productId) => {
+        return cartItems.some((item) => item.product.id === productId);
+    };
+
     useEffect(() => {
         fetchProductDetails();
+        fetchCart();
     }, [id]);
 
     const handleImageClick = (imageUrl) => {
@@ -44,6 +63,22 @@ const ProductDetails = () => {
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
+    };
+
+    const handleAddToCart = async (id) => {
+        await addToCart(id);
+
+        await fetchCart();
+
+        toast.current.show({ severity: 'success', summary: 'Товар добавлен в корзину!', life: 3000 });
+    };
+
+    const handleCartAction = () => {
+        if (isProductInCart(product.id)) {
+            navigate("/cart");
+        } else {
+            handleAddToCart(product.id);
+        }
     };
 
     if (loading) {
@@ -111,6 +146,7 @@ const ProductDetails = () => {
 
     return (
         <div className="product-details container">
+            <Toast ref={toast} />
             <div className="row">
                 <div className="col-md-4">
                     <div className="image-container">
@@ -137,10 +173,10 @@ const ProductDetails = () => {
                     </div>
                 </div>
                 <div className="col-md-4">
-                    <h1 style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+                    <h1 style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                         {name}
-                        <span style={{fontSize: "14px", color: "#777", display: "flex", alignItems: "center"}}>
-                            <i className="pi pi-eye" style={{marginRight: "5px"}}></i>
+                        <span style={{ fontSize: "14px", color: "#777", display: "flex", alignItems: "center" }}>
+                            <i className="pi pi-eye" style={{ marginRight: "5px" }}></i>
                             {product.viewsCount}
                         </span>
                     </h1>
@@ -159,17 +195,15 @@ const ProductDetails = () => {
                     </div>
                 </div>
                 <div className="col-md-4">
-                    <p className="product-price">{`₽${parseFloat(price).toFixed(
-                        2
-                    )}`}</p>
+                    <p className="product-price">{`₽${parseFloat(price).toFixed(2)}`}</p>
                     <div className="actions d-flex justify-content-between">
                         <SplitButton
-                            label="Добавить в корзину"
+                            label={isProductInCart(product.id) ? "Перейти в корзину" : "Добавить в корзину"}
                             icon="pi pi-shopping-cart"
-                            className="p-button-success"
-                            onClick={() =>
-                                alert(`Товар ${product?.id} добавлен в корзину`)
-                            }
+                            className={isProductInCart(product.id) ? "p-button-secondary" : "p-button-success"}
+                            onClick={() => {
+                                handleCartAction(product.id);
+                            }}
                             model={menuItems}
                         />
                     </div>

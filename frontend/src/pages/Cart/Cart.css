@@ -1,0 +1,44 @@
+.order-summary {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.order-summary h5 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.order-details {
+    margin-bottom: 20px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 1rem;
+}
+
+.payment-method {
+    margin-bottom: 20px;
+}
+
+.payment-method label {
+    display: block;
+    margin: 5px 0;
+}
+
+.payment-method input {
+    margin-right: 10px;
+}
+
+.payment-method .payment-option {
+    font-size: 1rem;
+}
+
+.order-summary .p-button {
+    width: 100%;
+}

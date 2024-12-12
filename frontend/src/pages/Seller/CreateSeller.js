@@ -48,7 +48,6 @@ const CreateSeller = () => {
 
             navigate('/seller');
         } catch (e) {
-            console.log(e.response.data.errors)
             setErrors(e.response.data.errors || {});
         }
     };

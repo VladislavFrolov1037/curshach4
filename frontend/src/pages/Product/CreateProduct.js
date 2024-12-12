@@ -186,29 +186,48 @@ const CreateProduct = () => {
                                         required
                                     >
                                         <option value="">Выберите категорию</option>
-                                        {categories.map((categoryId) => (
-                                            <option key={categoryId.id} value={categoryId.id}>
-                                                {categoryId.name}
+                                        {categories.map((category) => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.categoryId && <div className="invalid-feedback">{errors.categoryId}</div>}
+                                    {errors.category && <div className="invalid-feedback">{errors.category}</div>}
                                 </div>
 
                                 {attributes.map((attribute) => (
                                     <div className="mb-3" key={attribute.id}>
-                                        <label htmlFor={attribute.key} className="form-label">
-                                            {attribute.key}
+                                        <label htmlFor={attribute.attribute_key} className="form-label">
+                                            {attribute.attribute_key}
                                         </label>
-                                        <input
-                                            type="text"
-                                            id={attribute.key}
-                                            name={attribute.key}
-                                            className="form-control"
-                                            value={formData.attributes?.[attribute.key] || ""}
-                                            onChange={handleAttributeChange}
-                                            required={attribute.isRequired}
-                                        />
+                                        { attribute.validValues.length > 0 ? (
+                                            <select
+                                                name={attribute.attribute_key}
+                                                id={attribute.attribute_key}
+                                                className="form-control"
+                                                onChange={handleAttributeChange}
+                                                required={attribute.isRequired}
+                                                value={formData.attributes?.[attribute.attribute_key] || ""}
+                                            >
+                                                <option value="">Выберите значение</option>
+                                                {attribute.validValues.map((value, index) => (
+                                                    <option key={index} value={value}>
+                                                        {value}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                id={attribute.attribute_key}
+                                                name={attribute.attribute_key}
+                                                className="form-control"
+                                                value={formData.attributes?.[attribute.attribute_key] || ""}
+                                                onChange={handleAttributeChange}
+                                                required={attribute.isRequired}
+                                            />
+                                        )}
+
                                     </div>
                                 ))}
 

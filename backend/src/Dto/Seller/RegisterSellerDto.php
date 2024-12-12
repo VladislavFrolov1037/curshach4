@@ -2,6 +2,7 @@
 
 namespace App\Dto\Seller;
 
+use App\Entity\Seller;
 use App\Validator as AcmeAssert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,7 +11,7 @@ class RegisterSellerDto
 {
     #[Assert\NotBlank()]
     #[Assert\Email()]
-    #[AcmeAssert\UniqueEmail()]
+    #[AcmeAssert\UniqueEmail(['entityClass' => Seller::class])]
     public ?string $email = null;
 
     #[Assert\NotBlank()]

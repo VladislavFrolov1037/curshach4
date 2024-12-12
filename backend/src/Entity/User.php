@@ -58,6 +58,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'user')]
     private Collection $viewedProducts;
 
+    #[ORM\OneToOne(targetEntity: Cart::class, mappedBy: 'user')]
+    private ?Cart $cart = null;
+
     public function __construct()
     {
         $this->viewedProducts = new ArrayCollection();
@@ -234,6 +237,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $viewedProduct->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCart(): ?Cart
+    {
+        return $this->cart;
+    }
+
+    public function setCart(?Cart $cart): static
+    {
+        $this->cart = $cart;
 
         return $this;
     }

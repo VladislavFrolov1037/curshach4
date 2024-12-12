@@ -2,7 +2,7 @@ import React, {createContext, useEffect, useState} from 'react';
 import {getProfile, loginUser, registerUser} from '../services/auth';
 import {useNavigate} from 'react-router-dom';
 
-const  AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
@@ -11,11 +11,13 @@ export const AuthProvider = ({children}) => {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const profile = await getProfile();
+            if (localStorage.getItem('token')) {
+                const profile = await getProfile();
 
-            setUser(profile);
+                setUser(profile);
 
-            setLoading(false);
+                setLoading(false);
+            }
         };
 
         fetchProfile();

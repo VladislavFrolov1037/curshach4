@@ -33,11 +33,14 @@ function Header() {
                 </button>
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav">
-                        {['Маркетплейс', 'Избранное', 'Корзина'].map((item, index) => (
+                        {['Маркетплейс', 'Избранное'].map((item, index) => (
                             <li className="nav-item" key={index}>
                                 <Link className="nav-link" to="/">{item}</Link>
                             </li>
                         ))}
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/cart">Корзина</Link>
+                        </li>
                         <li className="nav-item dropdown">
                             <a
                                 className="nav-link dropdown-toggle"

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:8000/api',
@@ -23,15 +24,27 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            const requiresAuthRedirect = error.config.requiresAuthRedirect ?? true;
+            localStorage.removeItem('token');
 
-            if (requiresAuthRedirect) {
-                localStorage.removeItem('token');
-                if (window.location.pathname !== '/login') {
-                    window.location.href = '/login';
-                }
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login';
             }
+
+            return new Promise(() => {});
         }
+
+        if (error.response && error.response.status === 403) {
+            window.location.href = '/forbidden';
+
+            return new Promise(() => {});
+        }
+
+        if (error.response && error.response.status === 404) {
+            window.location.href = '/not-found';
+
+            return new Promise(() => {});
+        }
+
         return Promise.reject(error);
     }
 );

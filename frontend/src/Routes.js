@@ -10,6 +10,9 @@ import ProductDetails from "./pages/Product/ProductDetails";
 import CreateProduct from "./pages/Product/CreateProduct";
 import ProductList from "./pages/Product/ProductList";
 import ProductsPage from "./pages/Product/ProductsPage";
+import Forbidden from "./pages/Exception/Forbidden";
+import NotFound from "./pages/Exception/NotFound";
+import Cart from "./pages/Cart/Cart";
 
 function AppRoutes() {
     return (
@@ -24,7 +27,11 @@ function AppRoutes() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/create-product" element={<CreateProduct />} />
             <Route path="/products/:categoryId" element={<ProductsPage />} />
-            {/*<Route path="/edit-product" element={<CreateProduct />} />*/}
+            <Route path="/cart" element={<Cart />} />
+
+            {/* Exceptions */}
+            <Route path="/forbidden" element={<Forbidden />} />
+            <Route path="/not-found" element={<NotFound />} />
         </Routes>
     );
 }
