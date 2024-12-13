@@ -3,10 +3,14 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\CartItem;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class CartItemNormalizer implements NormalizerInterface
+class CartItemNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
+    use NormalizerAwareTrait;
+
     public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof CartItem;
@@ -16,10 +20,10 @@ class CartItemNormalizer implements NormalizerInterface
     {
         return [
             'id' => $object->getId(),
-            'quantity' => $object->getTotalPrice(),
-            'price' => $object->getUser(),
+            'quantity' => $object->getQuantity(),
+            'price' => $object->getPrice(),
             'cartId' => $object->getCart()->getId(),
-            'product' => $object->getProduct(),
+            'product' => $this->normalizer->normalize($object->getProduct()),
         ];
     }
 

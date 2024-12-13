@@ -41,7 +41,7 @@ class CartService
 
         $this->em->flush();
 
-        return $cart;
+        return $cartItem;
     }
 
     public function deleteProduct(Product $product): JsonResponse

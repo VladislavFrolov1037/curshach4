@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Cart;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -30,7 +31,14 @@ class UserFixtures extends Fixture
                 ->setPhone('89938543143')
                 ->setCreatedAt(new \DateTimeImmutable())
             );
+
+            $cart = new Cart();
+            $cart->setUser($user);
+            $cart->setTotalPrice(0);
+            $manager->persist($cart);
         }
+
+
 
         $existingUser2 = $manager->getRepository(User::class)->findOneBy(['email' => 'vladoperation@bk.ru']);
         if (!$existingUser2) {
@@ -44,6 +52,11 @@ class UserFixtures extends Fixture
                 ->setPhone('89938543143')
                 ->setCreatedAt(new \DateTimeImmutable())
             );
+
+            $cart = new Cart();
+            $cart->setUser($user);
+            $cart->setTotalPrice(0);
+            $manager->persist($cart);
         }
 
         $manager->flush();

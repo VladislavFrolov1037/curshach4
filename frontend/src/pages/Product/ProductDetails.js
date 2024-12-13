@@ -7,6 +7,7 @@ import { SplitButton } from "primereact/splitbutton";
 import { Toast } from "primereact/toast";
 import "./ProductDetails.css";
 import { addToCart, getCart } from "../../services/cart";
+import CartContext from "../../context/CartContext";
 
 const ProductDetails = () => {
     const toast = useRef(null);
@@ -16,8 +17,9 @@ const ProductDetails = () => {
     const [currentImage, setCurrentImage] = useState("");
     const [activeTab, setActiveTab] = useState("description");
     const { user } = useContext(AuthContext);
-    const [cartItems, setCartItems] = useState([]);
+    const { cartItems, updateCartItems, addCart } = useContext(CartContext);
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchProductDetails = async () => {
         try {
@@ -39,22 +41,12 @@ const ProductDetails = () => {
         }
     };
 
-    const fetchCart = async () => {
-        try {
-            const cart = await getCart();
-            setCartItems(cart.cartItems);
-        } catch (error) {
-            console.error("Ошибка при загрузке корзины:", error);
-        }
-    };
-
     const isProductInCart = (productId) => {
         return cartItems.some((item) => item.product.id === productId);
     };
 
     useEffect(() => {
         fetchProductDetails();
-        fetchCart();
     }, [id]);
 
     const handleImageClick = (imageUrl) => {
@@ -65,20 +57,16 @@ const ProductDetails = () => {
         setActiveTab(tab);
     };
 
-    const handleAddToCart = async (id) => {
-        await addToCart(id);
+    const handleCartAction = async () => {
+        setIsLoading(true);
 
-        await fetchCart();
-
-        toast.current.show({ severity: 'success', summary: 'Товар добавлен в корзину!', life: 3000 });
-    };
-
-    const handleCartAction = () => {
         if (isProductInCart(product.id)) {
             navigate("/cart");
         } else {
-            handleAddToCart(product.id);
+            await addCart(product.id, toast);
         }
+
+        setIsLoading(false);
     };
 
     if (loading) {
@@ -198,12 +186,13 @@ const ProductDetails = () => {
                     <p className="product-price">{`₽${parseFloat(price).toFixed(2)}`}</p>
                     <div className="actions d-flex justify-content-between">
                         <SplitButton
-                            label={isProductInCart(product.id) ? "Перейти в корзину" : "Добавить в корзину"}
+                            label={isLoading ? "Добавление в корзину" : isProductInCart(product.id) ? "Перейти в корзину" : "Добавить в корзину"}
                             icon="pi pi-shopping-cart"
                             className={isProductInCart(product.id) ? "p-button-secondary" : "p-button-success"}
                             onClick={() => {
                                 handleCartAction(product.id);
                             }}
+                            disabled={isLoading}
                             model={menuItems}
                         />
                     </div>

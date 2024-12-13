@@ -1,3 +1,4 @@
 lexik_jwt_authentication:
-    secret_key: '%kernel.project_dir%/config/jwt/private.pem'  # Путь к приватному ключу
-    public_key: '%kernel.project_dir%/config/jwt/public.pem'   # Путь к публичному ключу
+    secret_key: '%kernel.project_dir%/config/jwt/private.pem'
+    public_key: '%kernel.project_dir%/config/jwt/public.pem'
+    token_ttl: 7200

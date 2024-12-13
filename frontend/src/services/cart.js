@@ -8,6 +8,6 @@ export const addToCart = async (id) => {
 
 export const getCart = async () => {
     const response = await axios.get(`/cart`);
-    console.log(response.data);
+
     return response.data;
 }

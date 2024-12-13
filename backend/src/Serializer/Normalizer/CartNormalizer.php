@@ -22,7 +22,7 @@ class CartNormalizer implements NormalizerInterface, NormalizerAwareInterface
             'id' => $object->getId(),
             'totalPrice' => $object->getTotalPrice(),
             'cartItems' => array_map(
-                fn($cartItem) => [
+                fn ($cartItem) => [
                     'id' => $cartItem->getId(),
                     'quantity' => $cartItem->getQuantity(),
                     'price' => $cartItem->getPrice(),

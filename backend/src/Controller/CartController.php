@@ -27,9 +27,9 @@ class CartController extends AbstractController
     #[Route('/api/product/{id}/cart', name: 'add_cart', methods: ['POST'])]
     public function store(Product $product): Response
     {
-        $cart = $this->cartService->addToCart($product);
+        $cartItem = $this->cartService->addToCart($product);
 
-        return $this->json($cart);
+        return $this->json($cartItem);
     }
 
     #[Route('/api/product/{id}/cart', name: 'delete_cart_product', methods: ['DELETE'])]
