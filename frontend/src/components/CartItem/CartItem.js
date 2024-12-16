@@ -1,15 +1,13 @@
-import React from "react";
-import { FiHeart, FiTrash2 } from "react-icons/fi";
-import { Button } from "primereact/button";
-import './CartItem.css'
+import React, {useContext} from "react";
+import {FiHeart, FiTrash2} from "react-icons/fi";
+import {Button} from "primereact/button";
+import './CartItem.css';
+import FavoriteContext from "../../context/FavouriteContext";
 
-const CartItem = ({
-                      cartItem,
-                      handleAddToCart,
-                      handleRemoveFromCart,
-                      handleAddToFavorites,
-                      handleRemoveProduct,
-                  }) => {
+const CartItem = ({cartItem, handleRemoveFromCart, handleAddToFavorites, handleRemoveFavorites}) => {
+    const {favorites} = useContext(FavoriteContext);
+
+    const isFavorite = favorites.some(fav => fav.product_id === cartItem.product.id);
 
     return (
         <div className="cart-item d-flex align-items-center py-3 border-bottom">
@@ -35,21 +33,27 @@ const CartItem = ({
                     <Button
                         icon="pi pi-plus"
                         className="p-button-rounded p-button-text p-button-success ms-2"
-                        onClick={() => handleAddToCart(cartItem.product.id)}
+                        onClick={() => handleRemoveFromCart(cartItem.product.id)}
                     />
                 </div>
             </div>
 
             <div className="cart-item-icons d-flex flex-column align-items-center ms-3">
                 <Button
-                    icon={<FiHeart />}
-                    className="p-button-rounded p-button-text p-button-info mb-2"
-                    onClick={() => handleAddToFavorites(cartItem.product.id)}
+                    icon={<FiHeart style={{color: isFavorite ? "red" : "gray"}} />}
+                    className="p-button-rounded p-button-text mb-2"
+                    onClick={() => {
+                        if (isFavorite) {
+                            handleRemoveFavorites(cartItem.product.id);
+                        } else {
+                            handleAddToFavorites(cartItem.product.id);
+                        }
+                    }}
                 />
                 <Button
                     icon={<FiTrash2 />}
                     className="p-button-rounded p-button-text p-button-danger"
-                    onClick={() => handleRemoveProduct(cartItem.product.id)}
+                    onClick={() => handleRemoveFromCart(cartItem.product.id)}
                 />
             </div>
         </div>

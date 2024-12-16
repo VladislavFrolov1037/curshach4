@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Loader from "../../components/Loader";
-import { getCart } from "../../services/cart";
+import {getCart} from "../../services/cart";
 import CartItem from "../../components/CartItem/CartItem";
-import { Button } from "primereact/button";
+import {Button} from "primereact/button";
 import './Cart.css';
+import CartContext from "../../context/CartContext";
+import FavoriteContext from "../../context/FavouriteContext";
 
 const Cart = () => {
     const [loading, setLoading] = useState(true);
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [totalQuantity, setTotalQuantity] = useState(0);
+    const {removeCartItem} = useContext(CartContext);
+    const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
 
     const fetchProducts = async () => {
         try {
@@ -28,12 +32,36 @@ const Cart = () => {
         }
     };
 
+    const handleRemoveFromCart = async (productId) => {
+        setCartItems((prevItems) => {
+            const updatedCartItems = prevItems.filter(item => item.product.id !== productId);
+
+            const total = updatedCartItems.reduce((acc, item) => acc + item.quantity * parseFloat(item.product.price), 0);
+            const quantity = updatedCartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+            setTotalPrice(total);
+            setTotalQuantity(quantity);
+
+            return updatedCartItems;
+        });
+
+        await removeCartItem(productId);
+    };
+
+    const handleAddToFavorites = async (id) => {
+        await addFavoriteItem(id);
+    }
+
+    const handleRemoveFavorites = async (id) => {
+        await removeFavoriteItem(id);
+    }
+
     useEffect(() => {
         fetchProducts();
     }, []);
 
     if (loading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     return (
@@ -45,10 +73,9 @@ const Cart = () => {
                             <CartItem
                                 key={cartItem.id}
                                 cartItem={cartItem}
-                                handleAddToCart={() => {}}
-                                handleRemoveFromCart={() => {}}
-                                handleAddToFavorites={() => {}}
-                                handleRemoveProduct={() => {}}
+                                handleRemoveFromCart={handleRemoveFromCart}
+                                handleAddToFavorites={handleAddToFavorites}
+                                handleRemoveFavorites={handleRemoveFavorites}
                             />
                         ))
                     ) : (
@@ -73,14 +100,14 @@ const Cart = () => {
                         <h6>Способ оплаты</h6>
                         <div className="payment-method">
                             <label className="payment-option">
-                                <input type="radio" name="paymentMethod" value="cardOnDelivery" /> Картой при получении
+                                <input type="radio" name="paymentMethod" value="cardOnDelivery"/> Картой при получении
                             </label>
                             <label className="payment-option">
-                                <input type="radio" name="paymentMethod" value="cardOnline" /> Картой на сайте
+                                <input type="radio" name="paymentMethod" value="cardOnline"/> Картой на сайте
                             </label>
                         </div>
 
-                        <Button label="Оформить заказ" className="p-button p-button-success mt-4" />
+                        <Button label="Оформить заказ" className="p-button p-button-success mt-4"/>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { toast } from 'react-toastify';
 
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:8000/api',
@@ -24,6 +23,8 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
+            localStorage.setItem('authError', 'Для данного действия необходимо авторизоваться.');
+
             localStorage.removeItem('token');
 
             if (window.location.pathname !== '/login') {
@@ -48,6 +49,5 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
 
 export default axiosInstance;

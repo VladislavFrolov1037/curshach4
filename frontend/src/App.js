@@ -6,17 +6,20 @@ import AppRoutes from './Routes';
 import {AuthProvider} from './context/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {CartProvider} from "./context/CartContext";
+import {FavoriteProvider} from "./context/FavouriteContext";
 
 function App() {
     return (
         <Router>
             <AuthProvider>
                 <CartProvider>
-                    <div className="App">
-                        <Header/>
-                        <AppRoutes/>
-                        <Footer/>
-                    </div>
+                    <FavoriteProvider>
+                        <div className="App">
+                            <Header/>
+                            <AppRoutes/>
+                            <Footer/>
+                        </div>
+                    </FavoriteProvider>
                 </CartProvider>
             </AuthProvider>
         </Router>

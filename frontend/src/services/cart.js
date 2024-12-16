@@ -11,3 +11,7 @@ export const getCart = async () => {
 
     return response.data;
 }
+
+export const deleteItemForCart = async (id) => {
+    await axios.delete(`/product/${id}/cart`);
+}

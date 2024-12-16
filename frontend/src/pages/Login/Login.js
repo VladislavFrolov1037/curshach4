@@ -1,7 +1,9 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import AuthContext from '../../context/AuthContext';
 import {useNavigate} from "react-router-dom";
 import Loader from "../../components/Loader";
+import {Toast} from "primereact/toast";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const {login} = useContext(AuthContext);
@@ -9,6 +11,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const toast = useRef(null);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -23,24 +26,30 @@ const Login = () => {
 
             await login(credentials);
 
-            navigate('/profile')
+            navigate('/profile');
         } catch (e) {
             setLoading(false);
 
             credentials.password = '';
-
             setError(e.response.data.message);
         }
     };
 
+    useEffect(() => {
+        const authError = localStorage.getItem('authError');
+        if (authError) {
+            toast.current.show({severity: "error", summary: authError, life: 5000});
+            localStorage.removeItem('authError');
+        }
+    }, []);
+
     if (loading) {
-        return (
-            <Loader />
-        )
+        return <Loader/>;
     }
 
     return (
         <div className="container mt-5 d-flex justify-content-center">
+            <Toast ref={toast}/>
             <div className="card p-4 shadow" style={{width: '100%', maxWidth: '400px'}}>
                 <h3 className="card-title text-center mb-4">Вход</h3>
                 <form onSubmit={handleSubmit}>

@@ -1,13 +1,13 @@
-import React, { useContext, useRef, useMemo, useState } from "react";
-import { ContextMenu } from "primereact/contextmenu";
-import { Button } from "primereact/button";
-import { FiEye } from "react-icons/fi";
+import React, {useContext, useMemo, useRef, useState} from "react";
+import {ContextMenu} from "primereact/contextmenu";
+import {Button} from "primereact/button";
+import {FiEye} from "react-icons/fi";
 import AuthContext from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { Toast } from "primereact/toast";
+import {useNavigate} from "react-router-dom";
+import {Toast} from "primereact/toast";
 import "./Card.css";
-import { addToCart } from "../../services/cart";
 import CartContext from "../../context/CartContext";
+import FavoriteContext from "../../context/FavouriteContext";
 
 export default function Card({
                                  product,
@@ -16,8 +16,9 @@ export default function Card({
                                  handleHideProduct,
                                  handleDeleteProduct,
                              }) {
-    const { user } = useContext(AuthContext);
-    const { cartItems, updateCartItems, addCart } = useContext(CartContext);
+    const {user} = useContext(AuthContext);
+    const {cartItems, updateCartItems, addCart} = useContext(CartContext);
+    const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
     const toast = useRef(null);
     const menuRef = useRef(null);
     const navigate = useNavigate();
@@ -28,6 +29,10 @@ export default function Card({
     const isInCart = useMemo(() => {
         return cartItems && cartItems.some((item) => item.product.id === product.id);
     }, [cartItems, product.id]);
+
+    const isFavorite = useMemo(() => {
+        return favorites && favorites.some((fav) => fav.product_id === product.id);
+    }, [favorites, product.id]);
 
     const handleCardClick = (productId) => {
         navigate(`/product/${productId}`);
@@ -55,7 +60,13 @@ export default function Card({
     };
 
     const handleAddToFavorites = async () => {
-        alert(product.id);
+        await addFavoriteItem(product.id);
+        toast.current.show({severity: "success", summary: "Добавлено в избранное"});
+    };
+
+    const handleRemoveFromFavorites = async () => {
+        await removeFavoriteItem(product.id);
+        toast.current.show({severity: "info", summary: "Удалено из избранного"});
     };
 
     const handleReport = async () => {
@@ -64,9 +75,12 @@ export default function Card({
 
     const menuItems = [
         {
-            label: "Добавить в избранное",
+            label: isFavorite ? "Удалить из избранного" : "Добавить в избранное",
             icon: "pi pi-heart",
-            command: () => handleAddToFavorites(product.id),
+            command: () =>
+                isFavorite
+                    ? handleRemoveFromFavorites()
+                    : handleAddToFavorites(),
         },
         {
             label: "Пожаловаться на товар",
@@ -101,12 +115,12 @@ export default function Card({
 
     return (
         <div className="col-12 col-md-2_4">
-            <Toast ref={toast} />
+            <Toast ref={toast}/>
             <div
                 className="card h-100 shadow-sm border-0 rounded-3 product-card"
                 onClick={() => handleCardClick(product.id)}
             >
-                <div className="image-container" style={{ position: "relative" }}>
+                <div className="image-container" style={{position: "relative"}}>
                     {product.status !== "available" && (
                         <div className="status-badge bg-danger">
                             {product.status === "discontinued" ? "Снято с продажи" : ""}
@@ -122,12 +136,16 @@ export default function Card({
                             e.target.src = "default-image.png";
                         }}
                     />
-                    <ContextMenu model={menuItems} ref={menuRef} />
-                    <Button
-                        icon="pi pi-ellipsis-v"
-                        className="p-button-rounded p-button-text menu-button"
-                        onClick={handleMenuClick}
-                    />
+                    {user && (
+                        <>
+                            <ContextMenu model={menuItems} ref={menuRef}/>
+                            <Button
+                                icon="pi pi-ellipsis-v"
+                                className="p-button-rounded p-button-text menu-button"
+                                onClick={handleMenuClick}
+                            />
+                        </>
+                    )}
                 </div>
                 <div className="card-body">
                     <h5 className="card-title">
@@ -135,35 +153,37 @@ export default function Card({
                     </h5>
                     <p className="card-text">
                         <strong>{`₽${parseFloat(product.price).toFixed(2)}`}</strong>
-                        <br />
+                        <br/>
                         {product.status === "available" ? (
                             <span className="badge bg-success">В наличии</span>
                         ) : (
                             <span className="badge bg-danger">Снято с продажи</span>
                         )}
-                        <br />
+                        <br/>
                         <small className="text-muted">Продавец: {product.seller.name}</small>
-                        <br />
+                        <br/>
                         {user && (
                             <span className="views-count">
-                                <FiEye /> {product.viewsCount || 0} просмотров
+                                <FiEye/> {product.viewsCount || 0} просмотров
                             </span>
                         )}
                     </p>
-                    <button
-                        className={`btn w-100 ${isInCart ? "btn-secondary" : "btn-success p-button-success"}`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleCartAction();
-                        }}
-                        disabled={isLoading}
-                    >
-                        {isLoading
-                            ? "Добавление в корзину..."
-                            : isInCart
-                                ? "Перейти в корзину"
-                                : "Добавить в корзину"}
-                    </button>
+                    {user && (
+                        <button
+                            className={`btn w-100 ${isInCart ? "btn-secondary" : "btn-success p-button-success"}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCartAction();
+                            }}
+                            disabled={isLoading}
+                        >
+                            {isLoading
+                                ? "Добавление в корзину..."
+                                : isInCart
+                                    ? "Перейти в корзину"
+                                    : "Добавить в корзину"}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

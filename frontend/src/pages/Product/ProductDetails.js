@@ -1,23 +1,24 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
-import { addView, getProductDetails } from "../../services/product";
+import {addView, getProductDetails} from "../../services/product";
 import Loader from "../../components/Loader";
-import { SplitButton } from "primereact/splitbutton";
-import { Toast } from "primereact/toast";
+import {SplitButton} from "primereact/splitbutton";
+import {Toast} from "primereact/toast";
 import "./ProductDetails.css";
-import { addToCart, getCart } from "../../services/cart";
 import CartContext from "../../context/CartContext";
+import FavoriteContext from "../../context/FavouriteContext";
 
 const ProductDetails = () => {
     const toast = useRef(null);
-    const { id } = useParams();
+    const {id} = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentImage, setCurrentImage] = useState("");
     const [activeTab, setActiveTab] = useState("description");
-    const { user } = useContext(AuthContext);
-    const { cartItems, updateCartItems, addCart } = useContext(CartContext);
+    const {user} = useContext(AuthContext);
+    const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
+    const {cartItems, updateCartItems, addCart} = useContext(CartContext);
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -47,7 +48,7 @@ const ProductDetails = () => {
 
     useEffect(() => {
         fetchProductDetails();
-    }, [id]);
+    }, [favorites]);
 
     const handleImageClick = (imageUrl) => {
         setCurrentImage(imageUrl);
@@ -90,11 +91,25 @@ const ProductDetails = () => {
 
     const isOwner = user?.id === seller?.userId;
 
-    const menuItems = [
+    const handleAddToFavorites = async () => {
+        toast.current.show({severity: "success", summary: "Добавлено в избранное"});
+        await addFavoriteItem(product.id);
+    }
+
+    const handleRemoveFavorites = async () => {
+        toast.current.show({severity: "info", summary: "Удалено из избранного"});
+        await removeFavoriteItem(product.id);
+    }
+
+    const isFavorite = () => {
+        return favorites && favorites.some((fav) => fav.product_id === product.id);
+    };
+
+    const getMenuItems = () => [
         {
-            label: "Добавить в избранное",
+            label: isFavorite() ? "Удалить из избранного" : "Добавить в избранное",
             icon: "pi pi-heart",
-            command: () => alert(`Товар ${product?.id} добавлен в избранное`),
+            command: isFavorite() ? handleRemoveFavorites : handleAddToFavorites,
         },
         {
             label: "Пожаловаться",
@@ -109,18 +124,11 @@ const ProductDetails = () => {
                     command: () => alert(`Редактирование товара ${product?.id}`),
                 },
                 {
-                    label:
-                        status === "available"
-                            ? "Снять с продажи"
-                            : "Вернуть в продажу",
+                    label: status === "available" ? "Снять с продажи" : "Вернуть в продажу",
                     icon: "pi pi-eye-slash",
                     command: () =>
                         alert(
-                            `Смена статуса товара: ${
-                                status === "available"
-                                    ? "discontinued"
-                                    : "available"
-                            }`
+                            `Смена статуса товара: ${status === "available" ? "discontinued" : "available"}`
                         ),
                 },
                 {
@@ -134,7 +142,7 @@ const ProductDetails = () => {
 
     return (
         <div className="product-details container">
-            <Toast ref={toast} />
+            <Toast ref={toast}/>
             <div className="row">
                 <div className="col-md-4">
                     <div className="image-container">
@@ -161,10 +169,10 @@ const ProductDetails = () => {
                     </div>
                 </div>
                 <div className="col-md-4">
-                    <h1 style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <h1 style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
                         {name}
-                        <span style={{ fontSize: "14px", color: "#777", display: "flex", alignItems: "center" }}>
-                            <i className="pi pi-eye" style={{ marginRight: "5px" }}></i>
+                        <span style={{fontSize: "14px", color: "#777", display: "flex", alignItems: "center"}}>
+                            <i className="pi pi-eye" style={{marginRight: "5px"}}></i>
                             {product.viewsCount}
                         </span>
                     </h1>
@@ -193,7 +201,7 @@ const ProductDetails = () => {
                                 handleCartAction(product.id);
                             }}
                             disabled={isLoading}
-                            model={menuItems}
+                            model={getMenuItems()}
                         />
                     </div>
                 </div>

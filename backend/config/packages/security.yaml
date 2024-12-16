@@ -35,7 +35,11 @@ security:
             provider: app_user_provider
 
     access_control:
-#        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/categories, roles: PUBLIC_ACCESS  }
+        - { path: ^/api/products, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api, roles: ROLE_USER  }
+#        - { path: ^/api/cart, roles: ROLE_USER }
 #        - { path: ^/api/product/*, roles: ROLE_SELLER }
 #        - { path: ^/api, roles: ROLE_USER }
