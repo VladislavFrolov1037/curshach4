@@ -36,6 +36,11 @@ const CreateSeller = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (formData.type === 'company') {
+            const { passport, ...updatedFormData } = formData;
+            setFormData(updatedFormData);
+        }
+
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
@@ -48,6 +53,7 @@ const CreateSeller = () => {
 
             navigate('/seller');
         } catch (e) {
+            console.log(formData)
             setErrors(e.response.data.errors || {});
         }
     };
