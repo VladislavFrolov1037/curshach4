@@ -4,10 +4,21 @@ import {Button} from "primereact/button";
 import './CartItem.css';
 import FavoriteContext from "../../context/FavouriteContext";
 
-const CartItem = ({cartItem, handleRemoveFromCart, handleAddToFavorites, handleRemoveFavorites}) => {
+const CartItem = ({ cartItem, handleRemoveFromCart, handleAddToFavorites, handleRemoveFavorites, handleQuantityChange }) => {
     const {favorites} = useContext(FavoriteContext);
+    const { product, quantity } = cartItem;
 
     const isFavorite = favorites.some(fav => fav.product_id === cartItem.product.id);
+
+    const handleIncrease = () => {
+        handleQuantityChange(product.id, quantity + 1);
+    };
+
+    const handleDecrease = () => {
+        if (quantity > 1) {
+            handleQuantityChange(product.id, quantity - 1);
+        }
+    };
 
     return (
         <div className="cart-item d-flex align-items-center py-3 border-bottom">
@@ -27,13 +38,13 @@ const CartItem = ({cartItem, handleRemoveFromCart, handleAddToFavorites, handleR
                     <Button
                         icon="pi pi-minus"
                         className="p-button-rounded p-button-text p-button-danger me-2"
-                        onClick={() => handleRemoveFromCart(cartItem.product.id)}
+                        onClick={() => handleDecrease(cartItem.product.id)}
                     />
                     <span>{cartItem.quantity}</span>
                     <Button
                         icon="pi pi-plus"
                         className="p-button-rounded p-button-text p-button-success ms-2"
-                        onClick={() => handleRemoveFromCart(cartItem.product.id)}
+                        onClick={() => handleIncrease(cartItem.product.id)}
                     />
                 </div>
             </div>

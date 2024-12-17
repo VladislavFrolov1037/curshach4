@@ -39,10 +39,13 @@ function Header() {
                         {user && (
                             <>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to="/">Избранное</Link>
+                                    <Link className="nav-link" to="/favorites">Избранное</Link>
                                 </li>
                                 <li className="nav-item">
                                     <Link className="nav-link" to="/cart">Корзина</Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/orders">Заказы</Link>
                                 </li>
                             </>
                         )}

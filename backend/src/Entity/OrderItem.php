@@ -22,6 +22,9 @@ class OrderItem
     #[ORM\Column]
     private ?int $price = null;
 
+    #[ORM\ManyToOne(inversedBy: 'orderItems')]
+    private ?Order $request = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +62,18 @@ class OrderItem
     public function setPrice(int $price): static
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    public function getRequest(): ?Order
+    {
+        return $this->request;
+    }
+
+    public function setRequest(?Order $request): static
+    {
+        $this->request = $request;
 
         return $this;
     }

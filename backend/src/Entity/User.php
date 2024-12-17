@@ -49,28 +49,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\OneToOne(targetEntity: Seller::class, mappedBy: 'user')]
+    #[ORM\OneToOne(targetEntity: Seller::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Seller $seller = null;
 
     /**
      * @var Collection<int, ViewedProduct>
      */
-    #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $viewedProducts;
 
-    #[ORM\OneToOne(targetEntity: Cart::class, mappedBy: 'user')]
+    #[ORM\OneToOne(targetEntity: Cart::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Cart $cart = null;
 
     /**
      * @var Collection<int, Favorite>
      */
-    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $favorites;
 
     /**
      * @var Collection<int, Order>
      */
-    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $orders;
 
     public function __construct()

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Favorite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<Favorite>
@@ -16,28 +17,30 @@ class FavoriteRepository extends ServiceEntityRepository
         parent::__construct($registry, Favorite::class);
     }
 
-//    /**
-//     * @return Favorite[] Returns an array of Favorite objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('f')
-//            ->andWhere('f.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('f.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findByFilter(UserInterface $user, $sortOption)
+    {
+        $qb = $this->createQueryBuilder('f')
+            ->leftJoin('f.product', 'p')
+            ->andWhere('f.user = :user')
+            ->setParameter('user', $user);
 
-//    public function findOneBySomeField($value): ?Favorite
-//    {
-//        return $this->createQueryBuilder('f')
-//            ->andWhere('f.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        switch ($sortOption) {
+            case 'date_asc':
+                $qb->orderBy('f.createdAt', 'ASC');
+                break;
+            case 'date_desc':
+                $qb->orderBy('f.createdAt', 'DESC');
+                break;
+            case 'price_asc':
+                $qb->orderBy('p.price', 'ASC');
+                break;
+            case 'price_desc':
+                $qb->orderBy('p.price', 'DESC');
+                break;
+            default:
+                $qb->orderBy('f.createdAt', 'DESC');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

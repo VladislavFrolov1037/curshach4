@@ -1,19 +1,23 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Loader from "../../components/Loader";
-import {getCart} from "../../services/cart";
+import { decreaseItem, getCart, increaseItem } from "../../services/cart";
 import CartItem from "../../components/CartItem/CartItem";
-import {Button} from "primereact/button";
+import { Button } from "primereact/button";
 import './Cart.css';
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
+import { createOrder } from "../../services/order";  // Подключаем функцию создания заказа
 
 const Cart = () => {
     const [loading, setLoading] = useState(true);
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [totalQuantity, setTotalQuantity] = useState(0);
-    const {removeCartItem} = useContext(CartContext);
-    const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
+    const [paymentMethod, setPaymentMethod] = useState('cardOnDelivery');
+    const [shippingAddress, setShippingAddress] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false); // Состояние для загрузки
+    const { removeCartItem } = useContext(CartContext);
+    const { favorites, addFavoriteItem, removeFavoriteItem } = useContext(FavoriteContext);
 
     const fetchProducts = async () => {
         try {
@@ -56,12 +60,64 @@ const Cart = () => {
         await removeFavoriteItem(id);
     }
 
+    const handleQuantityChange = (productId, newQuantity) => {
+        setCartItems(prevItems => {
+            const updatedCartItems = prevItems.map(item => {
+                if (item.product.id === productId) {
+                    if (newQuantity <= item.product.quantity) {
+                        item.quantity = newQuantity;
+                    }
+                }
+                return item;
+            });
+
+            const total = updatedCartItems.reduce((acc, item) => acc + item.quantity * parseFloat(item.product.price), 0);
+            const quantity = updatedCartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+            setTotalPrice(total);
+            setTotalQuantity(quantity);
+
+            return updatedCartItems;
+        });
+
+        if (newQuantity > 0) {
+            if (newQuantity > cartItems.find(item => item.product.id === productId).quantity) {
+                increaseItem(productId).catch(error => {
+                    console.error("Ошибка при увеличении количества товара:", error);
+                });
+            } else {
+                decreaseItem(productId).catch(error => {
+                    console.error("Ошибка при уменьшении количества товара:", error);
+                });
+            }
+        }
+    };
+
+    const handleOrderSubmit = async () => {
+        if (isSubmitting) return; // Защита от повторных запросов
+
+        setIsSubmitting(true); // Устанавливаем статус загрузки
+
+        try {
+            const data = await createOrder(shippingAddress, paymentMethod);
+            setCartItems([]);  // Очищаем корзину локально
+            setTotalPrice(0);
+            setTotalQuantity(0);
+            alert(`Заказ успешно оформлен! ID: ${data.orderId}`);
+        } catch (error) {
+            console.error('Ошибка при оформлении заказа:', error);
+            alert('Произошла ошибка при оформлении заказа. Попробуйте снова.');
+        } finally {
+            setIsSubmitting(false); // Сбрасываем статус загрузки
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
     }, []);
 
     if (loading) {
-        return <Loader/>;
+        return <Loader />;
     }
 
     return (
@@ -76,6 +132,7 @@ const Cart = () => {
                                 handleRemoveFromCart={handleRemoveFromCart}
                                 handleAddToFavorites={handleAddToFavorites}
                                 handleRemoveFavorites={handleRemoveFavorites}
+                                handleQuantityChange={handleQuantityChange} // передаем функцию для изменения количества
                             />
                         ))
                     ) : (
@@ -100,14 +157,39 @@ const Cart = () => {
                         <h6>Способ оплаты</h6>
                         <div className="payment-method">
                             <label className="payment-option">
-                                <input type="radio" name="paymentMethod" value="cardOnDelivery"/> Картой при получении
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="cardOnDelivery"
+                                    checked={paymentMethod === 'cardOnDelivery'}
+                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                /> Картой при получении
                             </label>
                             <label className="payment-option">
-                                <input type="radio" name="paymentMethod" value="cardOnline"/> Картой на сайте
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="cardOnline"
+                                    checked={paymentMethod === 'cardOnline'}
+                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                /> Картой на сайте
                             </label>
                         </div>
 
-                        <Button label="Оформить заказ" className="p-button p-button-success mt-4"/>
+                        <input
+                            type="text"
+                            placeholder="Введите адрес доставки"
+                            className="form-control mt-3"
+                            value={shippingAddress}
+                            onChange={(e) => setShippingAddress(e.target.value)}
+                        />
+
+                        <Button
+                            label="Оформить заказ"
+                            className="p-button p-button-success mt-4"
+                            onClick={handleOrderSubmit}
+                            disabled={totalQuantity === 0 || !shippingAddress || isSubmitting}
+                        />
                     </div>
                 </div>
             </div>

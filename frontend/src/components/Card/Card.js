@@ -15,6 +15,7 @@ export default function Card({
                                  setActiveMenuRef,
                                  handleHideProduct,
                                  handleDeleteProduct,
+                                 handleRemoveFavorite = null
                              }) {
     const {user} = useContext(AuthContext);
     const {cartItems, updateCartItems, addCart} = useContext(CartContext);
@@ -40,12 +41,16 @@ export default function Card({
 
     const handleMenuClick = (e) => {
         e.preventDefault();
-        if (activeMenuRef && activeMenuRef.current !== menuRef.current) {
+        if (activeMenuRef?.current && activeMenuRef.current !== menuRef.current) {
             activeMenuRef.current.hide();
         }
         setActiveMenuRef(menuRef);
-        menuRef.current.show(e);
+
+        if (menuRef?.current) {
+            menuRef.current.show(e);
+        }
     };
+
 
     const handleCartAction = async () => {
         setIsLoading(true);
@@ -60,14 +65,21 @@ export default function Card({
     };
 
     const handleAddToFavorites = async () => {
-        await addFavoriteItem(product.id);
         toast.current.show({severity: "success", summary: "Добавлено в избранное"});
+        await addFavoriteItem(product.id);
     };
 
     const handleRemoveFromFavorites = async () => {
-        await removeFavoriteItem(product.id);
         toast.current.show({severity: "info", summary: "Удалено из избранного"});
+
+        if (handleRemoveFavorite !== null) {
+            handleRemoveFavorite(product.id);
+        }
+
+        await removeFavoriteItem(product.id);
+
     };
+
 
     const handleReport = async () => {
         alert(product.id);

@@ -15,3 +15,15 @@ export const getCart = async () => {
 export const deleteItemForCart = async (id) => {
     await axios.delete(`/product/${id}/cart`);
 }
+
+export const decreaseItem = async (id) => {
+    const response = await axios.patch(`/product/${id}/cart/decrease`);
+
+    return response.data;
+}
+
+export const increaseItem = async (id) => {
+    const response = await axios.patch(`/product/${id}/cart/increase`);
+
+    return response.data;
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import {Route, Routes} from 'react-router-dom';
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import Profile from "./pages/Profile/Profile";
@@ -13,25 +13,31 @@ import ProductsPage from "./pages/Product/ProductsPage";
 import Forbidden from "./pages/Exception/Forbidden";
 import NotFound from "./pages/Exception/NotFound";
 import Cart from "./pages/Cart/Cart";
+import Favorite from "./pages/Favorite/Favorite";
+import Orders from "./pages/Order/Order";
+import OrderDetails from "./pages/Order/OrderDetails";
 
 function AppRoutes() {
     return (
         <Routes>
-            <Route path="/" element={<ProductList />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/become-seller" element={<CreateSeller />} />
-            <Route path="/seller" element={<Seller />} />
-            <Route path="/my-products" element={<MyProducts />} />
-            <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/create-product" element={<CreateProduct />} />
-            <Route path="/products/:categoryId" element={<ProductsPage />} />
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/" element={<ProductList/>}/>
+            <Route path="/login" element={<Login/>}/>
+            <Route path="/register" element={<Register/>}/>
+            <Route path="/profile" element={<Profile/>}/>
+            <Route path="/become-seller" element={<CreateSeller/>}/>
+            <Route path="/seller" element={<Seller/>}/>
+            <Route path="/my-products" element={<MyProducts/>}/>
+            <Route path="/product/:id" element={<ProductDetails/>}/>
+            <Route path="/create-product" element={<CreateProduct/>}/>
+            <Route path="/products/:categoryId" element={<ProductsPage/>}/>
+            <Route path="/cart" element={<Cart/>}/>
+            <Route path="/favorites" element={<Favorite/>}/>
+            <Route path="/orders" element={<Orders />}/>
+            <Route path="/orders/:orderId" element={<OrderDetails />}/>
 
             {/* Exceptions */}
-            <Route path="/forbidden" element={<Forbidden />} />
-            <Route path="/not-found" element={<NotFound />} />
+            <Route path="/forbidden" element={<Forbidden/>}/>
+            <Route path="/not-found" element={<NotFound/>}/>
         </Routes>
     );
 }

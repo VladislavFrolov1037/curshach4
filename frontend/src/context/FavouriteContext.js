@@ -7,9 +7,12 @@ export const FavoriteProvider = ({children}) => {
     const [favorites, setFavorites] = useState([]);
 
     const getFavoritesItems = async () => {
-        const favoritesList = await getFavorites();
+        const token = localStorage.getItem("token");
 
-        setFavorites(favoritesList);
+        if (token) {
+            const favoritesList = await getFavorites();
+            setFavorites(favoritesList);
+        }
     };
 
     useEffect(() => {
@@ -26,6 +29,7 @@ export const FavoriteProvider = ({children}) => {
         setFavorites((prev) => prev.filter((item) => item.product_id !== id));
 
         await removeFavorite(id);
+        getFavoritesItems();
     };
 
     return (

@@ -16,10 +16,10 @@ class ViewedProduct
     #[ORM\Column]
     private ?\DateTimeImmutable $viewed_at = null;
 
-    #[ORM\ManyToOne(inversedBy: 'viewedProducts')]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'], inversedBy: 'viewedProducts')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'viewedProducts')]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'], inversedBy: 'viewedProducts')]
     private ?Product $product = null;
 
     public function getId(): ?int

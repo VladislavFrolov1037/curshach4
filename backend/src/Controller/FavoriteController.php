@@ -9,6 +9,7 @@ use App\Repository\FavoriteRepository;
 use App\Services\FavoriteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -19,13 +20,13 @@ class FavoriteController extends AbstractController
     }
 
     #[Route('/api/favorite', name: 'get_favorite', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $user = $this->getUser();
+        $sortOption = $request->query->get('sort', 'date_desc');
 
-        $favorite = $this->favoriteRepository->findBy(['user' => $user]);
+        $favorites = $this->favoriteRepository->findByFilter($this->getUser(), $sortOption);
 
-        return $this->json($favorite, 200, [], ['detailed' => true]);
+        return $this->json($favorites, 200, [], ['detailed' => true]);
     }
 
     #[Route('/api/favorite/product/{id}', name: 'add_favorite', methods: ['POST'])]
