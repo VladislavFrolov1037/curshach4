@@ -9,11 +9,14 @@ import {editProfile} from "../../services/auth";
 import {filterChangedFields} from "../../utils/objectUtils";
 import Loader from "../../components/Loader";
 import Error from "../../components/Error";
+import {getViewedProducts} from "../../services/product";
+import Card from "../../components/Card/Card";
 
 const Profile = () => {
     const {user, updateUser, logout} = useContext(AuthContext);
-
+    const [viewedProducts, setViewedProducts] = useState([]);
     const [errors, setErrors] = useState({});
+    const [activeMenuRef, setActiveMenuRef] = useState(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -21,6 +24,12 @@ const Profile = () => {
         phone: '',
         gender: '',
     });
+
+    const viewedProduct =  async () => {
+        const response = await getViewedProducts();
+        const products = response.map(favorite => favorite.product);
+        setViewedProducts(products);
+    }
 
     useEffect(() => {
         if (user) {
@@ -31,6 +40,8 @@ const Profile = () => {
                 gender: user.gender || '',
             });
         }
+
+        viewedProduct();
     }, [user]);
 
     if (!user) {
@@ -91,7 +102,7 @@ const Profile = () => {
                                         placeholder="Введите имя"
                                         onChange={handleChange}
                                     />
-                                    {errors.name && <Error error={errors.name} />}
+                                    {errors.name && <Error error={errors.name}/>}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="email" className="form-label">Почта</label>
@@ -104,7 +115,7 @@ const Profile = () => {
                                         onChange={handleChange}
                                         value={formData.email}
                                     />
-                                    {errors.email && <Error error={errors.email} />}
+                                    {errors.email && <Error error={errors.email}/>}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="phone" className="form-label">Телефон</label>
@@ -117,7 +128,7 @@ const Profile = () => {
                                         onChange={handleChange}
                                         value={formData.phone}
                                     />
-                                    {errors.phone && <Error error={errors.phone} />}
+                                    {errors.phone && <Error error={errors.phone}/>}
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="gender" className="form-label">Пол</label>
@@ -131,7 +142,7 @@ const Profile = () => {
                                         <option value="male">Мужчина</option>
                                         <option value="female">Женщина</option>
                                     </select>
-                                    {errors.gender && <Error error={errors.gender} />}
+                                    {errors.gender && <Error error={errors.gender}/>}
                                 </div>
                             </form>
                         </UniversalModal>
@@ -188,16 +199,18 @@ const Profile = () => {
 
             <div className="mt-5">
                 <h4>Просмотренные товары</h4>
-                {user.viewedProducts && user.viewedProducts.length > 0 ? (
-                    <ul className="list-group">
-                        {user.viewedProducts.map(product => (
-                            <li key={product.id}
-                                className="list-group-item d-flex justify-content-between align-items-center">
-                                <span>{product.name}</span>
-                                <span className="badge bg-primary rounded-pill">{product.price} ₽</span>
-                            </li>
+                {viewedProducts.length > 0 ? (
+                    <div className="row row-cols-5 g-5">
+                        {viewedProducts.map((product) => (
+                            <div className="col" key={product.id}>
+                                <Card
+                                    product={product}
+                                    activeMenuRef={activeMenuRef}
+                                    setActiveMenuRef={setActiveMenuRef}
+                                />
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 ) : (
                     <p>Нет данных о просмотренных товарах.</p>
                 )}

@@ -94,11 +94,6 @@ export default function Card({
                     ? handleRemoveFromFavorites()
                     : handleAddToFavorites(),
         },
-        {
-            label: "Пожаловаться на товар",
-            icon: "pi pi-flag",
-            command: () => handleReport(product.id),
-        },
         ...(isOwner
             ? [
                 ...(product.status === "available"

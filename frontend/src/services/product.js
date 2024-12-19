@@ -79,3 +79,9 @@ export const getProductsByCategory = async (id) => {
 
     return response.data;
 }
+
+export const getViewedProducts = async() => {
+    const response = await axios.get(`/viewed`);
+
+    return response.data;
+}

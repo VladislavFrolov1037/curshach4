@@ -10,6 +10,7 @@ use App\Entity\Product;
 use App\Enum\ProductStatus;
 use App\Exception\ValidationException;
 use App\Repository\ProductRepository;
+use App\Repository\ViewedProductRepository;
 use App\Services\ProductService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,7 +24,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProductController extends AbstractController
 {
-    public function __construct(private ProductService $productService, private ProductRepository $productRepository, private ValidatorInterface $validator, private EntityManagerInterface $em)
+    public function __construct(private ProductService $productService, private ProductRepository $productRepository, private ValidatorInterface $validator, private EntityManagerInterface $em, private readonly ViewedProductRepository $viewedProductRepository)
     {
     }
 
@@ -125,5 +126,15 @@ class ProductController extends AbstractController
         $products = $this->productRepository->findBy(['category' => $category]);
 
         return $this->json($products);
+    }
+
+    #[Route('/api/viewed', name: 'get_viewed', methods: ['GET'])]
+    public function getViewedProducts(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        $viewedProducts = $this->viewedProductRepository->findBy(['user' => $user]);
+
+        return $this->json($viewedProducts);
     }
 }

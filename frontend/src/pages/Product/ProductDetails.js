@@ -111,11 +111,6 @@ const ProductDetails = () => {
             icon: "pi pi-heart",
             command: isFavorite() ? handleRemoveFavorites : handleAddToFavorites,
         },
-        {
-            label: "Пожаловаться",
-            icon: "pi pi-flag",
-            command: () => alert(`Жалоба на товар ${product?.id}`),
-        },
         ...(isOwner
             ? [
                 {

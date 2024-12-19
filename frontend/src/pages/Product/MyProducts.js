@@ -64,7 +64,7 @@ const MyProducts = () => {
                         <div className="col" key={product.id}>
                             <Card
                                 product={product}
-                                cartItems={cartItems}  // Передаем корзину в компонент Card
+                                cartItems={cartItems}
                                 activeMenuRef={activeMenuRef}
                                 setActiveMenuRef={setActiveMenuRef}
                                 handleHideProduct={handleHideProduct}
