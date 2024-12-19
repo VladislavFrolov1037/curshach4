@@ -6,19 +6,22 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use App\Entity\OrderItem;
+use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use App\Services\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrderController extends AbstractController
 {
-    public function __construct(private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em)
+    public function __construct(private readonly TranslatorInterface $translator,private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em)
     {
     }
 
@@ -41,7 +44,7 @@ class OrderController extends AbstractController
         $order->setUser($user);
         $order->setShippingAddress($shippingAddress);
         $order->setCreatedAt(new \DateTimeImmutable());
-        $order->setStatus('created');
+        $order->setStatus(OrderStatus::STATUS_NEW);
         $totalPrice = 0;
 
         foreach ($cartItems as $item) {
@@ -71,8 +74,22 @@ class OrderController extends AbstractController
         }
         $this->em->flush();
 
-
         return $this->json(['message' => 'Заказ создан', 'orderId' => $order->getId()], Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/order/{id}/pay', name: 'pay_order', methods: ['POST'])]
+    public function payOrder(Order $order): JsonResponse
+    {
+        if (OrderStatus::STATUS_NEW !== $order->getStatus()) {
+            return $this->json(['error' => 'Оплатить можно только новый заказ'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Здесь вомзонжо будет логика интеграции с платежной системой
+
+        $order->setStatus(OrderStatus::STATUS_PAID);
+        $this->em->flush();
+
+        return $this->json(['message' => 'Заказ оплачен', 'orderId' => $order->getId()]);
     }
 
     #[Route('/api/orders', name: 'get_user_orders', methods: ['GET'])]
@@ -91,7 +108,7 @@ class OrderController extends AbstractController
             $ordersData[] = [
                 'id' => $order->getId(),
                 'createdAt' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
-                'status' => $order->getStatus(),
+                'status' => $this->translator->trans($order->getStatus()),
                 'totalPrice' => $order->getTotalPrice(),
                 'orderItems' => array_map(function ($orderItem) {
                     return [
@@ -107,27 +124,6 @@ class OrderController extends AbstractController
         return new JsonResponse($ordersData);
     }
 
-    // src/Controller/OrderController.php
-
-//    #[Route('/api/orders/{id}', name: 'get_order_details', methods: ['GET'])]
-//    public function getOrderDetails(int $id): JsonResponse
-//    {
-//        $user = $this->security->getUser();
-//
-//        if (!$user) {
-//            return new JsonResponse(['error' => 'Пользователь не авторизован'], 401);
-//        }
-//
-//        $order = $this->orderRepository->findOneBy(['user' => $user, 'id' => $id]);
-//
-//        if (!$order) {
-//            return new JsonResponse(['error' => 'Заказ не найден'], 404);
-//        }
-//
-//        return new JsonResponse($orderData);
-//    }
-
-
     #[Route('/api/order/{id}/cancel', name: 'cancel_order', methods: ['POST'])]
     public function cancelOrder(int $id): JsonResponse
     {
@@ -139,14 +135,14 @@ class OrderController extends AbstractController
             return $this->json(['error' => 'Заказ не найден или доступ запрещен'], Response::HTTP_FORBIDDEN);
         }
 
-        if ('created' !== $order->getStatus()) {
-            return $this->json(['error' => 'Отменить можно только заказы со статусом "created"'], Response::HTTP_BAD_REQUEST);
+        if (OrderStatus::STATUS_NEW !== $order->getStatus()) {
+            return $this->json(['error' => 'Отменить можно только заказы со статусом "new"'], Response::HTTP_BAD_REQUEST);
         }
 
         $now = new \DateTimeImmutable();
         $timeDiff = $now->getTimestamp() - $order->getCreatedAt()->getTimestamp();
 
-        if ($timeDiff > 600) { // 10 минут = 600 секунд
+        if ($timeDiff > 600) {
             return $this->json(['error' => 'Срок отмены заказа истёк'], Response::HTTP_BAD_REQUEST);
         }
 

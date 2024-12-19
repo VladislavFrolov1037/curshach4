@@ -219,6 +219,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return in_array('ROLE_SELLER', $this->getRoles());
     }
 
+    public function isAdmin(): bool
+    {
+        return in_array('ROLE_ADMIN', $this->getRoles());
+    }
+
     public function getSeller(): ?Seller
     {
         return $this->seller;

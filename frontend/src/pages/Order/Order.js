@@ -1,12 +1,13 @@
-// Orders.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from '../../services/axiosInstance';
 import Loader from "../../components/Loader";
-import { Link } from 'react-router-dom'; // Для перехода по ссылке
+import { Link } from 'react-router-dom';
+import { Toast } from 'primereact/toast';
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const toast = useRef(null); // Реф для управления Toast
 
     const fetchOrders = async () => {
         try {
@@ -16,6 +17,32 @@ const Orders = () => {
             console.error('Ошибка при загрузке заказов:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCancelOrder = async (orderId) => {
+        try {
+            await axios.post(`/order/${orderId}/cancel`);
+            setOrders(orders.map(order =>
+                order.id === orderId ? { ...order, status: 'Отменен' } : order
+            ));
+            toast.current.show({ severity: 'success', summary: 'Успех', detail: 'Заказ успешно отменен', life: 3000 });
+        } catch (error) {
+            console.error('Ошибка при отмене заказа:', error);
+            toast.current.show({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось отменить заказ', life: 3000 });
+        }
+    };
+
+    const handlePayOrder = async (orderId) => {
+        try {
+            await axios.post(`/order/${orderId}/pay`);
+            setOrders(orders.map(order =>
+                order.id === orderId ? { ...order, status: 'Оплачен' } : order
+            ));
+            toast.current.show({ severity: 'success', summary: 'Успех', detail: 'Заказ успешно оплачен', life: 3000 });
+        } catch (error) {
+            console.error('Ошибка при оплате заказа:', error);
+            toast.current.show({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось оплатить заказ', life: 3000 });
         }
     };
 
@@ -29,6 +56,7 @@ const Orders = () => {
 
     return (
         <div className="container py-5">
+            <Toast ref={toast} /> {/* Компонент Toast */}
             <h2 className="mb-4">Мои заказы</h2>
             {orders.length === 0 ? (
                 <p>У вас нет заказов.</p>
@@ -47,21 +75,29 @@ const Orders = () => {
                                     <ul className="list-group">
                                         {order.orderItems.map(item => (
                                             <li className="list-group-item d-flex align-items-center" key={item.productId}>
-                                                {/*/!* Мини-фотография товара *!/*/}
-                                                {/*<img*/}
-                                                {/*    src={item.productImageUrl} // предполагается, что есть поле с изображением товара*/}
-                                                {/*    alt={item.productName}*/}
-                                                {/*    className="img-thumbnail mr-3"*/}
-                                                {/*    style={{ width: '50px', height: '50px', objectFit: 'cover' }}*/}
-                                                {/*/>*/}
-
-                                                {/* Ссылка на страницу товара */}
                                                 <Link to={`/product/${item.productId}`} className="ml-2">
                                                     {item.productName} (x{item.quantity}) — ₽{item.price.toFixed(2)}
                                                 </Link>
                                             </li>
                                         ))}
                                     </ul>
+
+                                    {order.status === 'Новый' && (
+                                        <div className="mt-3 d-flex justify-content-between">
+                                            <button
+                                                className="btn btn-success"
+                                                onClick={() => handlePayOrder(order.id)}
+                                            >
+                                                Оплатить
+                                            </button>
+                                            <button
+                                                className="btn btn-danger"
+                                                onClick={() => handleCancelOrder(order.id)}
+                                            >
+                                                Отменить
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

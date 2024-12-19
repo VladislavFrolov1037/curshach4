@@ -1,0 +1,52 @@
+.admin-dashboard {
+    background-color: #f8f9fa;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+.admin-dashboard .container {
+    max-width: 1200px;
+}
+
+.row {
+    justify-content: center;
+}
+
+.admin-dashboard .row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.admin-dashboard .col-md-6 {
+    display: flex;
+    justify-content: center;
+}
+
+.admin-card {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.admin-card .icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.admin-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.admin-card .count {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+i {
+    font-size: 24px;
+    color: #000;
+}

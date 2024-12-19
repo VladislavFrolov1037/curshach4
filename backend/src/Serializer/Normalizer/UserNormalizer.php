@@ -23,6 +23,7 @@ class UserNormalizer implements NormalizerInterface
             'phone' => $object->getPhone(),
             'createdAt' => $object->getCreatedAt()->format('d.m.Y H:i:s'),
             'isSeller' => $object->isSeller(),
+            'isAdmin' => $object->isAdmin(),
         ];
     }
 

@@ -1,0 +1,101 @@
+.admin-container {
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    text-align: center;
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+.styled-table th, .styled-table td {
+    padding: 12px 15px;
+    text-align: center;
+}
+
+.styled-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.styled-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.styled-table tr:hover {
+    background-color: #ddd;
+}
+
+.action-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.action-btn.approve {
+    background-color: #28a745;
+}
+
+.action-btn.deactivate {
+    background-color: #dc3545;
+}
+
+.action-btn.activate {
+    background-color: #ffc107;
+}
+
+.action-btn.reject {
+    background-color: #dc3545;
+}
+
+.action-btn:hover {
+    background-color: #007bff;
+}
+
+.seller-details {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.seller-details h2 {
+    text-align: center;
+    color: #333;
+}
+
+.seller-details div {
+    margin-bottom: 10px;
+}
+
+.seller-image {
+    max-width: 200px;
+    height: auto;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .styled-table {
+        font-size: 14px;
+    }
+    .action-btn {
+        font-size: 12px;
+    }
+}

@@ -16,6 +16,9 @@ import Cart from "./pages/Cart/Cart";
 import Favorite from "./pages/Favorite/Favorite";
 import Orders from "./pages/Order/Order";
 import OrderDetails from "./pages/Order/OrderDetails";
+import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
+import AdminOrder from "./pages/Admin/AdminOrder/AdminOrder";
+import AdminSeller from "./pages/Admin/AdminSeller/AdminSeller";
 
 function AppRoutes() {
     return (
@@ -32,8 +35,14 @@ function AppRoutes() {
             <Route path="/products/:categoryId" element={<ProductsPage/>}/>
             <Route path="/cart" element={<Cart/>}/>
             <Route path="/favorites" element={<Favorite/>}/>
-            <Route path="/orders" element={<Orders />}/>
-            <Route path="/orders/:orderId" element={<OrderDetails />}/>
+            <Route path="/orders" element={<Orders/>}/>
+            <Route path="/orders/:orderId" element={<OrderDetails/>}/>
+
+            {/*  For admins  */}
+            <Route path="/admin" element={<AdminDashboard/>}/>
+            <Route path="/admin/orders" element={<AdminOrder />}/>
+            {/*<Route path="/admin/users" element={<AdminOrder />}/>*/}
+            <Route path="/admin/sellers" element={<AdminSeller />}/>
 
             {/* Exceptions */}
             <Route path="/forbidden" element={<Forbidden/>}/>

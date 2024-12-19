@@ -1,0 +1,39 @@
+.admin-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-radius: 12px;
+    color: #333;
+    text-decoration: none;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.admin-card-content {
+    display: flex;
+    align-items: center;
+}
+
+.admin-card-icon {
+    font-size: 2rem;
+    margin-right: 20px;
+    color: #007bff;
+}
+
+.admin-card-text h5 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.admin-card-text p {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+}
