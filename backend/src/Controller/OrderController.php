@@ -12,21 +12,22 @@ use App\Repository\ProductRepository;
 use App\Services\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrderController extends AbstractController
 {
-    public function __construct(private readonly TranslatorInterface $translator,private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em)
+    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em)
     {
     }
 
     #[Route('/api/order', name: 'create_order', methods: ['POST'])]
-    public function createOrder(Request $request): JsonResponse
+    public function createOrder(Request $request, MailerInterface $mailer): JsonResponse
     {
         $user = $this->getUser();
         $data = json_decode($request->getContent(), true);
@@ -73,6 +74,16 @@ class OrderController extends AbstractController
             $this->em->remove($cartItem);
         }
         $this->em->flush();
+
+        $user = $this->getUser();
+
+        $email = (new Email())
+            ->from('vladoperation@bk.ru')
+            ->to($user->getEmail())
+            ->subject('Оформление заказа')
+            ->text($user->getName().', ваш заказ успешно оформлен! Общая сумма заказа: '.$order->getTotalPrice()."р.\n".'Не забудьте оплатить заказ в личном кабинете.');
+
+        $mailer->send($email);
 
         return $this->json(['message' => 'Заказ создан', 'orderId' => $order->getId()], Response::HTTP_CREATED);
     }

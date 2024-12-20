@@ -1,7 +1,7 @@
 security:
     role_hierarchy:
         ROLE_SELLER: ROLE_USER
-        ROLE_ADMIN: ROLE_USER
+        ROLE_ADMIN: [ROLE_USER, ROLE_SELLER]
 
     password_hashers:
         App\Entity\User:
@@ -35,8 +35,8 @@ security:
             provider: app_user_provider
 
     access_control:
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/categories, roles: PUBLIC_ACCESS  }
         - { path: ^/api/products, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api, roles: ROLE_USER  }
