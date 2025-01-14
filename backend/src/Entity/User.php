@@ -73,10 +73,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $orders;
 
+    /**
+     * @var Collection<int, Feedback>
+     */
+    #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'user')]
+    private Collection $feedback;
+
+    /**
+     * @var Collection<int, FeedbackReply>
+     */
+    #[ORM\OneToMany(targetEntity: FeedbackReply::class, mappedBy: 'user')]
+    private Collection $feedbackReplies;
+
+    /**
+     * @var Collection<int, FeedbackReport>
+     */
+    #[ORM\OneToMany(targetEntity: FeedbackReport::class, mappedBy: 'user')]
+    private Collection $feedbackReports;
+
     public function __construct()
     {
         $this->viewedProducts = new ArrayCollection();
         $this->orders = new ArrayCollection();
+        $this->feedback = new ArrayCollection();
+        $this->feedbackReplies = new ArrayCollection();
+        $this->feedbackReports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -325,6 +346,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($favorite->getUser() === $this) {
                 $favorite->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Feedback>
+     */
+    public function getFeedback(): Collection
+    {
+        return $this->feedback;
+    }
+
+    public function addFeedback(Feedback $feedback): static
+    {
+        if (!$this->feedback->contains($feedback)) {
+            $this->feedback->add($feedback);
+            $feedback->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedback(Feedback $feedback): static
+    {
+        if ($this->feedback->removeElement($feedback)) {
+            // set the owning side to null (unless already changed)
+            if ($feedback->getUser() === $this) {
+                $feedback->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FeedbackReply>
+     */
+    public function getFeedbackReplies(): Collection
+    {
+        return $this->feedbackReplies;
+    }
+
+    public function addFeedbackReply(FeedbackReply $feedbackReply): static
+    {
+        if (!$this->feedbackReplies->contains($feedbackReply)) {
+            $this->feedbackReplies->add($feedbackReply);
+            $feedbackReply->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedbackReply(FeedbackReply $feedbackReply): static
+    {
+        if ($this->feedbackReplies->removeElement($feedbackReply)) {
+            // set the owning side to null (unless already changed)
+            if ($feedbackReply->getUser() === $this) {
+                $feedbackReply->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FeedbackReport>
+     */
+    public function getFeedbackReports(): Collection
+    {
+        return $this->feedbackReports;
+    }
+
+    public function addFeedbackReport(FeedbackReport $feedbackReport): static
+    {
+        if (!$this->feedbackReports->contains($feedbackReport)) {
+            $this->feedbackReports->add($feedbackReport);
+            $feedbackReport->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedbackReport(FeedbackReport $feedbackReport): static
+    {
+        if ($this->feedbackReports->removeElement($feedbackReport)) {
+            // set the owning side to null (unless already changed)
+            if ($feedbackReport->getUser() === $this) {
+                $feedbackReport->setUser(null);
             }
         }
 

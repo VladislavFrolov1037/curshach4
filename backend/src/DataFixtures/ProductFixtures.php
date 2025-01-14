@@ -9,6 +9,7 @@ use App\Enum\ProductStatus;
 use App\Repository\CategoryAttributeRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductAttributeRepository;
+use App\Repository\ProductRepository;
 use App\Repository\SellerRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -16,11 +17,20 @@ use Faker\Factory;
 
 class ProductFixtures extends Fixture
 {
+    private const CATEGORY_IMAGES = [
+        'Кроссовки' => ['uploads/Кроссовки 1.png', 'uploads/Кроссовки 2.png'],
+        'Кеды' => ['uploads/Кеды 1.jpg', 'uploads/Кеды 2.jpg'],
+        'Телефоны' => ['uploads/Телефон 1.jpg', 'uploads/Телефон 2.jpg'],
+    ];
+
     public function __construct(
         private readonly CategoryRepository          $categoryRepository,
         private readonly CategoryAttributeRepository $categoryAttributeRepository,
-        private readonly ProductAttributeRepository  $productAttributeRepository, private readonly SellerRepository $sellerRepository,
-    ) {
+        private readonly ProductRepository           $productRepository,
+        private readonly ProductAttributeRepository  $productAttributeRepository,
+        private readonly SellerRepository            $sellerRepository,
+    )
+    {
     }
 
     public function load(ObjectManager $manager): void
@@ -31,12 +41,24 @@ class ProductFixtures extends Fixture
 
         foreach ($categories as $category) {
             $categoryAttributes = $this->categoryAttributeRepository->findByCategory($category->getId());
+            $images = self::CATEGORY_IMAGES[$category->getName()] ?? ['uploads/default.png'];
 
             for ($i = 0; $i < 12; ++$i) {
+                $productName = $category->getName() . ' товар ' . $i;
+
+                $existingProduct = $this->productRepository->findOneBy([
+                    'name' => $productName,
+                    'category' => $category,
+                ]);
+
+                if ($existingProduct) {
+                    continue;
+                }
+
                 $product = new Product();
-                $product->setName($category->getName().' товар '.$i);
-                $product->setDescription('Описание товара №'.$i);
-                $product->setPrice(rand(100, 1000).'.00');
+                $product->setName($productName);
+                $product->setDescription('Описание товара №' . $i);
+                $product->setPrice(rand(100, 1000) . '.00');
                 $product->setQuantity(rand(1, 100));
                 $product->setCategory($category);
                 $product->setStatus(ProductStatus::STATUS_AVAILABLE);
@@ -45,7 +67,6 @@ class ProductFixtures extends Fixture
 
                 $manager->persist($product);
 
-                $images = ['uploads/Кроссовки 1.png', 'uploads/Кроссовки 2.png'];
                 $randKey = array_rand($images);
 
                 $image = new Image();
