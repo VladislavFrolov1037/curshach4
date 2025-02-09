@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Order;
+use App\Enum\OrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<Order>
@@ -16,6 +19,27 @@ class OrderRepository extends ServiceEntityRepository
         parent::__construct($registry, Order::class);
     }
 
+    public function findUserOrders(UserInterface $user, string $status)
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->andWhere('o.user = :user')
+            ->setParameter('user', $user);
+
+        return $this->applyFilters($qb, $status);
+    }
+
+    public function applyFilters(QueryBuilder $qb, string $status)
+    {
+        if ('end' === $status) {
+            $qb->andWhere('o.status IN (:statuses)')
+                ->setParameter('statuses', [OrderStatus::STATUS_CANCELLED, OrderStatus::STATUS_DELIVERED]);
+        } else {
+            $qb->andWhere('o.status NOT IN (:statuses)')
+                ->setParameter('statuses', [OrderStatus::STATUS_CANCELLED, OrderStatus::STATUS_DELIVERED]);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
     //    /**
     //     * @return Order[] Returns an array of Order objects
     //     */

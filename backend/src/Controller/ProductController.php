@@ -9,6 +9,7 @@ use App\Entity\Category;
 use App\Entity\Product;
 use App\Enum\ProductStatus;
 use App\Exception\ValidationException;
+use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use App\Repository\ViewedProductRepository;
 use App\Services\ProductService;
@@ -24,7 +25,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProductController extends AbstractController
 {
-    public function __construct(private ProductService $productService, private ProductRepository $productRepository, private ValidatorInterface $validator, private EntityManagerInterface $em, private readonly ViewedProductRepository $viewedProductRepository)
+    public function __construct(private ProductService $productService, private ProductRepository $productRepository, private ValidatorInterface $validator, private EntityManagerInterface $em, private readonly ViewedProductRepository $viewedProductRepository, private readonly OrderRepository $orderRepository)
     {
     }
 
@@ -44,6 +45,14 @@ class ProductController extends AbstractController
     public function list(): JsonResponse
     {
         $products = $this->productRepository->getProductsForFeed();
+
+        return $this->json($products);
+    }
+
+    #[Route('/api/purchase-products', methods: ['GET'])]
+    public function getPurchasedUserProducts(): JsonResponse
+    {
+        $products = $this->productRepository->findPurchasedUserProducts($this->getUser());
 
         return $this->json($products);
     }
@@ -93,7 +102,7 @@ class ProductController extends AbstractController
     {
         if (ProductStatus::STATUS_AVAILABLE === $product->getStatus()) {
             $product->setStatus(ProductStatus::STATUS_DISCONTINUED);
-        } else if (ProductStatus::STATUS_DISCONTINUED === $product->getStatus()) {
+        } elseif (ProductStatus::STATUS_DISCONTINUED === $product->getStatus()) {
             $product->setStatus(ProductStatus::STATUS_AVAILABLE);
         }
 

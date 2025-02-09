@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {FaEye, FaHeart, FaShoppingCart, FaSignOutAlt} from 'react-icons/fa';
+import {FaCoins, FaEye, FaHeart, FaShoppingCart, FaSignOutAlt} from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Profile.css';
 import AuthContext from "../../context/AuthContext";
@@ -17,6 +17,7 @@ const Profile = () => {
     const [viewedProducts, setViewedProducts] = useState([]);
     const [errors, setErrors] = useState({});
     const [activeMenuRef, setActiveMenuRef] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -29,6 +30,7 @@ const Profile = () => {
         const response = await getViewedProducts();
         const products = response.map(favorite => favorite.product);
         setViewedProducts(products);
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -44,7 +46,7 @@ const Profile = () => {
         viewedProduct();
     }, [user]);
 
-    if (!user) {
+    if (!user || loading) {
         return <Loader />;
     }
 
@@ -75,7 +77,7 @@ const Profile = () => {
                         <h2 className="card-title">Привет, {user.name}!</h2>
                         <p className="text-muted">{user.email}</p>
 
-                        <div className="mb-4">
+                        <div className="mb-5">
                             <h5>Основная информация</h5>
                             <p><strong>Почта:</strong> {user.email}</p>
                             <p><strong>Имя:</strong> {user.name}</p>
@@ -181,6 +183,15 @@ const Profile = () => {
                                 <div>
                                     <h5>Просмотренные товары</h5>
                                     <p>Посмотреть недавно просмотренные товары</p>
+                                </div>
+                            </div>
+                        </Link>
+                        <Link to="/purchase-products" className="card-profile shadow-sm p-3 text-decoration-none">
+                            <div className="d-flex align-items-center">
+                                <FaCoins size={30} className="me-3 text-success"/>
+                                <div>
+                                    <h5>Купленные товары</h5>
+                                    <p>Посмотреть купленные товары</p>
                                 </div>
                             </div>
                         </Link>

@@ -28,6 +28,12 @@ export const getProducts = async () => {
     return response.data;
 }
 
+export const getPurchasedUserProducts = async (id) => {
+    const response = await axios.get(`/purchase-products`);
+
+    return response.data;
+}
+
 export const getCategoriesWithFields = async () => {
     const response = await axios.get(`/categories-with-fields`);
 

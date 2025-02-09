@@ -10,6 +10,7 @@ use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use App\Services\OrderService;
+use App\Services\PaymentService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,7 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrderController extends AbstractController
 {
-    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em)
+    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em, private readonly PaymentService $paymentService)
     {
     }
 
@@ -73,46 +74,45 @@ class OrderController extends AbstractController
         foreach ($cartItems as $cartItem) {
             $this->em->remove($cartItem);
         }
+
         $this->em->flush();
 
-        $user = $this->getUser();
+        try {
+            $user = $this->getUser();
 
-        $email = (new Email())
-            ->from('vladoperation@bk.ru')
-            ->to($user->getEmail())
-            ->subject('Оформление заказа')
-            ->text($user->getName().', ваш заказ успешно оформлен! Общая сумма заказа: '.$order->getTotalPrice()."р.\n".'Не забудьте оплатить заказ в личном кабинете.');
+            $email = (new Email())
+                ->from('vladoperation@bk.ru')
+                ->to($user->getEmail())
+                ->subject('Оформление заказа')
+                ->text($user->getName().', ваш заказ успешно оформлен! Общая сумма заказа: '.$order->getTotalPrice()."р.\n".'Не забудьте оплатить заказ.');
 
-        $mailer->send($email);
-
-        return $this->json(['message' => 'Заказ создан', 'orderId' => $order->getId()], Response::HTTP_CREATED);
-    }
-
-    #[Route('/api/order/{id}/pay', name: 'pay_order', methods: ['POST'])]
-    public function payOrder(Order $order): JsonResponse
-    {
-        if (OrderStatus::STATUS_NEW !== $order->getStatus()) {
-            return $this->json(['error' => 'Оплатить можно только новый заказ'], Response::HTTP_BAD_REQUEST);
+            $mailer->send($email);
+        } catch (\Exception $e) {
+            throw $e;
         }
 
-        // Здесь вомзонжо будет логика интеграции с платежной системой
+        return $this->getPayOrderData($order);
+    }
 
-        $order->setStatus(OrderStatus::STATUS_PAID);
-        $this->em->flush();
-
-        return $this->json(['message' => 'Заказ оплачен', 'orderId' => $order->getId()]);
+    #[Route('/api/payment-data/{order}', name: 'get_payment_data', methods: ['GET'])]
+    public function getPayOrderData(Order $order): JsonResponse
+    {
+        return $this->json([
+            'orderId' => $order->getId(),
+            'receiver' => '4100118924862929',
+            'sum' => $order->getTotalPrice(),
+            'url' => 'https://yoomoney.ru/quickpay/confirm',
+        ]);
     }
 
     #[Route('/api/orders', name: 'get_user_orders', methods: ['GET'])]
-    public function getUserOrders(): JsonResponse
+    public function getUserOrders(Request $request): JsonResponse
     {
+        $status = null !== $request->query->get('status') ? $request->query->get('status') : 'active';
+
         $user = $this->getUser();
 
-        if (!$user) {
-            return new JsonResponse(['error' => 'Пользователь не авторизован'], 401);
-        }
-
-        $orders = $this->orderRepository->findBy(['user' => $user]);
+        $orders = $this->orderRepository->findUserOrders($user, $status);
 
         $ordersData = [];
         foreach ($orders as $order) {
@@ -127,6 +127,7 @@ class OrderController extends AbstractController
                         'productName' => $orderItem->getProduct()->getName(),
                         'quantity' => $orderItem->getQuantity(),
                         'price' => $orderItem->getPrice(),
+                        'img' => $orderItem->getProduct()->getImages()->first()->getUrl(),
                     ];
                 }, $order->getOrderItems()->toArray()),
             ];

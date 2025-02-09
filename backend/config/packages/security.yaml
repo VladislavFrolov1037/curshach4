@@ -39,6 +39,7 @@ security:
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/categories, roles: PUBLIC_ACCESS  }
         - { path: ^/api/products, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/payment/webhook, roles: PUBLIC_ACCESS  }
         - { path: ^/api, roles: ROLE_USER  }
 #        - { path: ^/api/cart, roles: ROLE_USER }
 #        - { path: ^/api/product/*, roles: ROLE_SELLER }

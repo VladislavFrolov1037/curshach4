@@ -1,105 +1,126 @@
-import React, { useEffect, useRef, useState } from 'react';
-import axios from '../../services/axiosInstance';
+import Card from "../../components/Card/Card";
+import React, {useEffect, useRef, useState} from "react";
+import axios from "../../services/axiosInstance";
 import Loader from "../../components/Loader";
-import { Link } from 'react-router-dom';
-import { Toast } from 'primereact/toast';
+import {getPurchasedUserProducts} from "../../services/product";
+import {Nav} from "react-bootstrap";
+import {Toast} from "primereact/toast";
+import OrderCard from "../../components/Order/OrderCard";
+import {createPaymentForm} from "../../services/order";
 
 const Orders = () => {
-    const [orders, setOrders] = useState([]);
+    const [activeOrders, setActiveOrders] = useState([]);
+    const [completedOrders, setCompletedOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const toast = useRef(null); // Реф для управления Toast
+    const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [activeTab, setActiveTab] = useState("active");
+    const toast = useRef(null);
 
-    const fetchOrders = async () => {
-        try {
-            const response = await axios.get('/orders');
-            setOrders(response.data);
-        } catch (error) {
-            console.error('Ошибка при загрузке заказов:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        const fetchOrders = async () => {
+            setLoading(true);
+            try {
+                const responseActive = await axios.get("/orders");
+                setActiveOrders(responseActive.data);
+
+                const responseCompleted = await axios.get("/orders?status=end");
+                setCompletedOrders(responseCompleted.data);
+
+                const productsData = await getPurchasedUserProducts();
+                setProducts(productsData);
+                setFilteredProducts(productsData);
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOrders();
+    }, []);
 
     const handleCancelOrder = async (orderId) => {
         try {
             await axios.post(`/order/${orderId}/cancel`);
-            setOrders(orders.map(order =>
-                order.id === orderId ? { ...order, status: 'Отменен' } : order
+            setActiveOrders(activeOrders.map(order =>
+                order.id === orderId ? {...order, status: 'Отменен'} : order
             ));
-            toast.current.show({ severity: 'success', summary: 'Успех', detail: 'Заказ успешно отменен', life: 3000 });
+            toast.current.show({severity: 'success', summary: 'Успех', detail: 'Заказ успешно отменен', life: 3000});
         } catch (error) {
             console.error('Ошибка при отмене заказа:', error);
-            toast.current.show({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось отменить заказ', life: 3000 });
+            toast.current.show({severity: 'error', summary: 'Ошибка', detail: 'Не удалось отменить заказ', life: 3000});
         }
     };
 
     const handlePayOrder = async (orderId) => {
         try {
-            await axios.post(`/order/${orderId}/pay`);
-            setOrders(orders.map(order =>
-                order.id === orderId ? { ...order, status: 'Оплачен' } : order
-            ));
-            toast.current.show({ severity: 'success', summary: 'Успех', detail: 'Заказ успешно оплачен', life: 3000 });
+            const data = await axios.get(`/payment-data/${orderId}`);
+            const form = createPaymentForm(data.data);
+            console.log(form)
+            form.submit();
         } catch (error) {
             console.error('Ошибка при оплате заказа:', error);
-            toast.current.show({ severity: 'error', summary: 'Ошибка', detail: 'Не удалось оплатить заказ', life: 3000 });
+            toast.current.show({severity: 'error', summary: 'Ошибка', detail: 'Не удалось оплатить заказ', life: 3000});
         }
     };
 
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    if (loading) {
-        return <Loader />;
-    }
+    if (loading) return <Loader/>;
 
     return (
         <div className="container py-5">
-            <Toast ref={toast} /> {/* Компонент Toast */}
+            <Toast ref={toast}/>
             <h2 className="mb-4">Мои заказы</h2>
-            {orders.length === 0 ? (
-                <p>У вас нет заказов.</p>
-            ) : (
-                <div className="row">
-                    {orders.map(order => (
-                        <div className="col-md-4 mb-4" key={order.id}>
-                            <div className="card">
-                                <div className="card-body">
-                                    <h5 className="card-title">Заказ #{order.id}</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">Дата: {order.createdAt}</h6>
-                                    <p className="card-text">Статус: {order.status}</p>
-                                    <p className="card-text">Общая сумма: ₽{order.totalPrice.toFixed(2)}</p>
 
-                                    <h6 className="mt-3">Товары в заказе:</h6>
-                                    <ul className="list-group">
-                                        {order.orderItems.map(item => (
-                                            <li className="list-group-item d-flex align-items-center" key={item.productId}>
-                                                <Link to={`/product/${item.productId}`} className="ml-2">
-                                                    {item.productName} (x{item.quantity}) — ₽{item.price.toFixed(2)}
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
+            <Nav variant="tabs" activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)}>
+                <Nav.Item>
+                    <Nav.Link eventKey="active">Активные заказы</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="completed">Завершенные заказы</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="purchased">Купленные товары</Nav.Link>
+                </Nav.Item>
+            </Nav>
 
-                                    {order.status === 'Новый' && (
-                                        <div className="mt-3 d-flex justify-content-between">
-                                            <button
-                                                className="btn btn-success"
-                                                onClick={() => handlePayOrder(order.id)}
-                                            >
-                                                Оплатить
-                                            </button>
-                                            <button
-                                                className="btn btn-danger"
-                                                onClick={() => handleCancelOrder(order.id)}
-                                            >
-                                                Отменить
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
+            {activeTab === "active" && (
+                <div className="row mt-4">
+                    {activeOrders.length === 0 ? (
+                        <p className="text-center">У вас нет активных заказов.</p>
+                    ) : (
+                        activeOrders.map((order) => (
+                            <div className="col-12" key={order.id}>
+                                <OrderCard
+                                    order={order}
+                                    handlePayOrder={handlePayOrder}
+                                    handleCancelOrder={handleCancelOrder}
+                                />
                             </div>
+                        ))
+                    )}
+                </div>
+            )}
+
+            {activeTab === "completed" && (
+                <div className="row mt-4">
+                    {completedOrders.length === 0 ? (
+                        <p className="text-center">У вас нет завершенных заказов.</p>
+                    ) : (
+                        completedOrders.map((order) => (
+                            <div className="col-12" key={order.id}>
+                                <OrderCard order={order}/>
+                            </div>
+                        ))
+                    )}
+                </div>
+            )}
+
+            {activeTab === "purchased" && (
+                <div className="row row-cols-5 g-4 mt-3">
+                    {filteredProducts.map((product) => (
+                        <div className="col" key={product.id}>
+                            <Card product={product}/>
                         </div>
                     ))}
                 </div>

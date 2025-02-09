@@ -31,6 +31,9 @@ class Order
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?string $transactionId = null;
+
     /**
      * @var Collection<int, OrderItem>
      */
@@ -175,6 +178,18 @@ class Order
                 $feedback->setOrderId(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTransactionId(): ?string
+    {
+        return $this->transactionId;
+    }
+
+    public function setTransactionId(?string $transactionId): static
+    {
+        $this->transactionId = $transactionId;
 
         return $this;
     }

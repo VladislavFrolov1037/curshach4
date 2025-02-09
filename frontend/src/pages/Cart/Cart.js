@@ -1,23 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import Loader from "../../components/Loader";
-import { decreaseItem, getCart, increaseItem } from "../../services/cart";
+import {decreaseItem, getCart, increaseItem} from "../../services/cart";
 import CartItem from "../../components/CartItem/CartItem";
 import { Button } from "primereact/button";
 import './Cart.css';
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
-import { createOrder } from "../../services/order";  // Подключаем функцию создания заказа
+import { createOrder } from "../../services/order";
 
 const Cart = () => {
     const [loading, setLoading] = useState(true);
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [totalQuantity, setTotalQuantity] = useState(0);
-    const [paymentMethod, setPaymentMethod] = useState('cardOnDelivery');
+    const [paymentMethod, setPaymentMethod] = useState('');
     const [shippingAddress, setShippingAddress] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false); // Состояние для загрузки
-    const { removeCartItem } = useContext(CartContext);
-    const { favorites, addFavoriteItem, removeFavoriteItem } = useContext(FavoriteContext);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const {removeCartItem} = useContext(CartContext);
+    const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
 
     const fetchProducts = async () => {
         try {
@@ -94,21 +94,44 @@ const Cart = () => {
     };
 
     const handleOrderSubmit = async () => {
-        if (isSubmitting) return; // Защита от повторных запросов
+        if (isSubmitting) return;
 
-        setIsSubmitting(true); // Устанавливаем статус загрузки
+        setIsSubmitting(true);
 
         try {
             const data = await createOrder(shippingAddress, paymentMethod);
-            setCartItems([]);  // Очищаем корзину локально
+            setCartItems([]);
             setTotalPrice(0);
             setTotalQuantity(0);
             alert(`Заказ успешно оформлен! ID: ${data.orderId}`);
+
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = data.url;
+
+            const fields = {
+                paymentType: data.paymentType,
+                receiver: data.receiver,
+                sum: data.sum,
+                "quickpay-form": "button",
+                label: data.orderId
+            };
+
+            Object.entries(fields).forEach(([name, value]) => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
         } catch (error) {
             console.error('Ошибка при оформлении заказа:', error);
             alert('Произошла ошибка при оформлении заказа. Попробуйте снова.');
         } finally {
-            setIsSubmitting(false); // Сбрасываем статус загрузки
+            setIsSubmitting(false);
         }
     };
 
@@ -117,7 +140,7 @@ const Cart = () => {
     }, []);
 
     if (loading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     return (
@@ -132,7 +155,7 @@ const Cart = () => {
                                 handleRemoveFromCart={handleRemoveFromCart}
                                 handleAddToFavorites={handleAddToFavorites}
                                 handleRemoveFavorites={handleRemoveFavorites}
-                                handleQuantityChange={handleQuantityChange} // передаем функцию для изменения количества
+                                handleQuantityChange={handleQuantityChange}
                             />
                         ))
                     ) : (
@@ -156,23 +179,23 @@ const Cart = () => {
 
                         <h6>Способ оплаты</h6>
                         <div className="payment-method">
-                            <label className="payment-option">
+                            <label className="paymentType">
                                 <input
                                     type="radio"
                                     name="paymentMethod"
-                                    value="cardOnDelivery"
-                                    checked={paymentMethod === 'cardOnDelivery'}
+                                    value="PC"
+                                    checked={paymentMethod === 'PC'}
                                     onChange={(e) => setPaymentMethod(e.target.value)}
-                                /> Картой при получении
+                                /> ЮMoney
                             </label>
-                            <label className="payment-option">
+                            <label className="paymentType">
                                 <input
                                     type="radio"
                                     name="paymentMethod"
-                                    value="cardOnline"
-                                    checked={paymentMethod === 'cardOnline'}
+                                    value="AC"
+                                    checked={paymentMethod === 'AC'}
                                     onChange={(e) => setPaymentMethod(e.target.value)}
-                                /> Картой на сайте
+                                /> Банковской картой
                             </label>
                         </div>
 

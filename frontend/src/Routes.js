@@ -19,6 +19,7 @@ import OrderDetails from "./pages/Order/OrderDetails";
 import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
 import AdminOrder from "./pages/Admin/AdminOrder/AdminOrder";
 import AdminSeller from "./pages/Admin/AdminSeller/AdminSeller";
+import PurchaseProducts from "./pages/Product/PurchaseProducts";
 
 function AppRoutes() {
     return (
@@ -34,15 +35,17 @@ function AppRoutes() {
             <Route path="/create-product" element={<CreateProduct/>}/>
             <Route path="/products/:categoryId" element={<ProductsPage/>}/>
             <Route path="/cart" element={<Cart/>}/>
+            <Route path="/purchase-products" element={<PurchaseProducts />}/>
+            {/*<Route path="/viewed-products" element={<Cart/>}/>*/}
             <Route path="/favorites" element={<Favorite/>}/>
             <Route path="/orders" element={<Orders/>}/>
             <Route path="/orders/:orderId" element={<OrderDetails/>}/>
 
             {/*  For admins  */}
             <Route path="/admin" element={<AdminDashboard/>}/>
-            <Route path="/admin/orders" element={<AdminOrder />}/>
+            <Route path="/admin/orders" element={<AdminOrder/>}/>
             {/*<Route path="/admin/users" element={<AdminOrder />}/>*/}
-            <Route path="/admin/sellers" element={<AdminSeller />}/>
+            <Route path="/admin/sellers" element={<AdminSeller/>}/>
 
             {/* Exceptions */}
             <Route path="/forbidden" element={<Forbidden/>}/>
