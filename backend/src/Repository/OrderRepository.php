@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Order;
+use App\Entity\Product;
+use App\Entity\User;
 use App\Enum\OrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -40,6 +42,23 @@ class OrderRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function hasUserReceivedProduct(UserInterface $user, Product $product): bool
+    {
+        return (bool) $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->innerJoin('o.orderItems', 'oi')
+            ->where('o.user = :user')
+            ->andWhere('oi.product = :product')
+            ->andWhere('o.status = :status')
+            ->setParameter('user', $user)
+            ->setParameter('product', $product)
+            ->setParameter('status', 'delivered')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+
     //    /**
     //     * @return Order[] Returns an array of Order objects
     //     */

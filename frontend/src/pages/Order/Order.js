@@ -6,16 +6,20 @@ import {getPurchasedUserProducts} from "../../services/product";
 import {Nav} from "react-bootstrap";
 import {Toast} from "primereact/toast";
 import OrderCard from "../../components/Order/OrderCard";
-import {createPaymentForm} from "../../services/order";
+import RateProductModal from "../../components/RateProductModal/RateProductModal";
+import {createReview} from "../../services/review";
+import {createPaymentForm} from "../../services/helpers";
 
 const Orders = () => {
     const [activeOrders, setActiveOrders] = useState([]);
     const [completedOrders, setCompletedOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [activeTab, setActiveTab] = useState("active");
     const toast = useRef(null);
+    const [activeMenuRef, setActiveMenuRef] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -28,7 +32,6 @@ const Orders = () => {
                 setCompletedOrders(responseCompleted.data);
 
                 const productsData = await getPurchasedUserProducts();
-                setProducts(productsData);
                 setFilteredProducts(productsData);
             } catch (error) {
                 console.error("Ошибка при загрузке данных:", error);
@@ -57,11 +60,37 @@ const Orders = () => {
         try {
             const data = await axios.get(`/payment-data/${orderId}`);
             const form = createPaymentForm(data.data);
-            console.log(form)
             form.submit();
         } catch (error) {
             console.error('Ошибка при оплате заказа:', error);
             toast.current.show({severity: 'error', summary: 'Ошибка', detail: 'Не удалось оплатить заказ', life: 3000});
+        }
+    };
+
+    const handleRateProduct = (product) => {
+        setSelectedProduct(product);
+
+        setShowModal(true);
+    };
+
+    const handleSubmitReview = async (formData, product) => {
+        try {
+            await createReview(formData);
+
+            setFilteredProducts(prevProducts =>
+                prevProducts.map(p =>
+                    p.id === product.id ? { ...p, isProductReview: true } : p
+                )
+            );
+            
+            toast.current.show({severity: "success", summary: "Успех", detail: "Отзыв отправлен!", life: 3000});
+        } catch (error) {
+            toast.current.show({
+                severity: "error",
+                summary: "Ошибка",
+                detail: "Ошибка при отправке отзыва",
+                life: 3000
+            });
         }
     };
 
@@ -70,6 +99,15 @@ const Orders = () => {
     return (
         <div className="container py-5">
             <Toast ref={toast}/>
+            {selectedProduct && (
+                <RateProductModal
+                    show={showModal}
+                    handleClose={() => setShowModal(false)}
+                    product={selectedProduct}
+                    onSubmit={handleSubmitReview}
+                />
+            )}
+
             <h2 className="mb-4">Мои заказы</h2>
 
             <Nav variant="tabs" activeKey={activeTab} onSelect={(tab) => setActiveTab(tab)}>
@@ -120,7 +158,8 @@ const Orders = () => {
                 <div className="row row-cols-5 g-4 mt-3">
                     {filteredProducts.map((product) => (
                         <div className="col" key={product.id}>
-                            <Card product={product}/>
+                            <Card product={product} activeMenuRef={activeMenuRef} setActiveMenuRef={setActiveMenuRef}
+                                  handleRateProduct={handleRateProduct}/>
                         </div>
                     ))}
                 </div>

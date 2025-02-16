@@ -40,16 +40,9 @@ class Order
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'request')]
     private Collection $orderItems;
 
-    /**
-     * @var Collection<int, Feedback>
-     */
-    #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'order_id')]
-    private Collection $feedback;
-
     public function __construct()
     {
         $this->orderItems = new ArrayCollection();
-        $this->feedback = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -149,37 +142,7 @@ class Order
 
     public function isCancellable(): bool
     {
-        return $this->status === 'created' && (time() - $this->createdAt->getTimestamp() <= 600);
-    }
-
-    /**
-     * @return Collection<int, Feedback>
-     */
-    public function getFeedback(): Collection
-    {
-        return $this->feedback;
-    }
-
-    public function addFeedback(Feedback $feedback): static
-    {
-        if (!$this->feedback->contains($feedback)) {
-            $this->feedback->add($feedback);
-            $feedback->setOrderId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeFeedback(Feedback $feedback): static
-    {
-        if ($this->feedback->removeElement($feedback)) {
-            // set the owning side to null (unless already changed)
-            if ($feedback->getOrderId() === $this) {
-                $feedback->setOrderId(null);
-            }
-        }
-
-        return $this;
+        return 'created' === $this->status && (time() - $this->createdAt->getTimestamp() <= 600);
     }
 
     public function getTransactionId(): ?string

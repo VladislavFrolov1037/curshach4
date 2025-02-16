@@ -15,7 +15,8 @@ export default function Card({
                                  setActiveMenuRef,
                                  handleHideProduct,
                                  handleDeleteProduct,
-                                 handleRemoveFavorite = null
+                                 handleRemoveFavorite = null,
+                                 handleRateProduct = null
                              }) {
     const {user} = useContext(AuthContext);
     const {cartItems, updateCartItems, addCart} = useContext(CartContext);
@@ -175,7 +176,7 @@ export default function Card({
                             </span>
                         )}
                     </p>
-                    {user && (
+                    {user && handleRateProduct === null && (
                         <button
                             className={`btn w-100 ${isInCart ? "btn-secondary" : "btn-success p-button-success"}`}
                             onClick={(e) => {
@@ -189,6 +190,18 @@ export default function Card({
                                 : isInCart
                                     ? "Перейти в корзину"
                                     : "Добавить в корзину"}
+                        </button>
+                    )}
+
+                    {user && handleRateProduct && product.isReceivedProduct && !product.isProductReview && (
+                        <button
+                            className={`btn w-100 btn-primary`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRateProduct(product);
+                            }}
+                        >
+                            Оценить товар
                         </button>
                     )}
                 </div>

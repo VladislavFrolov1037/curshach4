@@ -14,6 +14,13 @@ class UserNormalizer implements NormalizerInterface
 
     public function normalize($object, ?string $format = null, array $context = []): array
     {
+        if ($context['shortly'] ?? false) {
+            return [
+                'id' => $object->getId(),
+                'name' => $object->getName(),
+            ];
+        }
+
         return [
             'id' => $object->getId(),
             'name' => $object->getName(),

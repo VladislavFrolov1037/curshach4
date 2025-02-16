@@ -16,28 +16,27 @@ class Feedback
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'feedback')]
-    private ?User $user = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private User $user;
 
     #[ORM\ManyToOne(inversedBy: 'feedback')]
-    private ?Product $product = null;
-
-    #[ORM\ManyToOne(inversedBy: 'feedback')]
-    private ?Order $order_id = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private Product $product;
 
     #[ORM\Column]
-    private ?int $rating = null;
+    private int $rating;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $comment = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $status = null;
+    private string $status;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @var Collection<int, FeedbackReply>
@@ -55,6 +54,7 @@ class Feedback
     {
         $this->feedbackReplies = new ArrayCollection();
         $this->feedbackReports = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -62,43 +62,29 @@ class Feedback
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getUser(): User
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): static
+    public function setUser(User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
-    public function getProduct(): ?Product
+    public function getProduct(): Product
     {
         return $this->product;
     }
 
-    public function setProduct(?Product $product): static
+    public function setProduct(Product $product): static
     {
         $this->product = $product;
-
         return $this;
     }
 
-    public function getOrderId(): ?Order
-    {
-        return $this->order_id;
-    }
-
-    public function setOrderId(?Order $order_id): static
-    {
-        $this->order_id = $order_id;
-
-        return $this;
-    }
-
-    public function getRating(): ?int
+    public function getRating(): int
     {
         return $this->rating;
     }
@@ -106,7 +92,6 @@ class Feedback
     public function setRating(int $rating): static
     {
         $this->rating = $rating;
-
         return $this;
     }
 
@@ -115,10 +100,9 @@ class Feedback
         return $this->comment;
     }
 
-    public function setComment(string $comment): static
+    public function setComment(?string $comment): static
     {
         $this->comment = $comment;
-
         return $this;
     }
 
@@ -127,14 +111,13 @@ class Feedback
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(?string $image): static
     {
         $this->image = $image;
-
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -142,11 +125,10 @@ class Feedback
     public function setStatus(string $status): static
     {
         $this->status = $status;
-
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -154,7 +136,6 @@ class Feedback
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -172,19 +153,16 @@ class Feedback
             $this->feedbackReplies->add($feedbackReply);
             $feedbackReply->setFeedback($this);
         }
-
         return $this;
     }
 
     public function removeFeedbackReply(FeedbackReply $feedbackReply): static
     {
         if ($this->feedbackReplies->removeElement($feedbackReply)) {
-            // set the owning side to null (unless already changed)
             if ($feedbackReply->getFeedback() === $this) {
                 $feedbackReply->setFeedback(null);
             }
         }
-
         return $this;
     }
 
@@ -202,19 +180,16 @@ class Feedback
             $this->feedbackReports->add($feedbackReport);
             $feedbackReport->setFeedback($this);
         }
-
         return $this;
     }
 
     public function removeFeedbackReport(FeedbackReport $feedbackReport): static
     {
         if ($this->feedbackReports->removeElement($feedbackReport)) {
-            // set the owning side to null (unless already changed)
             if ($feedbackReport->getFeedback() === $this) {
                 $feedbackReport->setFeedback(null);
             }
         }
-
         return $this;
     }
 }

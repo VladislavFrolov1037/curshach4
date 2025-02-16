@@ -26,28 +26,20 @@ const CreateProduct = () => {
 
         const data = new FormData();
 
-        // Добавление обычных полей
         Object.entries(formData).forEach(([key, value]) => {
             if (key !== "attributes" && value !== null && value !== undefined) {
                 data.append(key, value);
             }
         });
 
-        // Добавление атрибутов
         Object.entries(formData.attributes).forEach(([key, value]) => {
             if (value !== null && value !== undefined) {
-                // Используем точку, как в Postman (например, categoryAttributes[Модель])
                 data.append(`categoryAttributes[${key}]`, value);
             }
         });
 
         files.forEach((file, index) => {
             data.append(`images[${index}]`, file);
-        });
-
-        console.log("FormData contents:");
-        data.forEach((value, key) => {
-            console.log(key, value);
         });
 
         try {

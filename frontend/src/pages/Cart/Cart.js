@@ -7,6 +7,7 @@ import './Cart.css';
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
 import { createOrder } from "../../services/order";
+import {createPaymentForm} from "../../services/helpers";
 
 const Cart = () => {
     const [loading, setLoading] = useState(true);
@@ -105,27 +106,7 @@ const Cart = () => {
             setTotalQuantity(0);
             alert(`Заказ успешно оформлен! ID: ${data.orderId}`);
 
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = data.url;
-
-            const fields = {
-                paymentType: data.paymentType,
-                receiver: data.receiver,
-                sum: data.sum,
-                "quickpay-form": "button",
-                label: data.orderId
-            };
-
-            Object.entries(fields).forEach(([name, value]) => {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = name;
-                input.value = value;
-                form.appendChild(input);
-            });
-
-            document.body.appendChild(form);
+            const form = createPaymentForm(data);
             form.submit();
         } catch (error) {
             console.error('Ошибка при оформлении заказа:', error);
@@ -183,17 +164,8 @@ const Cart = () => {
                                 <input
                                     type="radio"
                                     name="paymentMethod"
-                                    value="PC"
-                                    checked={paymentMethod === 'PC'}
-                                    onChange={(e) => setPaymentMethod(e.target.value)}
-                                /> ЮMoney
-                            </label>
-                            <label className="paymentType">
-                                <input
-                                    type="radio"
-                                    name="paymentMethod"
                                     value="AC"
-                                    checked={paymentMethod === 'AC'}
+                                    checked
                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                 /> Банковской картой
                             </label>

@@ -20,7 +20,7 @@ class Product
         $this->cartItems = new ArrayCollection();
         $this->favorites = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
-        $this->feedback = new ArrayCollection();
+        $this->feedbacks = new ArrayCollection();
     }
 
     #[ORM\Id]
@@ -89,7 +89,7 @@ class Product
      * @var Collection<int, Feedback>
      */
     #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'product')]
-    private Collection $feedback;
+    private Collection $feedbacks;
 
     public function getId(): ?int
     {
@@ -359,30 +359,8 @@ class Product
     /**
      * @return Collection<int, Feedback>
      */
-    public function getFeedback(): Collection
+    public function getFeedbacks(): Collection
     {
-        return $this->feedback;
-    }
-
-    public function addFeedback(Feedback $feedback): static
-    {
-        if (!$this->feedback->contains($feedback)) {
-            $this->feedback->add($feedback);
-            $feedback->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeFeedback(Feedback $feedback): static
-    {
-        if ($this->feedback->removeElement($feedback)) {
-            // set the owning side to null (unless already changed)
-            if ($feedback->getProduct() === $this) {
-                $feedback->setProduct(null);
-            }
-        }
-
-        return $this;
+        return $this->feedbacks;
     }
 }

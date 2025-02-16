@@ -1,7 +1,6 @@
 import axios from '../services/axiosInstance';
 
 export const registerSeller = async (data) => {
-    console.log(data)
     await axios.post('/seller/become', data);
 }
 

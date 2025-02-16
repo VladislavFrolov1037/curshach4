@@ -3,6 +3,9 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Product;
+use App\Repository\FeedbackRepository;
+use App\Repository\OrderRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -10,6 +13,10 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
+
+    public function __construct(private readonly OrderRepository $orderRepository, private readonly Security $security, private readonly FeedbackRepository $feedbackRepository)
+    {
+    }
 
     public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
@@ -23,7 +30,7 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
                 'status' => $object->getStatus(),
                 'viewsCount' => $object->getViewsCount(),
                 'images' => array_map(
-                    fn ($image) => $this->normalizer->normalize($image, $format, $context),
+                    fn($image) => $this->normalizer->normalize($image, $format, $context),
                     $object->getImages()->toArray()
                 ),
                 'seller' => [
@@ -35,10 +42,12 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
                     'id' => $object->getCategory()->getId(),
                     'name' => $object->getCategory()->getName(),
                 ],
-                //                'rating' => $object->getRating(),
-                //                'comment' => $object->getComment(),
+                'feedbacks' => array_map(
+                    fn($feedback) => $this->normalizer->normalize($feedback, $format, $context),
+                    $object->getFeedbacks()->toArray()
+                ),
                 'product_attributes' => array_map(
-                    fn ($attribute) => [
+                    fn($attribute) => [
                         'name' => $attribute->getAttributeKey(),
                         'value' => $attribute->getValue(),
                     ],
@@ -54,9 +63,15 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
             'quantity' => $object->getQuantity(),
             'status' => $object->getStatus(),
             'viewsCount' => $object->getViewsCount(),
+            'isReceivedProduct' => $this->orderRepository->hasUserReceivedProduct($this->security->getUser(), $object),
+            'isProductReview' => $this->feedbackRepository->hasProductReviewFromUser($this->security->getUser(), $object),
             'images' => array_map(
-                fn ($image) => $this->normalizer->normalize($image, $format, $context),
+                fn($image) => $this->normalizer->normalize($image, $format, $context),
                 $object->getImages()->toArray()
+            ),
+            'feedbacks' => array_map(
+                fn($feedback) => $this->normalizer->normalize($feedback, $format, $context),
+                $object->getFeedbacks()->toArray()
             ),
             'seller' => [
                 'id' => $object->getSeller()->getId(),
