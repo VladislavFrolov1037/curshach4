@@ -8,6 +8,8 @@ import {Toast} from "primereact/toast";
 import "./ProductDetails.css";
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
+import Review from "../../components/Review/Review";
+import {addReactionForReview, deleteReview} from "../../services/review";
 
 const ProductDetails = () => {
     const toast = useRef(null);
@@ -18,9 +20,10 @@ const ProductDetails = () => {
     const [activeTab, setActiveTab] = useState("description");
     const {user} = useContext(AuthContext);
     const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
-    const {cartItems, updateCartItems, addCart} = useContext(CartContext);
+    const {cartItems, addCart} = useContext(CartContext);
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [feedbacks, setFeedbacks] = useState([]);
 
     const fetchProductDetails = async () => {
         try {
@@ -28,6 +31,7 @@ const ProductDetails = () => {
 
             setProduct(response);
             setCurrentImage(response.images?.[0]?.url || "");
+            setFeedbacks(response.feedbacks);
 
             const updatedViewsCount = await addView(id);
             setProduct((prev) => ({
@@ -56,7 +60,7 @@ const ProductDetails = () => {
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
-    };
+    }
 
     const handleCartAction = async () => {
         setIsLoading(true);
@@ -68,7 +72,46 @@ const ProductDetails = () => {
         }
 
         setIsLoading(false);
-    };
+    }
+
+    const handleDeleteReview = async (id) => {
+        try {
+            setFeedbacks(feedbacks.filter((feedback) => feedback.id !== id ));
+
+            await deleteReview(id);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    const handleAddReactionForReview = async (feedback, type) => {
+        setFeedbacks((prev) =>
+            prev.map((fb) => {
+                if (fb.id === feedback.id) {
+                    let newReaction = fb.userReaction === type ? null : type;
+                    let likes = fb.likes;
+                    let dislikes = fb.dislikes;
+
+                    if (fb.userReaction === "like") likes--;
+                    if (fb.userReaction === "dislike") dislikes--;
+
+                    if (newReaction === "like") likes++;
+                    if (newReaction === "dislike") dislikes++;
+
+                    return {...fb, userReaction: newReaction, likes, dislikes};
+                }
+                return fb;
+            })
+        );
+
+        try {
+            await addReactionForReview(feedback.id, type);
+        } catch (error) {
+            console.error("Ошибка при добавлении реакции:", error);
+            toast.error("Ошибка при обновлении реакции!");
+        }
+    }
+
 
     if (loading) {
         return <Loader/>;
@@ -230,7 +273,12 @@ const ProductDetails = () => {
                     {activeTab === "reviews" && (
                         <div>
                             <h4>Отзывы</h4>
-                            <p>Скоро тут появятся отзывы</p>
+                            {feedbacks.map((feedback) => (
+                                <Review key={feedback.id} feedback={feedback}
+                                        handleAddReactionForReview={handleAddReactionForReview}
+                                        handleDeleteReview={handleDeleteReview}
+                                />
+                            ))}
                         </div>
                     )}
                 </div>

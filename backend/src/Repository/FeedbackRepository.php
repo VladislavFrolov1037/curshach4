@@ -20,7 +20,7 @@ class FeedbackRepository extends ServiceEntityRepository
 
     public function hasProductReviewFromUser(UserInterface $user, Product $product): bool
     {
-        return (bool)$this->createQueryBuilder('f')
+        return (bool) $this->createQueryBuilder('f')
             ->select('COUNT(f.id)')
             ->andWhere('f.user = :user')
             ->andWhere('f.product = :product')
@@ -28,5 +28,32 @@ class FeedbackRepository extends ServiceEntityRepository
             ->setParameter('product', $product)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function getFeedbacksForProduct(Product $product, UserInterface $user): array
+    {
+        $qb = $this->createQueryBuilder('f')
+            ->andWhere('f.product = :product')
+            ->andWhere('f.status = :status')
+            ->setParameter('product', $product)
+            ->setParameter('status', 'active');
+
+        $currentUserFeedback = $qb
+            ->andWhere('f.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+
+        $otherFeedbacks = $this->createQueryBuilder('f')
+            ->andWhere('f.product = :product')
+            ->andWhere('f.status = :status')
+            ->andWhere('f.user != :user')
+            ->setParameter('product', $product)
+            ->setParameter('status', 'active')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+
+        return array_merge($currentUserFeedback, $otherFeedbacks);
     }
 }

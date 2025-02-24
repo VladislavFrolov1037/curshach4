@@ -1,6 +1,5 @@
 import {Link} from "react-router-dom";
 import React from "react";
-import axios from "../../services/axiosInstance";
 
 export default function OrderCard({order, handlePayOrder, handleCancelOrder}) {
     return (
@@ -11,7 +10,7 @@ export default function OrderCard({order, handlePayOrder, handleCancelOrder}) {
                     Статус: {order.status}
                 </span>
                 <p className="mt-2">Итоговая сумма: <strong>₽{order.totalPrice.toFixed(2)}</strong></p>
-                {order.status !== 'Оплачен' && order.status !== 'Доставлен' && (
+                {order.status === 'Новый' && (
                     <>
                         <button className="btn btn-success mt-2 mx-1" onClick={() => handlePayOrder(order.id)}>Оплатить заказ</button>
                         <button className="btn btn-danger mt-2 mx-1" onClick={() => handleCancelOrder(order.id)}>Отменить заказ</button>

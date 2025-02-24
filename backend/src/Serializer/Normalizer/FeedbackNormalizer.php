@@ -3,6 +3,7 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Feedback;
+use App\Repository\FeedbackReactionRepository;
 use App\Repository\FeedbackRepository;
 use App\Repository\OrderRepository;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -14,19 +15,24 @@ class FeedbackNormalizer implements NormalizerInterface, NormalizerAwareInterfac
 {
     use NormalizerAwareTrait;
 
-    public function __construct(private readonly OrderRepository $orderRepository, private readonly Security $security, private readonly FeedbackRepository $feedbackRepository)
+    public function __construct(private readonly OrderRepository $orderRepository, private readonly Security $security, private readonly FeedbackRepository $feedbackRepository, private readonly FeedbackReactionRepository $feedbackReactionRepository)
     {
     }
 
     public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         return [
+            'id' => $object->getId(),
             'rating' => $object->getRating(),
             'comment' => $object->getComment(),
             'image' => $object->getImage(),
             'status' => $object->getStatus(),
             'createdAt' => $object->getCreatedAt(),
             'user' => $this->normalizer->normalize($object->getUser(), null, ['shortly' => true]),
+            'likes' => $object->getLikes(),
+            'dislikes' => $object->getDislikes(),
+            'userReaction' => $this->feedbackReactionRepository->findOneBy(['feedback' => $object, 'user' => $this->security->getUser()])?->getReactionType(),
+            'replies' => $object->getFeedbackReplies(),
         ];
     }
 

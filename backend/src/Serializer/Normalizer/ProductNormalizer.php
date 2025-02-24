@@ -30,7 +30,7 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
                 'status' => $object->getStatus(),
                 'viewsCount' => $object->getViewsCount(),
                 'images' => array_map(
-                    fn($image) => $this->normalizer->normalize($image, $format, $context),
+                    fn ($image) => $this->normalizer->normalize($image, $format, $context),
                     $object->getImages()->toArray()
                 ),
                 'seller' => [
@@ -43,11 +43,11 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
                     'name' => $object->getCategory()->getName(),
                 ],
                 'feedbacks' => array_map(
-                    fn($feedback) => $this->normalizer->normalize($feedback, $format, $context),
-                    $object->getFeedbacks()->toArray()
+                    fn ($feedback) => $this->normalizer->normalize($feedback, $format, $context),
+                    $this->feedbackRepository->getFeedbacksForProduct($object, $this->security->getUser())
                 ),
                 'product_attributes' => array_map(
-                    fn($attribute) => [
+                    fn ($attribute) => [
                         'name' => $attribute->getAttributeKey(),
                         'value' => $attribute->getValue(),
                     ],
@@ -66,13 +66,14 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
             'isReceivedProduct' => $this->orderRepository->hasUserReceivedProduct($this->security->getUser(), $object),
             'isProductReview' => $this->feedbackRepository->hasProductReviewFromUser($this->security->getUser(), $object),
             'images' => array_map(
-                fn($image) => $this->normalizer->normalize($image, $format, $context),
+                fn ($image) => $this->normalizer->normalize($image, $format, $context),
                 $object->getImages()->toArray()
             ),
-            'feedbacks' => array_map(
-                fn($feedback) => $this->normalizer->normalize($feedback, $format, $context),
-                $object->getFeedbacks()->toArray()
-            ),
+            //            Реализовать вместо отзывов, общий рейтинг на товаре
+            //            'feedbacks' => array_map(
+            //                fn($feedback) => $this->normalizer->normalize($feedback, $format, $context),
+            //                $object->getFeedbacks()->toArray()
+            //            ),
             'seller' => [
                 'id' => $object->getSeller()->getId(),
                 'name' => $object->getSeller()->getName(),

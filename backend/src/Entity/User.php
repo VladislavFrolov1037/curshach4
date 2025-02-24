@@ -91,6 +91,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: FeedbackReport::class, mappedBy: 'user')]
     private Collection $feedbackReports;
 
+    /**
+     * @var Collection<int, FeedbackReaction>
+     */
+    #[ORM\OneToMany(targetEntity: FeedbackReaction::class, mappedBy: 'user')]
+    private Collection $feedbackReactions;
+
     public function __construct()
     {
         $this->viewedProducts = new ArrayCollection();
@@ -98,6 +104,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->feedback = new ArrayCollection();
         $this->feedbackReplies = new ArrayCollection();
         $this->feedbackReports = new ArrayCollection();
+        $this->feedbackReactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -436,6 +443,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($feedbackReport->getUser() === $this) {
                 $feedbackReport->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FeedbackReaction>
+     */
+    public function getFeedbackReactions(): Collection
+    {
+        return $this->feedbackReactions;
+    }
+
+    public function addFeedbackReaction(FeedbackReaction $feedbackReaction): static
+    {
+        if (!$this->feedbackReactions->contains($feedbackReaction)) {
+            $this->feedbackReactions->add($feedbackReaction);
+            $feedbackReaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedbackReaction(FeedbackReaction $feedbackReaction): static
+    {
+        if ($this->feedbackReactions->removeElement($feedbackReaction)) {
+            // set the owning side to null (unless already changed)
+            if ($feedbackReaction->getUser() === $this) {
+                $feedbackReaction->setUser(null);
             }
         }
 

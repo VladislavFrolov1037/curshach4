@@ -1,8 +1,7 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader";
 import {getProducts} from "../../services/product";
-import CartContext from "../../context/CartContext";
 
 function ProductList() {
     const [products, setProducts] = useState([]);
@@ -12,11 +11,11 @@ function ProductList() {
     useEffect(() => {
         const fetchProducts = async () => {
             setProducts(await getProducts());
+
+            setLoading(false);
         }
 
         fetchProducts();
-
-        setLoading(false);
     }, []);
 
     if (loading) {
