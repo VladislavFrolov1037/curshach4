@@ -29,6 +29,7 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
                 'quantity' => $object->getQuantity(),
                 'status' => $object->getStatus(),
                 'viewsCount' => $object->getViewsCount(),
+                'rating' => $this->feedbackRepository->getProductRating($object),
                 'images' => array_map(
                     fn ($image) => $this->normalizer->normalize($image, $format, $context),
                     $object->getImages()->toArray()
@@ -63,17 +64,13 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
             'quantity' => $object->getQuantity(),
             'status' => $object->getStatus(),
             'viewsCount' => $object->getViewsCount(),
-            'isReceivedProduct' => $this->orderRepository->hasUserReceivedProduct($this->security->getUser(), $object),
-            'isProductReview' => $this->feedbackRepository->hasProductReviewFromUser($this->security->getUser(), $object),
+            'isReceivedProduct' => $this->security->getUser() ? $this->orderRepository->hasUserReceivedProduct($this->security->getUser(), $object) : '',
+            'isProductReview' => $this->security->getUser() ? $this->feedbackRepository->hasProductReviewFromUser($this->security->getUser(), $object) : '',
             'images' => array_map(
                 fn ($image) => $this->normalizer->normalize($image, $format, $context),
                 $object->getImages()->toArray()
             ),
-            //            Реализовать вместо отзывов, общий рейтинг на товаре
-            //            'feedbacks' => array_map(
-            //                fn($feedback) => $this->normalizer->normalize($feedback, $format, $context),
-            //                $object->getFeedbacks()->toArray()
-            //            ),
+            'rating' => $this->feedbackRepository->getProductRating($object),
             'seller' => [
                 'id' => $object->getSeller()->getId(),
                 'name' => $object->getSeller()->getName(),

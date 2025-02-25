@@ -8,6 +8,7 @@ import {Toast} from "primereact/toast";
 import "./Card.css";
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
+import {FaStar} from "react-icons/fa";
 
 export default function Card({
                                  product,
@@ -159,6 +160,16 @@ export default function Card({
                     <h5 className="card-title">
                         {product.seller.name} / {product.name}
                     </h5>
+
+                    <div className="d-flex align-items-center mb-2">
+                        <FaStar className="text-warning" size={18}/>
+                            <span className="ms-2 text-muted fw-semibold">
+                                {(parseFloat(product.rating.rating) || 0).toFixed(1)}
+                                <span className="mx-1 text-secondary">•</span>
+                                <small className="text-muted">{(product.rating.count)} оценок</small>
+                            </span>
+                    </div>
+
                     <p className="card-text">
                         <strong>{`₽${parseFloat(product.price).toFixed(2)}`}</strong>
                         <br/>

@@ -13,7 +13,7 @@ class FeedbackReport
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'feedbackReports')]
+    #[ORM\ManyToOne(cascade: ['persist', 'remove'], inversedBy: 'feedbackReports')]
     private ?Feedback $feedback = null;
 
     #[ORM\ManyToOne(inversedBy: 'feedbackReports')]

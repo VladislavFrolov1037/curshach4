@@ -10,6 +10,7 @@ import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
 import Review from "../../components/Review/Review";
 import {addReactionForReview, deleteReview} from "../../services/review";
+import {FaStar} from "react-icons/fa";
 
 const ProductDetails = () => {
     const toast = useRef(null);
@@ -217,6 +218,16 @@ const ProductDetails = () => {
 
                     <p>Категория: {category.name}</p>
                     <p>Продавец: {seller.name}</p>
+
+                    <div className="d-flex align-items-center mb-5">
+                        <FaStar className="text-warning" size={18}/>
+                        <span className="ms-2 text-muted fw-semibold">
+                                {(parseFloat(product.rating.rating) || 0).toFixed(1)}
+                            <span className="mx-1 text-secondary">•</span>
+                                <small className="text-muted">{(product.rating.count)} оценок</small>
+                            </span>
+                    </div>
+
                     <div className="product-attributes">
                         <h5>Характеристики:</h5>
                         <ul>

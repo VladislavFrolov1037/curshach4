@@ -56,4 +56,14 @@ class FeedbackRepository extends ServiceEntityRepository
 
         return array_merge($currentUserFeedback, $otherFeedbacks);
     }
+
+    public function getProductRating(Product $product)
+    {
+        return $this->createQueryBuilder('f')
+            ->select('AVG(f.rating) as rating, COUNT(f.id) as count')
+            ->andWhere('f.product = :product')
+            ->setParameter('product', $product)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
