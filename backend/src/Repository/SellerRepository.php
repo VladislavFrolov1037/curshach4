@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Seller;
+use App\Enum\SellerStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,14 @@ class SellerRepository extends ServiceEntityRepository
         parent::__construct($registry, Seller::class);
     }
 
-    //    /**
-    //     * @return Seller[] Returns an array of Seller objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Seller
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findApprovedSellersWithPositiveBalance(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.balance > :balance')
+            ->andWhere('s.status = :status')
+            ->setParameter('balance', 0)
+            ->setParameter('status', SellerStatus::APPROVED)
+            ->getQuery()
+            ->getResult();
+    }
 }

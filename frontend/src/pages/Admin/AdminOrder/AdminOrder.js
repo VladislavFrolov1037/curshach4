@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Loader from "../../../components/Loader";
-import { getOrders, updateOrderStatus } from "../../../services/admin"; // Компонент загрузки
-import { Button, Card, Row, Col } from 'react-bootstrap'; // Импортируем компоненты для карточек и кнопок
-import { Toast } from "primereact/toast"; // Импортируем компонент Toast
-import { Link } from 'react-router-dom'; // Импортируем компонент Link для перехода по ссылкам
+import { getOrders, updateOrderStatus } from "../../../services/admin";
+import { Button, Card, Row, Col } from 'react-bootstrap';
+import { Toast } from "primereact/toast";
+import { Link } from 'react-router-dom';
 
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const toast = useRef(null); // Реф для управления Toast
+    const toast = useRef(null);
 
     const fetchOrders = async () => {
         try {
@@ -23,7 +23,7 @@ const AdminOrders = () => {
     };
 
     const handleStatusChange = async (orderId, newStatus) => {
-        await updateOrderStatus(orderId, newStatus); // Функция для обновления статуса
+        await updateOrderStatus(orderId, newStatus);
         setOrders(prevOrders => prevOrders.map(order =>
             order.id === orderId ? { ...order, status: newStatus } : order
         ));
@@ -36,7 +36,7 @@ const AdminOrders = () => {
     }, []);
 
     if (loading) {
-        return <Loader />; // Показываем загрузку, пока заказы не загружены
+        return <Loader />;
     }
 
     const statusText = (status) => {
@@ -72,7 +72,6 @@ const AdminOrders = () => {
             <Toast ref={toast} />
             <h1 className="text-center mb-4">Заказы</h1>
 
-            {/* Выводим каждый заказ как карточку */}
             <Row>
                 {orders.map(order => (
                     <Col md={6} lg={4} key={order.id} className="mb-4">
@@ -85,12 +84,10 @@ const AdminOrders = () => {
                                 <Card.Text><strong>Адрес доставки:</strong> {order.shippingAddress}</Card.Text>
                                 <Card.Text><strong>Дата создания:</strong> {order.createdAt}</Card.Text>
 
-                                {/* Перечень товаров в заказе */}
                                 <div className="mb-3">
                                     <strong>Товары в заказе:</strong>
                                     {order.orderItems.map((item, index) => (
                                         <div key={index} className="d-flex align-items-center mb-2">
-                                            {/* Контейнер для картинки */}
                                             <img
                                                 src={`${process.env.REACT_APP_API_BASE_URL}/${item.orderItem.product.images[0]?.url}`}
                                                 alt={item.orderItem.product.name}
@@ -98,7 +95,6 @@ const AdminOrders = () => {
                                                 style={{ width: '50px', height: '50px', objectFit: 'cover' }}
                                             />
                                             <div className="ms-3">
-                                                {/* Ссылка на страницу товара */}
                                                 <Link to={`/product/${item.orderItem.product.id}`} className="text-decoration-none text-primary" style={{ maxWidth: '200px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                                 <div>{item.orderItem.product.name} x {item.orderItem.quantity}</div>
                                                 <div className="text-muted">Продавец: {item.orderItem.product.seller.name}</div>
@@ -109,7 +105,6 @@ const AdminOrders = () => {
                                     ))}
                                 </div>
 
-                                {/* Действия с заказом */}
                                 <div>
                                     {getNextStatusOptions(order.status).map(status => (
                                         <Button

@@ -22,6 +22,7 @@ class SellerService
 
         $seller = (new Seller())
             ->setName($dto->name)
+            ->setCardNumber($dto->cardNumber)
             ->setDescription($dto->description)
             ->setStatus(SellerStatus::PENDING)
             ->setUser($user)

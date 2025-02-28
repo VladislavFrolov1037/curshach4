@@ -37,4 +37,7 @@ class EditSellerDto
     #[Assert\Length(max: 255)]
     #[Assert\NotBlank(allowNull: true)]
     public ?string $address = null;
+
+    #[Assert\NotBlank(allowNull: true)]
+    public ?string $cardNumber = null;
 }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {editSeller, getSeller} from "../../services/seller";
 import UniversalModal from "../../components/modals/UniversalModal";
@@ -8,6 +8,9 @@ import Error from "../../components/Error";
 import {getSellerProducts} from "../../services/product";
 import Card from "../../components/Card/Card";
 import {Link} from "react-router-dom";
+import {InputMask} from "primereact/inputmask";
+import {FaInfoCircle} from "react-icons/fa";
+import { Tooltip } from "primereact/tooltip";
 
 const Seller = () => {
     const [seller, setSeller] = useState(null);
@@ -101,11 +104,23 @@ const Seller = () => {
                                 <div className="col-md-6 mb-3">
                                     <strong>Адрес:</strong> {seller.address || "Не указан"}
                                 </div>
+                                <div className="col-md-12 mb-3">
+                                    <strong>Номер карты ЮMoney:</strong> {seller.cardNumber || "Не указан"}
+                                </div>
                             </div>
-                            <div className="mt-4">
-                                <h4 className="text-success">
+                            <div className="mt-4 d-flex align-items-center">
+                                <h4 className="text-success mb-0">
                                     Баланс: {seller.balance || "0"} ₽
                                 </h4>
+                                <FaInfoCircle
+                                    id="balance-info"
+                                    className="ms-2 text-secondary"
+                                    style={{cursor: "pointer"}}
+                                />
+                                <Tooltip target="#balance-info" position="right">
+                                    Баланс выводится каждый день с 9:00 до 10:00 <br/>
+                                    на ваш кошелек ЮMoney
+                                </Tooltip>
                             </div>
 
                             <UniversalModal
@@ -170,6 +185,21 @@ const Seller = () => {
                                                 <Error error={errors.passport}/>}
                                         </div>
                                     )}
+
+                                    <div className="mb-3">
+                                        <label htmlFor="cardNumber" className="form-label">Номер карты из кошелька
+                                            ЮMoney</label>
+                                        <InputMask
+                                            type="text" id="cardNumber" name="cardNumber"
+                                            className={`form-control ${errors.cardNumber ? 'is-invalid' : ''}`} required
+                                            value={formData.cardNumber} onChange={handleChange}
+                                            mask="9999 9999 9999 9999"
+                                            placeholder="Номер карты из кошелька ЮMoney"
+                                        />
+                                        {errors.cardNumber &&
+                                            <div className="invalid-feedback">{errors.cardNumber}</div>}
+                                    </div>
+
                                     <div className="mb-3">
                                         <label htmlFor="email" className="form-label">Почта</label>
                                         <input

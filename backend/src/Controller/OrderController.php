@@ -105,6 +105,18 @@ class OrderController extends AbstractController
         ]);
     }
 
+    #[Route('/api/fake-pay/order/{id}', name: 'pay_fake_order', methods: ['POST'])]
+    public function fakePayOrder(Order $order): JsonResponse
+    {
+        $order->setStatus(OrderStatus::STATUS_PAID);
+        $this->paymentService->distributePaymentAmongSellers($order);
+
+        $this->em->persist($order);
+        $this->em->flush();
+
+        return $this->json(['success' => true]);
+    }
+
     #[Route('/api/orders', name: 'get_user_orders', methods: ['GET'])]
     public function getUserOrders(Request $request): JsonResponse
     {

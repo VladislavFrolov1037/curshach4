@@ -63,6 +63,9 @@ class Seller
     private ?string $image = null;
 
     #[ORM\Column(length: 255)]
+    private string $cardNumber;
+
+    #[ORM\Column(length: 255)]
     private ?string $balance = null;
 
     public function __construct()
@@ -269,6 +272,18 @@ class Seller
     public function setBalance(string $balance): static
     {
         $this->balance = $balance;
+
+        return $this;
+    }
+
+    public function getCardNumber(): string
+    {
+        return $this->cardNumber;
+    }
+
+    public function setCardNumber(string $cardNumber): static
+    {
+        $this->cardNumber = $cardNumber;
 
         return $this;
     }

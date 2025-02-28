@@ -20,6 +20,9 @@ import AdminDashboard from "./pages/Admin/AdminDashboard/AdminDashboard";
 import AdminOrder from "./pages/Admin/AdminOrder/AdminOrder";
 import AdminSeller from "./pages/Admin/AdminSeller/AdminSeller";
 import PurchaseProducts from "./pages/Product/PurchaseProducts";
+import AdminUser from "./pages/Admin/AdminUser/AdminUser";
+import AdminStatistic from "./pages/Admin/AdminStatistic/AdminStatistic";
+import AdminToken from "./pages/Admin/AdminToken/AdminToken";
 
 function AppRoutes() {
     return (
@@ -35,7 +38,7 @@ function AppRoutes() {
             <Route path="/create-product" element={<CreateProduct/>}/>
             <Route path="/products/:categoryId" element={<ProductsPage/>}/>
             <Route path="/cart" element={<Cart/>}/>
-            <Route path="/purchase-products" element={<PurchaseProducts />}/>
+            <Route path="/purchase-products" element={<PurchaseProducts/>}/>
             {/*<Route path="/viewed-products" element={<Cart/>}/>*/}
             <Route path="/favorites" element={<Favorite/>}/>
             <Route path="/orders" element={<Orders/>}/>
@@ -44,8 +47,10 @@ function AppRoutes() {
             {/*  For admins  */}
             <Route path="/admin" element={<AdminDashboard/>}/>
             <Route path="/admin/orders" element={<AdminOrder/>}/>
-            {/*<Route path="/admin/users" element={<AdminOrder />}/>*/}
             <Route path="/admin/sellers" element={<AdminSeller/>}/>
+            <Route path="/admin/users" element={<AdminUser/>}/>
+            <Route path="/admin/statistics" element={<AdminStatistic/>}/>
+            <Route path="/admin/tokens" element={<AdminToken/>}/>
 
             {/* Exceptions */}
             <Route path="/forbidden" element={<Forbidden/>}/>

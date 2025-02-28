@@ -58,9 +58,10 @@ const Orders = () => {
 
     const handlePayOrder = async (orderId) => {
         try {
-            const data = await axios.get(`/payment-data/${orderId}`);
-            const form = createPaymentForm(data.data);
-            form.submit();
+            const data = await axios.post(`/fake-pay/order/${orderId}`);
+            // const data = await axios.get(`/payment-data/${orderId}`);
+            // const form = createPaymentForm(data.data);
+            // form.submit();
         } catch (error) {
             console.error('Ошибка при оплате заказа:', error);
             toast.current.show({severity: 'error', summary: 'Ошибка', detail: 'Не удалось оплатить заказ', life: 3000});

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Entity\Order;
 use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,4 +48,21 @@ class PaymentService
 
         return new JsonResponse(['message' => 'Payment received'], 200);
     }
+
+    public function distributePaymentAmongSellers(Order $order): void
+    {
+        $marketplaceCommission = 20;
+
+        foreach ($order->getOrderItems() as $orderItem) {
+            $seller = $orderItem->getProduct()->getSeller();
+
+            $sellerAmount = $orderItem->getPrice() * (1 - $marketplaceCommission / 100);
+
+            $seller->setBalance($seller->getBalance() + $sellerAmount);
+            $this->em->persist($seller);
+        }
+
+        $this->em->flush();
+    }
+
 }

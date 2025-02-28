@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 import {InputMask} from "primereact/inputmask";
 import {registerSeller} from "../../services/seller";
 import seller from "./Seller";
+import Error from "../../components/Error";
 
 const CreateSeller = () => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ const CreateSeller = () => {
         type: '',
         taxId: '',
         passport: '',
+        cardNumber: '',
         phone: '',
         address: '',
         image: null
@@ -140,7 +142,8 @@ const CreateSeller = () => {
                                     <InputMask
                                         type="text" id="taxId" name="taxId"
                                         className={`form-control ${errors.taxId ? 'is-invalid' : ''}`} required
-                                        value={formData.taxId} onChange={handleChange} mask={seller.type === "individual" ? "999999999999" : "9999999999"}
+                                        value={formData.taxId} onChange={handleChange}
+                                        mask={seller.type === "individual" ? "999999999999" : "9999999999"}
                                         placeholder="ИНН"
                                     />
                                     {errors.taxId && <div className="invalid-feedback">{errors.taxId}</div>}
@@ -158,6 +161,17 @@ const CreateSeller = () => {
                                         {errors.passport && <div className="invalid-feedback">{errors.passport}</div>}
                                     </div>
                                 )}
+
+                                <div className="mb-3">
+                                    <label htmlFor="cardNumber" className="form-label">Номер карты из кошелька ЮMoney</label>
+                                    <InputMask
+                                        type="text" id="cardNumber" name="cardNumber"
+                                        className={`form-control ${errors.cardNumber ? 'is-invalid' : ''}`} required
+                                        value={formData.cardNumber} onChange={handleChange} mask="9999 9999 9999 9999"
+                                        placeholder="Номер карты из кошелька ЮMoney"
+                                    />
+                                    {errors.cardNumber && <div className="invalid-feedback">{errors.cardNumber}</div>}
+                                </div>
 
                                 <div className="mb-3">
                                     <label htmlFor="address" className="form-label">Адрес</label>

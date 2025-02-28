@@ -22,6 +22,7 @@ class SellerNormalizer implements NormalizerInterface
             'address' => $object->getAddress(),
             'image' => $object->getImage(),
             'balance' => $object->getBalance(),
+            'cardNumber' => $object->getCardNumber(),
             'user' => $object->getUser()->getId(),
         ];
     }

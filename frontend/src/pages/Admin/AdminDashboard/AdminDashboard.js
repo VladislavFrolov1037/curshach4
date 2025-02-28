@@ -4,7 +4,7 @@ import AdminCard from "../../../components/Admin/AdminCard/AdminCard";
 import Loader from "../../../components/Loader";
 import { getDashboard } from "../../../services/admin";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Импортируем компонент FontAwesomeIcon
-import { faBox, faUser, faUsers } from '@fortawesome/free-solid-svg-icons'; // Импортируем иконки
+import {faBox, faChartBar, faKey, faUser, faUsers} from '@fortawesome/free-solid-svg-icons'; // Импортируем иконки
 
 const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -59,6 +59,18 @@ const AdminDashboard = () => {
             countLabel: 'Количество продавцов',
             count: counts.sellers,
         },
+        {
+            title: 'Статистика сайта',
+            icon: <FontAwesomeIcon icon={faChartBar} />,
+            link: '/admin/statistics',
+            countLabel: 'Различная статистика сайта',
+        },
+        {
+            title: 'Токены',
+            icon: <FontAwesomeIcon icon={faKey} />,
+            link: '/admin/tokens',
+            countLabel: 'Управление токенами',
+        }
     ];
 
     return (

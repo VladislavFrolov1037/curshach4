@@ -4,11 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import './MyProducts.css';
 import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader";
-import { getCart } from "../../services/cart"; // Импорт функции получения корзины
+import { getCart } from "../../services/cart";
 
 const MyProducts = () => {
     const [productList, setProductList] = useState([]);
-    const [cartItems, setCartItems] = useState([]);  // Состояние для корзины
+    const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeMenuRef, setActiveMenuRef] = useState(null);
 
@@ -27,7 +27,7 @@ const MyProducts = () => {
 
     useEffect(() => {
         const fetchCart = async () => {
-            const cart = await getCart();  // Загружаем корзину один раз
+            const cart = await getCart();
             setCartItems(cart.cartItems);
         };
         fetchCart();
