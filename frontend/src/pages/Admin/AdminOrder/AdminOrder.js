@@ -14,7 +14,6 @@ const AdminOrders = () => {
         try {
             const response = await getOrders();
             setOrders(response);
-            console.log(response);
         } catch (error) {
             console.error('Ошибка при загрузке заказов:', error);
         } finally {
@@ -78,9 +77,12 @@ const AdminOrders = () => {
                         <Card>
                             <Card.Body>
                                 <Card.Title>
-                                    Заказ №{order.id} <span className="text-muted">({statusText(order.status)})</span>
+                                    Заказ №{order.id} <span className="text-muted">({statusText(order.status)})</span> <br/>
                                 </Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted">Цена: {order.totalPrice} ₽</Card.Subtitle>
+                                <Card.Subtitle className="mb-2 text-muted">
+                                    Покупатель <Link to={`/admin/user/${order.user.id}`}>{order.user.email}</Link> <br/>
+                                    Цена: {order.totalPrice} ₽
+                                </Card.Subtitle>
                                 <Card.Text><strong>Адрес доставки:</strong> {order.shippingAddress}</Card.Text>
                                 <Card.Text><strong>Дата создания:</strong> {order.createdAt}</Card.Text>
 

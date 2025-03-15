@@ -23,6 +23,7 @@ export const FavoriteProvider = ({children}) => {
         setFavorites((prev) => [...prev, {product_id: id}]);
 
         await addFavorite(id);
+        getFavoritesItems();
     };
 
     const removeFavoriteItem = async (id) => {

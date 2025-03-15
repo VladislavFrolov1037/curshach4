@@ -91,7 +91,7 @@ class ProductController extends AbstractController
     #[Route('/api/product/{id}', name: 'delete_product', methods: ['DELETE'])]
     public function deleteProduct(Product $product): JsonResponse
     {
-        $this->em->remove($product);
+        $product->setStatus(ProductStatus::STATUS_REMOVED);
         $this->em->flush();
 
         return $this->json([], 204);

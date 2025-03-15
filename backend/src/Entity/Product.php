@@ -21,6 +21,7 @@ class Product
         $this->favorites = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
         $this->feedbacks = new ArrayCollection();
+        $this->productQuestions = new ArrayCollection();
     }
 
     #[ORM\Id]
@@ -90,6 +91,12 @@ class Product
      */
     #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'product')]
     private Collection $feedbacks;
+
+    /**
+     * @var Collection<int, ProductQuestion>
+     */
+    #[ORM\OneToMany(targetEntity: ProductQuestion::class, mappedBy: 'product')]
+    private Collection $productQuestions;
 
     public function getId(): ?int
     {
@@ -362,5 +369,35 @@ class Product
     public function getFeedbacks(): Collection
     {
         return $this->feedbacks;
+    }
+
+    /**
+     * @return Collection<int, ProductQuestion>
+     */
+    public function getProductQuestions(): Collection
+    {
+        return $this->productQuestions;
+    }
+
+    public function addProductQuestion(ProductQuestion $productQuestion): static
+    {
+        if (!$this->productQuestions->contains($productQuestion)) {
+            $this->productQuestions->add($productQuestion);
+            $productQuestion->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductQuestion(ProductQuestion $productQuestion): static
+    {
+        if ($this->productQuestions->removeElement($productQuestion)) {
+            // set the owning side to null (unless already changed)
+            if ($productQuestion->getProduct() === $this) {
+                $productQuestion->setProduct(null);
+            }
+        }
+
+        return $this;
     }
 }

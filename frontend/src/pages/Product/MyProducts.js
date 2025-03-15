@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { deleteProduct, getSellerProducts, hideProduct } from '../../services/product';
-import { Link, useNavigate } from 'react-router-dom';
-import './MyProducts.css';
+import { getSellerProducts } from '../../services/product';
+import { useProductActions } from '../../hooks/useProductActions';
 import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader";
 import { getCart } from "../../services/cart";
+import { Link } from 'react-router-dom';
+import './MyProducts.css';
 
 const MyProducts = () => {
     const [productList, setProductList] = useState([]);
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { handleDeleteProduct, handleHideProduct } = useProductActions();
     const [activeMenuRef, setActiveMenuRef] = useState(null);
 
     const getProductList = async () => {
@@ -33,23 +35,12 @@ const MyProducts = () => {
         fetchCart();
     }, []);
 
-    const handleHideProduct = async (productId) => {
-        await hideProduct(productId);
-        setProductList(prevList =>
-            prevList.map(product =>
-                product.id === productId
-                    ? {
-                        ...product,
-                        status: product.status === "available" ? "discontinued" : "available",
-                    }
-                    : product
-            )
-        );
+    const handleDelete = (productId) => {
+        handleDeleteProduct(productId, setProductList);
     };
 
-    const handleDeleteProduct = async (productId) => {
-        await deleteProduct(productId);
-        setProductList(prevList => prevList.filter(product => product.id !== productId));
+    const handleHide = (productId) => {
+        handleHideProduct(productId, setProductList);
     };
 
     if (loading) {
@@ -67,8 +58,8 @@ const MyProducts = () => {
                                 cartItems={cartItems}
                                 activeMenuRef={activeMenuRef}
                                 setActiveMenuRef={setActiveMenuRef}
-                                handleHideProduct={handleHideProduct}
-                                handleDeleteProduct={handleDeleteProduct}
+                                handleHideProduct={handleHide}
+                                handleDeleteProduct={handleDelete}
                             />
                         </div>
                     ))}

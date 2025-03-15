@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Enum\OrderStatus;
+use App\Repository\CartItemRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use App\Services\OrderService;
@@ -23,7 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrderController extends AbstractController
 {
-    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em, private readonly PaymentService $paymentService)
+    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em, private readonly PaymentService $paymentService, private readonly CartItemRepository $cartItemRepository)
     {
     }
 
@@ -36,9 +37,9 @@ class OrderController extends AbstractController
         $shippingAddress = $data['shippingAddress'] ?? '';
 
         $cart = $user->getCart();
-        $cartItems = $cart->getCartItems();
+        $cartItems = $this->cartItemRepository->getCartItemsWithAvailableProducts($cart);
 
-        if ($cartItems->isEmpty()) {
+        if (empty($cartItems)) {
             return $this->json(['error' => 'Корзина пуста'], Response::HTTP_BAD_REQUEST);
         }
 

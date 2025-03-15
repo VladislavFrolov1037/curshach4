@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {FaCoins, FaEye, FaHeart, FaShoppingCart, FaSignOutAlt} from 'react-icons/fa';
+import {FaCoins, FaEye, FaHeart, FaShoppingCart, FaSignOutAlt, FaTelegram, FaTelegramPlane} from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Profile.css';
 import AuthContext from "../../context/AuthContext";
@@ -26,7 +26,7 @@ const Profile = () => {
         gender: '',
     });
 
-    const viewedProduct =  async () => {
+    const viewedProduct = async () => {
         const response = await getViewedProducts();
         const products = response.map(favorite => favorite.product);
         setViewedProducts(products);
@@ -47,7 +47,7 @@ const Profile = () => {
     }, [user]);
 
     if (!user || loading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     const handleChange = (e) => {
@@ -65,7 +65,7 @@ const Profile = () => {
 
             return true;
         } catch (e) {
-           setErrors(e.response.data.errors)
+            setErrors(e.response.data.errors)
         }
     }
 
@@ -83,6 +83,33 @@ const Profile = () => {
                             <p><strong>Имя:</strong> {user.name}</p>
                             <p><strong>Пол:</strong> {user.gender === 'male' ? 'Мужчина' : 'Женщина'}</p>
                             <p><strong>Телефон:</strong> {user.phone || 'Не указан'}</p>
+                            <p><strong>Телеграм: </strong>
+                                {user.telegramId ? (
+                                    <>
+                                        <a
+                                            className="btn btn-success d-inline-flex align-items-center py-1 px-2"
+                                            href={`https://t.me/curshach_bot?start=${user.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <FaTelegramPlane size={20} className="me-2 text-white"/>
+                                            Привязать другой аккаунт
+                                        </a>
+                                    </>
+                                ) : (
+                                    <>
+                                        <a
+                                            className="btn btn-secondary d-inline-flex align-items-center py-1 px-2"
+                                            href={`https://t.me/curshach_bot?start=${user.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <FaTelegramPlane size={20} className="me-2 text-white"/>
+                                            Привязать
+                                        </a>
+                                    </>
+                                )}
+                            </p>
                             <p><strong>Текущая скидка:</strong> {user.discount || '0%'}</p>
                             <p><strong>Аккаунт создан: </strong> {user.createdAt}</p>
                         </div>

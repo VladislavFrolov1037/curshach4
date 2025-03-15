@@ -1,13 +1,14 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import Loader from "../../components/Loader";
 import {decreaseItem, getCart, increaseItem} from "../../services/cart";
 import CartItem from "../../components/CartItem/CartItem";
-import { Button } from "primereact/button";
+import {Button} from "primereact/button";
 import './Cart.css';
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
-import { createOrder } from "../../services/order";
+import {createOrder} from "../../services/order";
 import {createPaymentForm} from "../../services/helpers";
+import {Toast} from 'primereact/toast';
 
 const Cart = () => {
     const [loading, setLoading] = useState(true);
@@ -19,14 +20,19 @@ const Cart = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const {removeCartItem} = useContext(CartContext);
     const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
+    const toast = useRef(null);
 
     const fetchProducts = async () => {
         try {
             const response = await getCart();
             if (response && response.cartItems) {
+                const availableItems = response.cartItems.filter(item => item.product.status === 'available');
+
                 setCartItems(response.cartItems);
-                const total = response.cartItems.reduce((acc, item) => acc + (item.quantity * parseFloat(item.product.price)), 0);
-                const quantity = response.cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+                const total = availableItems.reduce((acc, item) => acc + (item.quantity * parseFloat(item.product.price)), 0);
+                const quantity = availableItems.reduce((acc, item) => acc + item.quantity, 0);
+
                 setTotalPrice(total);
                 setTotalQuantity(quantity);
             }
@@ -55,25 +61,28 @@ const Cart = () => {
 
     const handleAddToFavorites = async (id) => {
         await addFavoriteItem(id);
-    }
+    };
 
     const handleRemoveFavorites = async (id) => {
         await removeFavoriteItem(id);
-    }
+    };
 
     const handleQuantityChange = (productId, newQuantity) => {
         setCartItems(prevItems => {
             const updatedCartItems = prevItems.map(item => {
-                if (item.product.id === productId) {
-                    if (newQuantity <= item.product.quantity) {
-                        item.quantity = newQuantity;
+                if (item.product.id === productId && item.product.status === 'available') {
+                    // Проверка, чтобы новое количество не превышало доступное
+                    if (newQuantity <= item.product.quantity && newQuantity > 0) {
+                        return {...item, quantity: newQuantity};
                     }
                 }
                 return item;
             });
 
-            const total = updatedCartItems.reduce((acc, item) => acc + item.quantity * parseFloat(item.product.price), 0);
-            const quantity = updatedCartItems.reduce((acc, item) => acc + item.quantity, 0);
+            const total = updatedCartItems.reduce((acc, item) =>
+                item.product.status === 'available' ? acc + item.quantity * parseFloat(item.product.price) : acc, 0);
+            const quantity = updatedCartItems.reduce((acc, item) =>
+                item.product.status === 'available' ? acc + item.quantity : acc, 0);
 
             setTotalPrice(total);
             setTotalQuantity(quantity);
@@ -81,8 +90,19 @@ const Cart = () => {
             return updatedCartItems;
         });
 
+        const item = cartItems.find(item => item.product.id === productId);
+        if (item && newQuantity > item.product.quantity) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: 'Недостаточно товара в наличии.',
+                life: 3000
+            });
+            return;
+        }
+
         if (newQuantity > 0) {
-            if (newQuantity > cartItems.find(item => item.product.id === productId).quantity) {
+            if (newQuantity > item.quantity) {
                 increaseItem(productId).catch(error => {
                     console.error("Ошибка при увеличении количества товара:", error);
                 });
@@ -101,16 +121,31 @@ const Cart = () => {
 
         try {
             const data = await createOrder(shippingAddress, paymentMethod);
-            setCartItems([]);
+
+            setCartItems((prevItems) => {
+                return prevItems.filter(item => item.product.status !== 'available');
+            });
+
             setTotalPrice(0);
             setTotalQuantity(0);
-            alert(`Заказ успешно оформлен! ID: ${data.orderId}`);
+
+            toast.current.show({
+                severity: 'success',
+                summary: 'Заказ успешно оформлен',
+                detail: `ID: ${data.orderId}`,
+                life: 3000
+            });
 
             const form = createPaymentForm(data);
             form.submit();
         } catch (error) {
             console.error('Ошибка при оформлении заказа:', error);
-            alert('Произошла ошибка при оформлении заказа. Попробуйте снова.');
+            toast.current.show({
+                severity: 'error',
+                summary: 'Ошибка',
+                detail: 'Что-то пошло не так. Попробуйте позже.',
+                life: 3000
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -124,22 +159,49 @@ const Cart = () => {
         return <Loader/>;
     }
 
+    const availableItems = cartItems.filter(item => item.product.status === 'available');
+    const unavailableItems = cartItems.filter(item => item.product.status !== 'available');
+
     return (
         <div className="container py-5">
+            <Toast ref={toast}/>
             <div className="row g-3">
                 <div className="col-md-8">
-                    {cartItems.length > 0 ? (
-                        cartItems.map((cartItem) => (
-                            <CartItem
-                                key={cartItem.id}
-                                cartItem={cartItem}
-                                handleRemoveFromCart={handleRemoveFromCart}
-                                handleAddToFavorites={handleAddToFavorites}
-                                handleRemoveFavorites={handleRemoveFavorites}
-                                handleQuantityChange={handleQuantityChange}
-                            />
-                        ))
-                    ) : (
+                    {availableItems.length > 0 && (
+                        <div>
+                            <h3>Доступные товары</h3>
+                            {availableItems.map((cartItem) => (
+                                <CartItem
+                                    key={cartItem.id}
+                                    cartItem={cartItem}
+                                    handleRemoveFromCart={handleRemoveFromCart}
+                                    handleAddToFavorites={handleAddToFavorites}
+                                    handleRemoveFavorites={handleRemoveFavorites}
+                                    handleQuantityChange={handleQuantityChange}
+                                    isDisabled={false}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {unavailableItems.length > 0 && (
+                        <div className="mt-4">
+                            <h3>Недоступные товары</h3>
+                            {unavailableItems.map((cartItem) => (
+                                <CartItem
+                                    key={cartItem.id}
+                                    cartItem={cartItem}
+                                    handleRemoveFromCart={handleRemoveFromCart}
+                                    handleAddToFavorites={handleAddToFavorites}
+                                    handleRemoveFavorites={handleRemoveFavorites}
+                                    handleQuantityChange={handleQuantityChange}
+                                    isDisabled={true}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {cartItems.length === 0 && (
                         <div className="col-12">У вас нет товаров в корзине</div>
                     )}
                 </div>

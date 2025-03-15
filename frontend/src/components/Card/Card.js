@@ -3,7 +3,7 @@ import {ContextMenu} from "primereact/contextmenu";
 import {Button} from "primereact/button";
 import {FiEye} from "react-icons/fi";
 import AuthContext from "../../context/AuthContext";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {Toast} from "primereact/toast";
 import "./Card.css";
 import CartContext from "../../context/CartContext";
@@ -92,13 +92,11 @@ export default function Card({
             label: isFavorite ? "Удалить из избранного" : "Добавить в избранное",
             icon: "pi pi-heart",
             command: () =>
-                isFavorite
-                    ? handleRemoveFromFavorites()
-                    : handleAddToFavorites(),
+                isFavorite ? handleRemoveFromFavorites() : handleAddToFavorites(),
         },
         ...(isOwner
             ? [
-                ...(product.status === "available"
+                ...(product.status === "available" && handleHideProduct
                     ? [
                         {
                             label: "Снять с продажи",
@@ -106,18 +104,25 @@ export default function Card({
                             command: () => handleHideProduct(product.id),
                         },
                     ]
-                    : [
+                    : []),
+                ...(product.status !== "available" && handleHideProduct
+                    ? [
                         {
                             label: "Вернуть в продажу",
-                            icon: "pi pi-eye-slash",
+                            icon: "pi pi-eye",
                             command: () => handleHideProduct(product.id),
                         },
-                    ]),
-                {
-                    label: "Удалить",
-                    icon: "pi pi-trash",
-                    command: () => handleDeleteProduct(product.id),
-                },
+                    ]
+                    : []),
+                ...(handleDeleteProduct && product.status !== 'removed'
+                    ? [
+                        {
+                            label: "Удалить",
+                            icon: "pi pi-trash",
+                            command: () => handleDeleteProduct(product.id),
+                        },
+                    ]
+                    : []),
             ]
             : []),
     ];
@@ -132,7 +137,11 @@ export default function Card({
                 <div className="image-container" style={{position: "relative"}}>
                     {product.status !== "available" && (
                         <div className="status-badge bg-danger">
-                            {product.status === "discontinued" ? "Снято с продажи" : ""}
+                            {product.status === "removed"
+                                ? "Товар удален"
+                                : product.status === "discontinued"
+                                    ? "Снято с продажи"
+                                    : ""}
                         </div>
                     )}
                     <img
@@ -163,9 +172,9 @@ export default function Card({
 
                     <div className="d-flex align-items-center mb-2">
                         <FaStar className="text-warning" size={18}/>
-                            <span className="ms-2 text-muted fw-semibold">
+                        <span className="ms-2 text-muted fw-semibold">
                                 {(parseFloat(product.rating.rating) || 0).toFixed(1)}
-                                <span className="mx-1 text-secondary">•</span>
+                            <span className="mx-1 text-secondary">•</span>
                                 <small className="text-muted">{(product.rating.count)} оценок</small>
                             </span>
                     </div>
@@ -175,11 +184,13 @@ export default function Card({
                         <br/>
                         {product.status === "available" ? (
                             <span className="badge bg-success">В наличии</span>
-                        ) : (
+                        ) : product.status === "discontinued" ? (
                             <span className="badge bg-danger">Снято с продажи</span>
-                        )}
+                        ) : product.status === "removed" ? (
+                            <span className="badge bg-danger">Временно удалён</span>
+                        ) : null}
                         <br/>
-                        <small className="text-muted">Продавец: {product.seller.name}</small>
+                        <small className="text-muted">Продавец: <Link onClick={(e) => e.stopPropagation()} to={`/seller/${product.seller.id}`}>{product.seller.name}</Link></small>
                         <br/>
                         {user && (
                             <span className="views-count">
@@ -194,7 +205,7 @@ export default function Card({
                                 e.stopPropagation();
                                 handleCartAction();
                             }}
-                            disabled={isLoading}
+                            disabled={isLoading || product.status === "removed" || product.status === "discontinued"}
                         >
                             {isLoading
                                 ? "Добавление в корзину..."

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Product;
+use App\Entity\Seller;
 use App\Enum\OrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -39,5 +40,26 @@ class ProductRepository extends ServiceEntityRepository
             ->groupBy('p.id')
             ->getQuery()
             ->getResult();
+    }
+
+    public function getSellerRating(Seller $seller)
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.feedbacks', 'f')
+            ->select('AVG(f.rating) as rating, COUNT(f.id) as count')
+            ->andWhere('p.seller = :seller')
+            ->setParameter('seller', $seller)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function getSalesCount(Seller $seller)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('COUNT(p.id) as count')
+            ->andWhere('p.seller = :seller')
+            ->setParameter('seller', $seller)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

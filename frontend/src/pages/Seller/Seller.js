@@ -11,6 +11,7 @@ import {Link} from "react-router-dom";
 import {InputMask} from "primereact/inputmask";
 import {FaInfoCircle} from "react-icons/fa";
 import { Tooltip } from "primereact/tooltip";
+import {useProductActions} from "../../hooks/useProductActions";
 
 const Seller = () => {
     const [seller, setSeller] = useState(null);
@@ -19,6 +20,7 @@ const Seller = () => {
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
     const [activeMenuRef, setActiveMenuRef] = useState(null);
+    const { handleDeleteProduct, handleHideProduct } = useProductActions();
 
     const fetchSellerData = async () => {
         const sellerData = await getSeller();
@@ -58,6 +60,14 @@ const Seller = () => {
 
     const getSellerListings = async (sellerId) => {
         return await getSellerProducts(sellerId);
+    }
+
+    const handleDelete = (productId) => {
+        handleDeleteProduct(productId, setProducts);
+    };
+
+    const handleHide = (productId) => {
+        handleHideProduct(productId, setProducts);
     };
 
     if (loading) {
@@ -255,8 +265,13 @@ const Seller = () => {
                     <div className="container py-5">
                         <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                             {products.map((product) => (
-                                <Card product={product} key={product.id} activeMenuRef={activeMenuRef}
-                                      setActiveMenuRef={setActiveMenuRef}/>
+                                <Card product={product}
+                                      key={product.id}
+                                      activeMenuRef={activeMenuRef}
+                                      setActiveMenuRef={setActiveMenuRef}
+                                      handleHideProduct={handleHide}
+                                      handleDeleteProduct={handleDelete}
+                                />
                             ))}
                         </div>
 

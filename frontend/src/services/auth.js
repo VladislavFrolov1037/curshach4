@@ -27,3 +27,9 @@ export const editProfile = async (data) => {
 
     return response.data;
 };
+
+export const getUserProfile = async (id) => {
+    const response = await axios.get(`/user/${id}`);
+
+    return response.data;
+}

@@ -68,6 +68,9 @@ class Seller
     #[ORM\Column(length: 255)]
     private ?string $balance = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
     public function __construct()
     {
         $this->products = new ArrayCollection();
@@ -284,6 +287,42 @@ class Seller
     public function setCardNumber(string $cardNumber): static
     {
         $this->cardNumber = $cardNumber;
+
+        return $this;
+    }
+
+    public function getYearsOnPlatform(): string
+    {
+        $interval = $this->createdAt->diff(new \DateTimeImmutable());
+
+        $years = $interval->y;
+        $days = $interval->d;
+
+        return sprintf('%d %s %d %s',
+            $years, $this->pluralize($years, 'год', 'года', 'лет'),
+            $days, $this->pluralize($days, 'день', 'дня', 'дней')
+        );
+    }
+
+    private function pluralize(int $number, string $one, string $few, string $many): string
+    {
+        if (1 == $number % 10 && 11 != $number % 100) {
+            return $one;
+        } elseif ($number % 10 >= 2 && $number % 10 <= 4 && ($number % 100 < 10 || $number % 100 >= 20)) {
+            return $few;
+        } else {
+            return $many;
+        }
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

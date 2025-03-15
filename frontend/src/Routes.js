@@ -23,6 +23,8 @@ import PurchaseProducts from "./pages/Product/PurchaseProducts";
 import AdminUser from "./pages/Admin/AdminUser/AdminUser";
 import AdminStatistic from "./pages/Admin/AdminStatistic/AdminStatistic";
 import AdminToken from "./pages/Admin/AdminToken/AdminToken";
+import UserProfile from "./pages/Profile/UserProfile";
+import SellerProfile from "./pages/Seller/SellerProfile";
 
 function AppRoutes() {
     return (
@@ -43,6 +45,8 @@ function AppRoutes() {
             <Route path="/favorites" element={<Favorite/>}/>
             <Route path="/orders" element={<Orders/>}/>
             <Route path="/orders/:orderId" element={<OrderDetails/>}/>
+            <Route path="/user/:userId" element={<UserProfile/>}/>
+            <Route path="/seller/:sellerId" element={<SellerProfile/>}/>
 
             {/*  For admins  */}
             <Route path="/admin" element={<AdminDashboard/>}/>
@@ -51,6 +55,8 @@ function AppRoutes() {
             <Route path="/admin/users" element={<AdminUser/>}/>
             <Route path="/admin/statistics" element={<AdminStatistic/>}/>
             <Route path="/admin/tokens" element={<AdminToken/>}/>
+            <Route path="/admin/user/:userId" element={<UserProfile/>}/>
+            <Route path="/admin/seller/:sellerId" element={<SellerProfile/>}/>
 
             {/* Exceptions */}
             <Route path="/forbidden" element={<Forbidden/>}/>

@@ -38,13 +38,14 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
                     'id' => $object->getSeller()->getId(),
                     'name' => $object->getSeller()->getName(),
                     'userId' => $object->getSeller()->getUser()->getId(),
+                    'image' => $object->getSeller()->getImage(),
                 ],
                 'category' => [
                     'id' => $object->getCategory()->getId(),
                     'name' => $object->getCategory()->getName(),
                 ],
                 'feedbacks' => array_map(
-                    fn ($feedback) => $this->normalizer->normalize($feedback, $format, $context),
+                    fn ($feedback) => $this->normalizer->normalize($feedback, $format, ['shortly' => true]),
                     $this->feedbackRepository->getFeedbacksForProduct($object, $this->security->getUser())
                 ),
                 'product_attributes' => array_map(

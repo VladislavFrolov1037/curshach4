@@ -21,6 +21,22 @@ class FeedbackNormalizer implements NormalizerInterface, NormalizerAwareInterfac
 
     public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
+        if ($context['shortly'] ?? false) {
+            return [
+                'id' => $object->getId(),
+                'rating' => $object->getRating(),
+                'comment' => $object->getComment(),
+                'image' => $object->getImage(),
+                'status' => $object->getStatus(),
+                'createdAt' => $object->getCreatedAt(),
+                'user' => $this->normalizer->normalize($object->getUser(), null, ['shortly' => true]),
+                'likes' => $object->getLikes(),
+                'dislikes' => $object->getDislikes(),
+                'userReaction' => $this->feedbackReactionRepository->findOneBy(['feedback' => $object, 'user' => $this->security->getUser()])?->getReactionType(),
+                'replies' => $this->normalizer->normalize($object->getFeedbackReplies()),
+            ];
+        }
+
         return [
             'id' => $object->getId(),
             'rating' => $object->getRating(),
@@ -32,7 +48,8 @@ class FeedbackNormalizer implements NormalizerInterface, NormalizerAwareInterfac
             'likes' => $object->getLikes(),
             'dislikes' => $object->getDislikes(),
             'userReaction' => $this->feedbackReactionRepository->findOneBy(['feedback' => $object, 'user' => $this->security->getUser()])?->getReactionType(),
-            'replies' => $object->getFeedbackReplies(),
+            'replies' => $this->normalizer->normalize($object->getFeedbackReplies()),
+            'product' => $this->normalizer->normalize($object->getProduct()),
         ];
     }
 

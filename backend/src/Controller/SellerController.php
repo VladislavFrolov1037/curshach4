@@ -7,7 +7,9 @@ namespace App\Controller;
 use App\Dto\Seller\EditSellerDto;
 use App\Dto\Seller\RegisterSellerDto;
 use App\Entity\Seller;
+use App\Enum\ProductStatus;
 use App\Exception\ValidationException;
+use App\Repository\ProductRepository;
 use App\Repository\SellerRepository;
 use App\Services\FileService;
 use App\Services\SellerService;
@@ -28,14 +30,16 @@ class SellerController extends AbstractController
     private SellerService $sellerService;
     private SellerRepository $sellerRepository;
     private FileService $fileService;
+    private ProductRepository $productRepository;
 
-    public function __construct(ValidatorInterface $validator, SerializerInterface $serializer, SellerService $sellerService, SellerRepository $sellerRepository, FileService $fileService)
+    public function __construct(ValidatorInterface $validator, SerializerInterface $serializer, SellerService $sellerService, SellerRepository $sellerRepository, FileService $fileService, ProductRepository $productRepository)
     {
         $this->validator = $validator;
         $this->serializer = $serializer;
         $this->sellerService = $sellerService;
         $this->sellerRepository = $sellerRepository;
         $this->fileService = $fileService;
+        $this->productRepository = $productRepository;
     }
 
     #[Route('/api/seller/profile')]
@@ -86,6 +90,12 @@ class SellerController extends AbstractController
 
         $this->sellerService->editSeller($dto, $seller);
 
+        return $this->json($seller);
+    }
+
+    #[Route('/api/seller/{id}', name: 'get_seller_data', methods: ['GET'])]
+    public function getSellerData(Seller $seller)
+    {
         return $this->json($seller);
     }
 }

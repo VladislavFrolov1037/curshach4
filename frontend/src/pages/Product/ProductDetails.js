@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
 import {addView, getProductDetails} from "../../services/product";
 import Loader from "../../components/Loader";
@@ -11,6 +11,7 @@ import FavoriteContext from "../../context/FavouriteContext";
 import Review from "../../components/Review/Review";
 import {addReactionForReview, deleteReview} from "../../services/review";
 import {FaStar} from "react-icons/fa";
+import { Dialog } from 'primereact/dialog';
 
 const ProductDetails = () => {
     const toast = useRef(null);
@@ -25,6 +26,18 @@ const ProductDetails = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [feedbacks, setFeedbacks] = useState([]);
+    const [complaintDialogVisible, setComplaintDialogVisible] = useState(false);
+    const [selectedReview, setSelectedReview] = useState(null);
+
+    const openComplaintDialog = (feedback) => {
+        setSelectedReview(feedback);
+        setComplaintDialogVisible(true);
+    }
+
+    const closeComplaintDialog = () => {
+        setComplaintDialogVisible(false);
+        setSelectedReview(null);
+    }
 
     const fetchProductDetails = async () => {
         try {
@@ -64,6 +77,11 @@ const ProductDetails = () => {
     }
 
     const handleCartAction = async () => {
+        if (product.status === 'discontinued' || product.status === 'removed') {
+            toast.current.show({severity: 'error', summary: 'Товар недоступен', detail: 'Этот товар снят с продажи или удалён.', life: 3000});
+            return;
+        }
+
         setIsLoading(true);
 
         if (isProductInCart(product.id)) {
@@ -113,9 +131,8 @@ const ProductDetails = () => {
         }
     }
 
-
     if (loading) {
-        return <Loader/>;
+        return <Loader />;
     }
 
     if (!product) {
@@ -178,7 +195,11 @@ const ProductDetails = () => {
             ]
             : []),
     ];
-
+    const items = [
+        { label: "Редактировать", icon: "pi pi-pencil", command: () => alert("Редактирование") },
+        { label: "Удалить", icon: "pi pi-trash", command: () => alert("Удаление") },
+        { label: "Просмотр", icon: "pi pi-eye", command: () => alert("Просмотр") }
+    ];
     return (
         <div className="product-details container">
             <Toast ref={toast}/>
@@ -217,15 +238,26 @@ const ProductDetails = () => {
                     </h1>
 
                     <p>Категория: {category.name}</p>
-                    <p>Продавец: {seller.name}</p>
+                    <p>Продавец: <Link to={`/seller/${seller.id}`}>{seller.name}</Link></p>
+
+                    {status === "discontinued" && (
+                        <div className="alert alert-warning mt-2">
+                            Этот товар снят с продажи.
+                        </div>
+                    )}
+                    {status === "removed" && (
+                        <div className="alert alert-danger mt-2">
+                            Этот товар временно удалён.
+                        </div>
+                    )}
 
                     <div className="d-flex align-items-center mb-5">
                         <FaStar className="text-warning" size={18}/>
                         <span className="ms-2 text-muted fw-semibold">
-                                {(parseFloat(product.rating.rating) || 0).toFixed(1)}
+                            {(parseFloat(product.rating.rating) || 0).toFixed(1)}
                             <span className="mx-1 text-secondary">•</span>
-                                <small className="text-muted">{(product.rating.count)} оценок</small>
-                            </span>
+                            <small className="text-muted">{(product.rating.count)} оценок</small>
+                        </span>
                     </div>
 
                     <div className="product-attributes">
@@ -245,13 +277,19 @@ const ProductDetails = () => {
                         <SplitButton
                             label={isLoading ? "Добавление в корзину" : isProductInCart(product.id) ? "Перейти в корзину" : "Добавить в корзину"}
                             icon="pi pi-shopping-cart"
-                            className={isProductInCart(product.id) ? "p-button-secondary" : "p-button-success"}
-                            onClick={() => {
-                                handleCartAction(product.id);
-                            }}
-                            disabled={isLoading}
+                            className={`inline-flex items-center px-4 py-2 rounded-lg shadow-md transition ${
+                                isProductInCart(product.id) ? "bg-gray-500 hover:bg-gray-600 text-white" : "bg-green-500 hover:bg-green-600 text-white"
+                            }`}
+                            onClick={handleCartAction}
                             model={getMenuItems()}
+                            buttonClassName={product.status === 'discontinued' || product.status === 'removed' ? 'opacity-50 cursor-not-allowed' : ''}
+                            pt={{
+                                menu: { className: "bg-white border border-gray-300 rounded-lg shadow-lg mt-2" },
+                                menulist: "space-y-2",
+                                menubutton: { className: "block w-full text-left px-4 py-2 hover:bg-gray-100 rounded transition" }
+                            }}
                         />
+
                     </div>
                 </div>
             </div>
@@ -283,11 +321,40 @@ const ProductDetails = () => {
                     )}
                     {activeTab === "reviews" && (
                         <div>
+                            <Dialog
+                                visible={complaintDialogVisible}
+                                style={{ width: '50vw' }}
+                                header="Пожаловаться на отзыв"
+                                onHide={closeComplaintDialog}
+                            >
+                                <div>
+                                    {selectedReview && (
+                                        <div>
+                                            <h5>{selectedReview.user.name}</h5>
+                                            <p>{selectedReview.comment}</p>
+                                            <textarea
+                                                placeholder="Введите описание жалобы"
+                                                rows={5}
+                                                className="form-control"
+                                            />
+                                            <div className="mt-3 text-end">
+                                                <button className="btn btn-danger" onClick={closeComplaintDialog}>Отправить жалобу</button>
+                                                <button className="btn btn-secondary ms-2" onClick={closeComplaintDialog}>Закрыть</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </Dialog>
+
                             <h4>Отзывы</h4>
                             {feedbacks.map((feedback) => (
-                                <Review key={feedback.id} feedback={feedback}
-                                        handleAddReactionForReview={handleAddReactionForReview}
-                                        handleDeleteReview={handleDeleteReview}
+                                <Review
+                                    key={feedback.id}
+                                    feedback={feedback}
+                                    handleAddReactionForReview={handleAddReactionForReview}
+                                    handleDeleteReview={handleDeleteReview}
+                                    product={product}
+                                    openComplaintDialog={openComplaintDialog}
                                 />
                             ))}
                         </div>
@@ -297,5 +364,6 @@ const ProductDetails = () => {
         </div>
     );
 };
+
 
 export default ProductDetails;

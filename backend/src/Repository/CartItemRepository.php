@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Cart;
 use App\Entity\CartItem;
 use App\Entity\Product;
+use App\Enum\ProductStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -30,5 +31,17 @@ class CartItemRepository extends ServiceEntityRepository
             ->setParameter('cart', $cart)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function getCartItemsWithAvailableProducts(Cart $cart)
+    {
+        return $this->createQueryBuilder('ci')
+            ->leftJoin('ci.product', 'p')
+            ->andWhere('ci.cart = :cart')
+            ->andWhere('p.status = :status')
+            ->setParameter('cart', $cart)
+            ->setParameter('status', ProductStatus::STATUS_AVAILABLE)
+            ->getQuery()
+            ->getResult();
     }
 }

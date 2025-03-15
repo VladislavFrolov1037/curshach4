@@ -21,6 +21,15 @@ class UserNormalizer implements NormalizerInterface
             ];
         }
 
+        if ($context['from-tg'] ?? false) {
+            return [
+                'id' => $object->getId(),
+                'orderNotification' => $object->isOrderNotification(),
+                'marketplaceNotification' => $object->isMarketplaceNotification(),
+                'promoNotification' => $object->isPromoNotification(),
+            ];
+        }
+
         return [
             'id' => $object->getId(),
             'name' => $object->getName(),
@@ -31,6 +40,7 @@ class UserNormalizer implements NormalizerInterface
             'createdAt' => $object->getCreatedAt()->format('d.m.Y H:i:s'),
             'isSeller' => $object->isSeller(),
             'isAdmin' => $object->isAdmin(),
+            'telegramId' => $object->getTelegramId(),
         ];
     }
 

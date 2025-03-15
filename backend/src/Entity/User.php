@@ -97,6 +97,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: FeedbackReaction::class, mappedBy: 'user')]
     private Collection $feedbackReactions;
 
+    /**
+     * @var Collection<int, ProductQuestion>
+     */
+    #[ORM\OneToMany(targetEntity: ProductQuestion::class, mappedBy: 'user')]
+    private Collection $productQuestions;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $telegramId = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $orderNotification = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $marketplaceNotification = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $promoNotification = null;
+
     public function __construct()
     {
         $this->viewedProducts = new ArrayCollection();
@@ -105,6 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->feedbackReplies = new ArrayCollection();
         $this->feedbackReports = new ArrayCollection();
         $this->feedbackReactions = new ArrayCollection();
+        $this->productQuestions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -475,6 +494,84 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $feedbackReaction->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductQuestion>
+     */
+    public function getProductQuestions(): Collection
+    {
+        return $this->productQuestions;
+    }
+
+    public function addProductQuestion(ProductQuestion $productQuestion): static
+    {
+        if (!$this->productQuestions->contains($productQuestion)) {
+            $this->productQuestions->add($productQuestion);
+            $productQuestion->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductQuestion(ProductQuestion $productQuestion): static
+    {
+        if ($this->productQuestions->removeElement($productQuestion)) {
+            // set the owning side to null (unless already changed)
+            if ($productQuestion->getUser() === $this) {
+                $productQuestion->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getTelegramId(): ?string
+    {
+        return $this->telegramId;
+    }
+
+    public function setTelegramId(?string $telegramId): static
+    {
+        $this->telegramId = $telegramId;
+
+        return $this;
+    }
+
+    public function isOrderNotification(): ?bool
+    {
+        return $this->orderNotification;
+    }
+
+    public function setOrderNotification(?bool $orderNotification): static
+    {
+        $this->orderNotification = $orderNotification;
+
+        return $this;
+    }
+
+    public function isMarketplaceNotification(): ?bool
+    {
+        return $this->marketplaceNotification;
+    }
+
+    public function setMarketplaceNotification(?bool $marketplaceNotification): static
+    {
+        $this->marketplaceNotification = $marketplaceNotification;
+
+        return $this;
+    }
+
+    public function isPromoNotification(): ?bool
+    {
+        return $this->promoNotification;
+    }
+
+    public function setPromoNotification(?bool $promoNotification): static
+    {
+        $this->promoNotification = $promoNotification;
 
         return $this;
     }

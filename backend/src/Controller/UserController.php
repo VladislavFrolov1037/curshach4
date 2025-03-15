@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Dto\User\EditUserDto;
+use App\Entity\User;
 use App\Exception\ValidationException;
+use App\Repository\ProductRepository;
 use App\Services\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,13 +24,15 @@ class UserController extends AbstractController
     private ValidatorInterface $validator;
     private EntityManagerInterface $entityManager;
     private UserService $userService;
+    private ProductRepository $productRepository;
 
-    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, UserService $userService)
+    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, EntityManagerInterface $entityManager, UserService $userService, ProductRepository $productRepository)
     {
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->entityManager = $entityManager;
         $this->userService = $userService;
+        $this->productRepository = $productRepository;
     }
 
     #[Route('/api/profile', name: 'api_profile', methods: ['GET'])]
@@ -58,5 +62,11 @@ class UserController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json($user);
+    }
+
+    #[Route('/api/user/{id}', name: 'get_user_data', methods: ['GET'])]
+    public function getUserData(User $user): JsonResponse
+    {
+        return $this->json(['customer' => $user, 'reviews' => $user->getFeedback(), 'products' => $this->productRepository->findPurchasedUserProducts($user)], 200, ['shortly' => true]);
     }
 }
