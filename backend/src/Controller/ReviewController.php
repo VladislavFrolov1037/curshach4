@@ -56,6 +56,7 @@ class ReviewController extends AbstractController
         return $this->json([], 204);
     }
 
+    #[Route('/api/review/{id}/report', name: 'report-review', methods: ['POST'])]
     public function reportReview(Feedback $feedback, Request $request): JsonResponse
     {
         $reason = $request->request->get('reason');

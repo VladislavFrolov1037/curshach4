@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import './AdminDashboard.css';
 import AdminCard from "../../../components/Admin/AdminCard/AdminCard";
 import Loader from "../../../components/Loader";
-import { getDashboard } from "../../../services/admin";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Импортируем компонент FontAwesomeIcon
-import {faBox, faChartBar, faKey, faUser, faUsers} from '@fortawesome/free-solid-svg-icons'; // Импортируем иконки
+import {getDashboard} from "../../../services/admin";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faBox, faChartBar, faKey, faPaperPlane, faUser, faUsers} from '@fortawesome/free-solid-svg-icons';
 
 const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -34,40 +34,46 @@ const AdminDashboard = () => {
     }, []);
 
     if (loading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     const cards = [
         {
             title: 'Управление заказами',
-            icon: <FontAwesomeIcon icon={faBox} />,
+            icon: <FontAwesomeIcon icon={faBox}/>,
             link: '/admin/orders',
             countLabel: 'Количество заказов',
             count: counts.orders,
         },
         {
             title: 'Управление пользователями',
-            icon: <FontAwesomeIcon icon={faUser} />,
+            icon: <FontAwesomeIcon icon={faUser}/>,
             link: '/admin/users',
             countLabel: 'Количество пользователей',
             count: counts.users,
         },
         {
             title: 'Управление продавцами',
-            icon: <FontAwesomeIcon icon={faUsers} />,
+            icon: <FontAwesomeIcon icon={faUsers}/>,
             link: '/admin/sellers',
             countLabel: 'Количество продавцов',
             count: counts.sellers,
         },
         {
             title: 'Статистика сайта',
-            icon: <FontAwesomeIcon icon={faChartBar} />,
+            icon: <FontAwesomeIcon icon={faChartBar}/>,
             link: '/admin/statistics',
             countLabel: 'Различная статистика сайта',
         },
         {
+            title: 'Промокоды',
+            icon: <FontAwesomeIcon icon={faPaperPlane}/>,
+            link: '/admin/tg/promoCodes',
+            countLabel: 'Управление промокодами',
+        },
+        {
             title: 'Токены',
-            icon: <FontAwesomeIcon icon={faKey} />,
+            icon: <FontAwesomeIcon icon={faKey}/>,
             link: '/admin/tokens',
             countLabel: 'Управление токенами',
         }

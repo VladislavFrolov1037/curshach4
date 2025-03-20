@@ -13,32 +13,6 @@ import (
 
 var previousKeyboard tgbotapi.ReplyKeyboardMarkup
 
-var orderNotificationKeyboard = tgbotapi.NewReplyKeyboard(
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Включить уведомления о доставке заказа"),
-	),
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Выключить уведомления о доставке заказа"),
-	),
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Назад"),
-	),
-)
-
-var marketplaceNotificationKeyboard = tgbotapi.NewReplyKeyboard(
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Включить рассылку уведомлений"),
-		tgbotapi.NewKeyboardButton("Включить уведомления о промокодах и скидках"),
-	),
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Выключить рассылку уведомлений"),
-		tgbotapi.NewKeyboardButton("Выключить уведомления о промокодах и скидках"),
-	),
-	tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton("Назад"),
-	),
-)
-
 var notificationMapping = map[string]struct {
 	notificationType string
 	enable           bool
@@ -128,12 +102,12 @@ func main() {
 
 			case "Уведомления при заказе":
 				msg.Text = "Выберите уведомление, которое хотите изменить"
-				msg.ReplyMarkup = orderNotificationKeyboard
+				msg.ReplyMarkup = getOrderNotificationKeyboard(update.Message.From.ID)
 				previousKeyboard = notificationKeyboard
 
 			case "Уведомления от маркетплейса":
 				msg.Text = "Выберите уведомление, которое хотите изменить"
-				msg.ReplyMarkup = marketplaceNotificationKeyboard
+				msg.ReplyMarkup = getMarketplaceNotificationKeyboard(update.Message.From.ID)
 				previousKeyboard = notificationKeyboard
 
 			case "Назад":
@@ -148,9 +122,9 @@ func main() {
 
 					switch action.notificationType {
 					case "order_delivery", "order_payment":
-						msg.ReplyMarkup = orderNotificationKeyboard
+						msg.ReplyMarkup = getOrderNotificationKeyboard(update.Message.From.ID)
 					case "marketplace_notifications", "promo_notifications":
-						msg.ReplyMarkup = marketplaceNotificationKeyboard
+						msg.ReplyMarkup = getMarketplaceNotificationKeyboard(update.Message.From.ID)
 					}
 				} else {
 					msg.Text = "Команда не найдена.\nЧтобы получить информацию о существующих командах, можете воспользоваться командой /help"
@@ -263,4 +237,64 @@ func updateNotificationSettings(tgID int64, notificationType string, enable bool
 	}
 	log.Println("RESP REPSO: ", resp)
 	defer resp.Body.Close()
+}
+
+func getOrderNotificationKeyboard(tgID int64) tgbotapi.ReplyKeyboardMarkup {
+	settings, exists := userSettingsCache[tgID]
+	if !exists {
+		settings = &UserSettings{}
+	}
+
+	var keyboard [][]tgbotapi.KeyboardButton
+
+	if settings.OrderNotification {
+		keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Выключить уведомления о доставке заказа"),
+		))
+	} else {
+		keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Включить уведомления о доставке заказа"),
+		))
+	}
+
+	keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Назад"),
+	))
+
+	return tgbotapi.NewReplyKeyboard(keyboard...)
+}
+
+func getMarketplaceNotificationKeyboard(tgID int64) tgbotapi.ReplyKeyboardMarkup {
+	settings, exists := userSettingsCache[tgID]
+	if !exists {
+		settings = &UserSettings{}
+	}
+
+	var keyboard [][]tgbotapi.KeyboardButton
+
+	if settings.MarketplaceNotification {
+		keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Выключить рассылку уведомлений"),
+		))
+	} else {
+		keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Включить рассылку уведомлений"),
+		))
+	}
+
+	if settings.PromoNotification {
+		keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Выключить уведомления о промокодах и скидках"),
+		))
+	} else {
+		keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Включить уведомления о промокодах и скидках"),
+		))
+	}
+
+	keyboard = append(keyboard, tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Назад"),
+	))
+
+	return tgbotapi.NewReplyKeyboard(keyboard...)
 }

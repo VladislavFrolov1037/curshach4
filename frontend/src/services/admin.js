@@ -28,3 +28,16 @@ export const updateSellerStatus = async (id) => {
 
     return response.data;
 }
+
+export const generatePromoCode = async (data) => {
+    console.log(data)
+    const response = await axios.post('/admin/tg/create-promo', data);
+
+    return response.data;
+}
+
+export const getPromoCodes = async () => {
+    const response = await axios.get('/admin/tg/promo')
+
+    return response.data;
+}

@@ -34,9 +34,7 @@ class FeedbackRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('f')
             ->andWhere('f.product = :product')
-            ->andWhere('f.status = :status')
-            ->setParameter('product', $product)
-            ->setParameter('status', 'active');
+            ->setParameter('product', $product);
 
         $currentUserFeedback = $qb
             ->andWhere('f.user = :user')
@@ -46,10 +44,8 @@ class FeedbackRepository extends ServiceEntityRepository
 
         $otherFeedbacks = $this->createQueryBuilder('f')
             ->andWhere('f.product = :product')
-            ->andWhere('f.status = :status')
             ->andWhere('f.user != :user')
             ->setParameter('product', $product)
-            ->setParameter('status', 'active')
             ->setParameter('user', $user)
             ->getQuery()
             ->getResult();

@@ -10,6 +10,7 @@ use App\Enum\OrderStatus;
 use App\Repository\CartItemRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
+use App\Repository\PromoCodeRepository;
 use App\Services\OrderService;
 use App\Services\PaymentService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,7 +25,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrderController extends AbstractController
 {
-    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em, private readonly PaymentService $paymentService, private readonly CartItemRepository $cartItemRepository)
+    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em, private readonly PaymentService $paymentService, private readonly CartItemRepository $cartItemRepository, private readonly PromoCodeRepository $promoCodeRepository)
     {
     }
 
@@ -43,6 +44,7 @@ class OrderController extends AbstractController
             return $this->json(['error' => 'Корзина пуста'], Response::HTTP_BAD_REQUEST);
         }
 
+        $promoCode = !empty($data['promoCode']) ? $this->promoCodeRepository->findOneBy(['code' => $data['promoCode']]) : null;
         $order = new Order();
         $order->setUser($user);
         $order->setShippingAddress($shippingAddress);
@@ -69,6 +71,13 @@ class OrderController extends AbstractController
             $totalPrice += $orderItem->getPrice();
         }
 
+        if ($promoCode) {
+            $order->setPromoCode($promoCode);
+            $promoCode?->setUsedCount($promoCode->getUsedCount() + 1);
+            $totalPrice = $totalPrice - ($totalPrice * ($promoCode->getDiscount() / 100));
+            $this->em->persist($promoCode);
+        }
+
         $order->setTotalPrice($totalPrice);
         $this->em->persist($order);
 
@@ -93,6 +102,18 @@ class OrderController extends AbstractController
         }
 
         return $this->getPayOrderData($order);
+    }
+
+    #[Route('/api/validatePromoCode/{promoCode}', name: 'validate_promo', methods: ['GET'])]
+    public function validatePromo(Request $request): JsonResponse
+    {
+        $promoCode = $this->promoCodeRepository->findOneBy(['code' => $request->get('promoCode')]);
+
+        if ($promoCode) {
+            return $this->json($promoCode);
+        }
+
+        return $this->json(['error' => $this->translator->trans('This promo code is unavailable')]);
     }
 
     #[Route('/api/payment-data/{order}', name: 'get_payment_data', methods: ['GET'])]

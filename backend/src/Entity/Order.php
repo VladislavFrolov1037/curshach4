@@ -20,7 +20,7 @@ class Order
     private ?User $user = null;
 
     #[ORM\Column]
-    private ?int $totalPrice = null;
+    private ?float $totalPrice = null;
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
@@ -39,6 +39,9 @@ class Order
      */
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'request')]
     private Collection $orderItems;
+
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    private ?PromoCode $promoCode = null;
 
     public function __construct()
     {
@@ -62,12 +65,12 @@ class Order
         return $this;
     }
 
-    public function getTotalPrice(): ?int
+    public function getTotalPrice(): ?float
     {
         return $this->totalPrice;
     }
 
-    public function setTotalPrice(int $totalPrice): static
+    public function setTotalPrice(float $totalPrice): static
     {
         $this->totalPrice = $totalPrice;
 
@@ -153,6 +156,18 @@ class Order
     public function setTransactionId(?string $transactionId): static
     {
         $this->transactionId = $transactionId;
+
+        return $this;
+    }
+
+    public function getPromoCode(): ?PromoCode
+    {
+        return $this->promoCode;
+    }
+
+    public function setPromoCode(?PromoCode $promoCode): static
+    {
+        $this->promoCode = $promoCode;
 
         return $this;
     }

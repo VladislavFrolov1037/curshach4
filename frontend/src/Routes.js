@@ -25,6 +25,7 @@ import AdminStatistic from "./pages/Admin/AdminStatistic/AdminStatistic";
 import AdminToken from "./pages/Admin/AdminToken/AdminToken";
 import UserProfile from "./pages/Profile/UserProfile";
 import SellerProfile from "./pages/Seller/SellerProfile";
+import AdminPromoCode from "./pages/Admin/AdminPromocode/AdminPromoCode";
 
 function AppRoutes() {
     return (
@@ -57,6 +58,7 @@ function AppRoutes() {
             <Route path="/admin/tokens" element={<AdminToken/>}/>
             <Route path="/admin/user/:userId" element={<UserProfile/>}/>
             <Route path="/admin/seller/:sellerId" element={<SellerProfile/>}/>
+            <Route path="/admin/tg/promoCodes" element={<AdminPromoCode/>}/>
 
             {/* Exceptions */}
             <Route path="/forbidden" element={<Forbidden/>}/>

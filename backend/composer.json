@@ -33,6 +33,7 @@
         "symfony/mime": "7.1.*",
         "symfony/monolog-bundle": "^3.0",
         "symfony/stopwatch": "7.1.*",
+        "symfony/telegram-notifier": "7.1.*",
         "symfony/web-profiler-bundle": "7.1.*"
     },
     "config": {

@@ -9,7 +9,7 @@ import "./ProductDetails.css";
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
 import Review from "../../components/Review/Review";
-import {addReactionForReview, deleteReview} from "../../services/review";
+import {addReactionForReview, deleteReview, reportReview} from "../../services/review";
 import {FaStar} from "react-icons/fa";
 import { Dialog } from 'primereact/dialog';
 
@@ -165,6 +165,10 @@ const ProductDetails = () => {
     const isFavorite = () => {
         return favorites && favorites.some((fav) => fav.product_id === product.id);
     };
+
+    const handleReportReview = async (review) => {
+        await reportReview(review, )
+    }
 
     const getMenuItems = () => [
         {
@@ -338,7 +342,7 @@ const ProductDetails = () => {
                                                 className="form-control"
                                             />
                                             <div className="mt-3 text-end">
-                                                <button className="btn btn-danger" onClick={closeComplaintDialog}>Отправить жалобу</button>
+                                                <button className="btn btn-danger" onClick={handleReportReview(selectedReview)}>Отправить жалобу</button>
                                                 <button className="btn btn-secondary ms-2" onClick={closeComplaintDialog}>Закрыть</button>
                                             </div>
                                         </div>

@@ -6,7 +6,7 @@ import {Button} from "primereact/button";
 import './Cart.css';
 import CartContext from "../../context/CartContext";
 import FavoriteContext from "../../context/FavouriteContext";
-import {createOrder} from "../../services/order";
+import {createOrder, validatePromoCode} from "../../services/order";
 import {createPaymentForm} from "../../services/helpers";
 import {Toast} from 'primereact/toast';
 
@@ -17,10 +17,13 @@ const Cart = () => {
     const [totalQuantity, setTotalQuantity] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState('');
     const [shippingAddress, setShippingAddress] = useState('');
+    const [promoCode, setPromoCode] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const {removeCartItem} = useContext(CartContext);
     const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
     const toast = useRef(null);
+    const [isPromoValid, setIsPromoValid] = useState(false);
+    const [promoDiscount, setPromoDiscount] = useState(0);
 
     const fetchProducts = async () => {
         try {
@@ -71,7 +74,6 @@ const Cart = () => {
         setCartItems(prevItems => {
             const updatedCartItems = prevItems.map(item => {
                 if (item.product.id === productId && item.product.status === 'available') {
-                    // Проверка, чтобы новое количество не превышало доступное
                     if (newQuantity <= item.product.quantity && newQuantity > 0) {
                         return {...item, quantity: newQuantity};
                     }
@@ -79,10 +81,15 @@ const Cart = () => {
                 return item;
             });
 
-            const total = updatedCartItems.reduce((acc, item) =>
+            let total = updatedCartItems.reduce((acc, item) =>
                 item.product.status === 'available' ? acc + item.quantity * parseFloat(item.product.price) : acc, 0);
             const quantity = updatedCartItems.reduce((acc, item) =>
                 item.product.status === 'available' ? acc + item.quantity : acc, 0);
+
+            console.log(total)
+            if (promoDiscount > 0) {
+                total = applyPromoDiscount(total);
+            }
 
             setTotalPrice(total);
             setTotalQuantity(quantity);
@@ -120,7 +127,22 @@ const Cart = () => {
         setIsSubmitting(true);
 
         try {
-            const data = await createOrder(shippingAddress, paymentMethod);
+            if (promoDiscount <= 0) {
+                setPromoCode('');
+            }
+
+            const data = await createOrder(shippingAddress, paymentMethod, promoCode);
+
+            if (data['error']) {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Ошибка',
+                    detail: data['error'],
+                    life: 3000
+                });
+
+                return;
+            }
 
             setCartItems((prevItems) => {
                 return prevItems.filter(item => item.product.status !== 'available');
@@ -148,6 +170,32 @@ const Cart = () => {
             });
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const applyPromoDiscount = (total) => {
+        return total - (total * (promoDiscount / 100));
+    };
+
+    const handleApplyPromo = async () => {
+        if (!promoCode) {
+            toast.current.show({severity: 'warn', summary: 'Ошибка', detail: 'Введите промокод', life: 3000});
+            return;
+        }
+
+        try {
+            const response = await validatePromoCode(promoCode);
+
+            if (response.error) {
+                toast.current.show({severity: 'error', summary: 'Ошибка', detail: response.error, life: 3000});
+            } else {
+                toast.current.show({severity: 'success', summary: 'Успешно', detail: 'Промокод применен!', life: 3000});
+                setPromoDiscount(response.discount);
+                setTotalPrice(totalPrice - (totalPrice * (response.discount / 100)));
+            }
+        } catch (error) {
+            console.error("Ошибка при проверке промокода:", error);
+            setIsPromoValid(false);
         }
     };
 
@@ -239,6 +287,21 @@ const Cart = () => {
                             className="form-control mt-3"
                             value={shippingAddress}
                             onChange={(e) => setShippingAddress(e.target.value)}
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Промокод для получения скидки"
+                            className="form-control mt-3"
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value)}
+                            disabled={promoDiscount > 0}
+                        />
+                        <Button
+                            label="Применить промокод"
+                            className="p-button-sm p-button-outlined p-button-secondary mt-2"
+                            onClick={handleApplyPromo}
+                            disabled={promoDiscount > 0}
                         />
 
                         <Button

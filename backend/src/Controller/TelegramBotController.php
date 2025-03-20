@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Repository\PromoCodeRepository;
 use App\Repository\UserRepository;
 use App\Services\TelegramBotService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class TelegramBotController extends AbstractController
 {
-    public function __construct(private readonly TelegramBotService $telegramBotService, private readonly UserRepository $userRepository, private readonly EntityManagerInterface $em)
+    public function __construct(private readonly TelegramBotService $telegramBotService, private readonly UserRepository $userRepository, private readonly EntityManagerInterface $em, private readonly PromoCodeRepository $promoCodeRepository)
     {
     }
 
@@ -63,5 +65,21 @@ class TelegramBotController extends AbstractController
         $this->em->flush();
 
         return $this->json($user, 200, [], ['from-tg' => true]);
+    }
+
+    #[Route('/api/admin/tg/create-promo', name: 'create-promo', methods: ['POST'])]
+    public function createPromo(Request $request): JsonResponse
+    {
+        $promoCode = $this->telegramBotService->createPromo(json_decode($request->getContent()));
+
+        return $this->json($promoCode);
+    }
+
+    #[Route('/api/admin/tg/promo', name: 'get-promo', methods: ['GET'])]
+    public function getPromoCodes(): JsonResponse
+    {
+        $promoCodes = $this->promoCodeRepository->findAll();
+
+        return $this->json($promoCodes);
     }
 }

@@ -25,3 +25,7 @@ export const replyToReview = async (feedback, data) => {
 export const deleteReview = async (id) => {
     await axios.delete(`/review/${id}`);
 }
+
+export const reportReview = async (id, data) => {
+    await axios.post(`/review/${id}`, {'report': data});
+}
