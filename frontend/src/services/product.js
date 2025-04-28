@@ -22,8 +22,10 @@ export const createProduct = async (formData) => {
     return response.data;
 };
 
-export const getProducts = async () => {
-    const response = await axios.get(`/products`, { requiresAuthRedirect: false });
+export const getProducts = async (filters = {}) => {
+    const response = await axios.get(`/products`, {
+        params: filters
+    });
 
     return response.data;
 }

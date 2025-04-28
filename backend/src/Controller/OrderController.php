@@ -13,6 +13,7 @@ use App\Repository\ProductRepository;
 use App\Repository\PromoCodeRepository;
 use App\Services\OrderService;
 use App\Services\PaymentService;
+use App\Services\TelegramBotService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrderController extends AbstractController
 {
-    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em, private readonly PaymentService $paymentService, private readonly CartItemRepository $cartItemRepository, private readonly PromoCodeRepository $promoCodeRepository)
+    public function __construct(private readonly TranslatorInterface $translator, private readonly OrderService $orderService, private readonly OrderRepository $orderRepository, private readonly ProductRepository $productRepository, private EntityManagerInterface $em, private readonly PaymentService $paymentService, private readonly CartItemRepository $cartItemRepository, private readonly PromoCodeRepository $promoCodeRepository, private readonly TelegramBotController $telegramBotController, private readonly TelegramBotService $telegramBotService)
     {
     }
 
@@ -97,6 +98,8 @@ class OrderController extends AbstractController
                 ->text($user->getName().', ваш заказ успешно оформлен! Общая сумма заказа: '.$order->getTotalPrice()."р.\n".'Не забудьте оплатить заказ.');
 
             $mailer->send($email);
+
+            $this->telegramBotService->buildOrderMessage($order, $user);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -135,6 +138,8 @@ class OrderController extends AbstractController
 
         $this->em->persist($order);
         $this->em->flush();
+
+        $this->telegramBotService->buildOrderMessage($order, $this->getUser());
 
         return $this->json(['success' => true]);
     }
@@ -192,7 +197,7 @@ class OrderController extends AbstractController
             return $this->json(['error' => 'Срок отмены заказа истёк'], Response::HTTP_BAD_REQUEST);
         }
 
-        $order->setStatus('cancelled');
+        $order->setStatus(OrderStatus::STATUS_CANCELLED);
         $this->em->flush();
 
         return $this->json(['message' => 'Заказ успешно отменён'], Response::HTTP_OK);

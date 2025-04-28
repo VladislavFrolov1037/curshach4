@@ -16,15 +16,21 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PaymentWebhookController extends AbstractController
 {
-    public function __construct(private readonly OrderRepository $orderRepository, private readonly EntityManagerInterface $em, private readonly HttpClientInterface $client, private readonly PaymentRepository $paymentRepository)
-    {
+    public function __construct(
+        private readonly OrderRepository $orderRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly HttpClientInterface $client,
+        private readonly PaymentRepository $paymentRepository,
+        private readonly string $secretKey,
+        private readonly string $clientId,
+        private readonly string $redirectUri,
+    ) {
     }
 
     #[Route('/api/payment/webhook', name: 'payment_webhook', methods: ['POST'])]
     public function handleWebhook(Request $request): JsonResponse
     {
         $data = $request->request->all();
-        $secretKey = 'P0xZtb2exPE3OJHuEYwnf4MR';
         $hashString = sprintf(
             '%s&%s&%s&%s&%s&%s&%s&%s&%s',
             $data['notification_type'] ?? '',
@@ -34,7 +40,7 @@ class PaymentWebhookController extends AbstractController
             $data['datetime'] ?? '',
             $data['sender'] ?? '',
             $data['codepro'] ?? '',
-            $secretKey,
+            $this->secretKey,
             $data['label'] ?? ''
         );
         $calculatedHash = sha1($hashString);
@@ -56,13 +62,12 @@ class PaymentWebhookController extends AbstractController
         $this->em->persist($order);
         $this->em->flush();
 
-        return $this->json(['message' => 'Payment received'], 200);
+        return $this->json(['message' => 'Payment received']);
     }
 
     #[Route('/api/oAuth', name: 'oAuth', methods: ['GET'])]
     public function oAuthUMoney(Request $request): JsonResponse|RedirectResponse
     {
-
         $code = $request->query->get('code');
 
         if (!$code) {
@@ -101,8 +106,8 @@ class PaymentWebhookController extends AbstractController
             ],
             'body' => http_build_query([
                 'code' => $code,
-                'client_id' => '8919BAD7A0D5603569CA20488C3A66CD561C5E32238BD4CC2A6EAC9D1845507D',
-                'redirect_uri' => 'https://s0fw11-176-215-208-47.ru.tuna.am/api/oAuth',
+                'client_id' => $this->clientId,
+                'redirect_uri' => $this->redirectUri,
                 'grant_type' => 'authorization_code',
             ]),
         ]);

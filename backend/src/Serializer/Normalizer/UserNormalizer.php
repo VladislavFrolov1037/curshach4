@@ -35,7 +35,6 @@ class UserNormalizer implements NormalizerInterface
             'name' => $object->getName(),
             'email' => $object->getEmail(),
             'gender' => $object->getGender(),
-            'discount' => $object->getDiscount(),
             'phone' => $object->getPhone(),
             'createdAt' => $object->getCreatedAt()->format('d.m.Y H:i:s'),
             'isSeller' => $object->isSeller(),

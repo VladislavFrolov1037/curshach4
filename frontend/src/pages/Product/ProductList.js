@@ -3,69 +3,84 @@ import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader";
 import { getProducts } from "../../services/product";
 import ProductFilter from "../../components/Filter/ProductFilter";
+import { Button } from 'primereact/button';
 
 function ProductList() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeMenuRef, setActiveMenuRef] = useState(null);
-    const [filters, setFilters] = useState({
-        saleOnly: false,
-        sortOption: null,
-        priceRange: null,
-        category: null
-    });
+    const [filters, setFilters] = useState({});
 
-    // Функция для обновления фильтров
     const handleFilterChange = (newFilters) => {
-        setFilters(newFilters); // Обновляем фильтры в состоянии
+        setFilters(newFilters);
+    };
+
+    const handleResetFilters = () => {
+        setFilters({});
     };
 
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
+            try {
+                const apiFilters = {
+                    ...filters,
+                    saleOnly: filters.saleOnly ? 1 : 0,
+                    minPrice: filters.priceRange?.[0],
+                    maxPrice: filters.priceRange?.[1],
+                };
+                delete apiFilters.priceRange;
 
-            // Отправляем фильтры в API
-            const filteredProducts = await getProducts(filters);
-            setProducts(filteredProducts);
-            setLoading(false);
+                const filteredProducts = await getProducts(apiFilters);
+                setProducts(filteredProducts);
+            } catch (error) {
+                console.error("Ошибка при загрузке:", error);
+            } finally {
+                setLoading(false);
+            }
         };
 
-        fetchProducts();
-    }, [filters]); // Получаем данные, когда фильтры изменяются
+        const timer = setTimeout(fetchProducts, 300);
+        return () => clearTimeout(timer);
+    }, [filters]);
 
-    if (loading) {
+    if (loading && products.length === 0) {
         return <Loader />;
     }
 
     return (
         <div className="container py-5">
-            {/* Фильтры */}
             <ProductFilter
-                onFilterChange={handleFilterChange}  // Передаем функцию для обновления фильтров
-                filters={filters}  // Передаем текущие фильтры
+                onFilterChange={handleFilterChange}
+                onReset={handleResetFilters}
                 filterOptions={{
                     sale: true,
-                    categories: [{ label: "Электроника", value: "electronics" }, { label: "Одежда", value: "clothing" }],
-                    sortOptions: [
-                        { label: "По популярности", value: "popular" },
-                        { label: "Цена: по возрастанию", value: "price_asc" },
-                        { label: "Цена: по убыванию", value: "price_desc" }
+                    categories: [
+                        { label: "Электроника", value: "electronics" },
+                        { label: "Одежда", value: "clothing" }
                     ],
                     priceRange: true
                 }}
             />
 
-            <div className="row row-cols-5 g-5 mt-3">
-                {products.map((product) => (
-                    <div className="col" key={product.id}>
-                        <Card
-                            product={product}
-                            activeMenuRef={activeMenuRef}
-                            setActiveMenuRef={setActiveMenuRef}
-                        />
-                    </div>
-                ))}
-            </div>
+            {products.length > 0 ? (
+                <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 mt-3">
+                    {products.map((product) => (
+                        <div className="col" key={product.id}>
+                            <Card
+                                product={product}
+                                activeMenuRef={activeMenuRef}
+                                setActiveMenuRef={setActiveMenuRef}
+                            />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-5">
+                    <h4>Товары не найдены</h4>
+                    <p>Попробуйте изменить параметры фильтрации</p>
+                </div>
+            )}
         </div>
     );
 }

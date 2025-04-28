@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Entity\Order;
 use App\Entity\PromoCode;
+use App\Enum\OrderStatus;
 use App\Repository\CategoryRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -77,10 +79,23 @@ class TelegramBotService
         }
     }
 
+    public function buildOrderMessage(Order $order, UserInterface $user): void
+    {
+        $orderUrl = 'http://127.0.0.1:3000/orders';
+
+        $message = new ChatMessage(match ($order->getStatus()) {
+            OrderStatus::STATUS_NEW => sprintf('Здравствуйте, %s! Ваш заказ на сумму %s руб, создан и находится в обработке. Подробнее: %s', $order->getTotalPrice(), $user->getName(), $orderUrl),
+            OrderStatus::STATUS_PAID => sprintf('Ваш заказ на сумму %s руб, оплачен. Спасибо за покупку, %s! Подробнее: %s', $order->getTotalPrice(), $user->getName(), $orderUrl),
+            OrderStatus::STATUS_DELIVERED => sprintf('%s, ваш заказ на сумму %s руб, доставлен. Надеемся, вам понравится! Подробнее: %s', $order->getTotalPrice(), $user->getName(), $orderUrl),
+            default => sprintf('Статус вашего заказа на сумму %s руб, обновлён на %s. Подробнее: %s', $order->getTotalPrice(), $order->getStatus(), $orderUrl),
+        });
+
+        $this->sendMessage($message, $user->getTelegramId());
+    }
+
     public function sendMessage($chatMessage, $tgID): void
     {
-        $telegramOptions = (new TelegramOptions())
-            ->chatId($tgID);
+        $telegramOptions = (new TelegramOptions())->chatId($tgID);
 
         $chatMessage->options($telegramOptions);
 

@@ -6,11 +6,12 @@ use App\Entity\Order;
 use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class PaymentService
 {
-    public function __construct(private EntityManagerInterface $em, private OrderRepository $orderRepository)
+    public function __construct(private EntityManagerInterface $em, private OrderRepository $orderRepository, private readonly TelegramBotService $telegramBotService, private readonly Security $security)
     {
     }
 
@@ -46,6 +47,8 @@ class PaymentService
         $this->em->persist($order);
         $this->em->flush();
 
+        $this->telegramBotService->buildOrderMessage($order, $this->security->getUser());
+
         return new JsonResponse(['message' => 'Payment received'], 200);
     }
 
@@ -64,5 +67,4 @@ class PaymentService
 
         $this->em->flush();
     }
-
 }

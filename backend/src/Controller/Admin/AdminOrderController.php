@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\Order;
 use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
+use App\Services\TelegramBotService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,11 +15,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AdminOrderController extends AbstractController
 {
-    public function __construct(private readonly OrderRepository $orderRepository, private readonly EntityManagerInterface $em)
+    public function __construct(private readonly OrderRepository $orderRepository, private readonly EntityManagerInterface $em, private readonly TelegramBotService $telegramBotService)
     {
     }
 
@@ -50,6 +52,7 @@ class AdminOrderController extends AbstractController
         }
 
         $order->setStatus($newStatus);
+        $this->telegramBotService->buildOrderMessage($order, $order->getUser());
         $this->em->flush();
 
         if (OrderStatus::STATUS_DELIVERED === $order->getStatus()) {
@@ -59,7 +62,7 @@ class AdminOrderController extends AbstractController
                 ->from('vladoperation@bk.ru')
                 ->to($user->getEmail())
                 ->subject('Статус заказа')
-                ->text($user->getName().', ваш заказ общей суммой в '.$order->getTotalPrice().'р. успешно доставлен по адресу'.$order->getShippingAddress().".\nВы можете забрать заказ с 9:00 до 21:00 по указанному адресу в будние дни, в течении 14 дней после доставки.  ");
+                ->text($user->getName() . ', ваш заказ общей суммой в ' . $order->getTotalPrice() . 'р. успешно доставлен по адресу' . $order->getShippingAddress() . ".\nВы можете забрать заказ с 9:00 до 21:00 по указанному адресу в будние дни, в течении 14 дней после доставки.  ");
 
             $mailer->send($email);
         }

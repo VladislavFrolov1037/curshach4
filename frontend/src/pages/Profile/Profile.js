@@ -110,7 +110,6 @@ const Profile = () => {
                                     </>
                                 )}
                             </p>
-                            <p><strong>Текущая скидка:</strong> {user.discount || '0%'}</p>
                             <p><strong>Аккаунт создан: </strong> {user.createdAt}</p>
                         </div>
 
