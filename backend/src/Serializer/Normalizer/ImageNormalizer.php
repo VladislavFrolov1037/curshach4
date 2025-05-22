@@ -17,7 +17,6 @@ class ImageNormalizer implements NormalizerInterface
         return [
             'url' => $object->getUrl(),
             'product_id' => $object->getProduct()->getId(),
-            'sequence' => $object->getSequence(),
         ];
     }
 

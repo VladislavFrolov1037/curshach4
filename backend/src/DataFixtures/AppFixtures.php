@@ -31,5 +31,7 @@ class AppFixtures extends Fixture
 
         $productFixtures = new ProductFixtures($this->categoryRepository, $this->categoryAttributeRepository, $this->productRepository, $this->productAttributeRepository, $this->sellerRepository);
         $productFixtures->load($manager);
+
+        $manager->flush();
     }
 }

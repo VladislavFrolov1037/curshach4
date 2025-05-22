@@ -296,12 +296,22 @@ class Seller
         $interval = $this->createdAt->diff(new \DateTimeImmutable());
 
         $years = $interval->y;
+        $months = $interval->m;
         $days = $interval->d;
 
-        return sprintf('%d %s %d %s',
-            $years, $this->pluralize($years, 'год', 'года', 'лет'),
-            $days, $this->pluralize($days, 'день', 'дня', 'дней')
-        );
+        $result = '';
+
+        if ($years > 0) {
+            $result .= sprintf('%d %s ', $years, $this->pluralize($years, 'год', 'года', 'лет'));
+        }
+        if ($months > 0) {
+            $result .= sprintf('%d %s ', $months, $this->pluralize($months, 'месяц', 'месяца', 'месяцев'));
+        }
+        if ($days > 0) {
+            $result .= sprintf('%d %s', $days, $this->pluralize($days, 'день', 'дня', 'дней'));
+        }
+
+        return $result;
     }
 
     private function pluralize(int $number, string $one, string $few, string $many): string

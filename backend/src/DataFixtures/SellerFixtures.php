@@ -32,6 +32,7 @@ class SellerFixtures extends Fixture
             ->setUser($this->userRepository->findAll()[0])
             ->setPhone('89938543143')
             ->setCardNumber('4100116330990370')
+            ->setCreatedAt(new \DateTimeImmutable())
         );
     }
 }

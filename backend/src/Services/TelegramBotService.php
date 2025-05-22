@@ -65,10 +65,10 @@ class TelegramBotService
     public function sendPromo($promoCode): void
     {
         $chatMessage = new ChatMessage(
-            "🎉 Новый промокод: *{$promoCode->getCode()}* 🎉\n\n".
-            "💰 Скидка: *{$promoCode->getDiscount()}%*\n".
-            "🔄 Количество активаций: *{$promoCode->getMaxUses()}*\n".
-            "📅 Действует до: *{$promoCode->getExpiresAt()->format('d.m.Y')}*\n".
+            "🎉 Новый промокод: *{$promoCode->getCode()}* 🎉\n\n" .
+            "💰 Скидка: *{$promoCode->getDiscount()}%*\n" .
+            "🔄 Количество активаций: *{$promoCode->getMaxUses()}*\n" .
+            "📅 Действует до: *{$promoCode->getExpiresAt()->format('d.m.Y')}*\n" .
             'Используйте промокод при оформлении заказа и получайте скидку! ✅'
         );
 
@@ -95,10 +95,12 @@ class TelegramBotService
 
     public function sendMessage($chatMessage, $tgID): void
     {
-        $telegramOptions = (new TelegramOptions())->chatId($tgID);
+        if ($tgID) {
+            $telegramOptions = (new TelegramOptions())->chatId($tgID);
 
-        $chatMessage->options($telegramOptions);
+            $chatMessage->options($telegramOptions);
 
-        $this->chatter->send($chatMessage);
+            $this->chatter->send($chatMessage);
+        }
     }
 }

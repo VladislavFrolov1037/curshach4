@@ -62,9 +62,9 @@ const Favorite = () => {
                     <option value="price_desc">По убыванию цены</option>
                 </select>
             </div>
-            <div className="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-4">
+            <div className="row g-3">
                 {favorites.map((product) => (
-                    <div className="col" key={product.id}>
+                    <div key={product.id} className="col-12 col-sm-6 col-lg-4">
                         <Card
                             product={product}
                             activeMenuRef={activeMenuRef}

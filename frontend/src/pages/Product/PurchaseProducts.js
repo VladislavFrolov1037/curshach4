@@ -62,9 +62,9 @@ const PurchaseProducts = () => {
                 </div>
             </div>
 
-            <div className="row row-cols-5 g-4">
+            <div className="row g-3">
                 {filteredProducts.map((product) => (
-                    <div className="col" key={product.id}>
+                    <div key={product.id} className="col-12 col-sm-6 col-lg-4">
                         <Card product={product} activeMenuRef={activeMenuRef} setActiveMenuRef={setActiveMenuRef} />
                     </div>
                 ))}

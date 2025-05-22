@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity]
 class Product
 {
-
     public function __construct()
     {
         $this->attributes = new ArrayCollection();
@@ -56,7 +55,7 @@ class Product
     /**
      * @var Collection<int, Image>
      */
-    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'product', fetch: 'EAGER', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'product', cascade: ['remove'], fetch: 'EAGER')]
     private Collection $images;
 
     #[ORM\Column]
@@ -65,37 +64,37 @@ class Product
     /**
      * @var Collection<int, ViewedProduct>
      */
-    #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'product')]
+    #[ORM\OneToMany(targetEntity: ViewedProduct::class, mappedBy: 'product', cascade: ['remove'])]
     private Collection $viewedProducts;
 
     /**
      * @var Collection<int, CartItem>
      */
-    #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'product')]
+    #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'product', cascade: ['remove'])]
     private Collection $cartItems;
 
     /**
      * @var Collection<int, Favorite>
      */
-    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'product')]
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'product', cascade: ['remove'])]
     private Collection $favorites;
 
     /**
      * @var Collection<int, OrderItem>
      */
-    #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'product')]
+    #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'product', cascade: ['remove'])]
     private Collection $orderItems;
 
     /**
      * @var Collection<int, Feedback>
      */
-    #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'product')]
+    #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'product', cascade: ['remove'])]
     private Collection $feedbacks;
 
     /**
      * @var Collection<int, ProductQuestion>
      */
-    #[ORM\OneToMany(targetEntity: ProductQuestion::class, mappedBy: 'product')]
+    #[ORM\OneToMany(targetEntity: ProductQuestion::class, mappedBy: 'product', cascade: ['remove'])]
     private Collection $productQuestions;
 
     public function getId(): ?int

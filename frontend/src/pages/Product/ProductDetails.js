@@ -167,7 +167,7 @@ const ProductDetails = () => {
     };
 
     const handleReportReview = async (review) => {
-        await reportReview(review, data)
+        // await reportReview(review, data)
     }
 
     const getMenuItems = () => [

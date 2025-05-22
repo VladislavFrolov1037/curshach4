@@ -55,7 +55,7 @@ const AdminToken = () => {
 
         const client_id = '8919BAD7A0D5603569CA20488C3A66CD561C5E32238BD4CC2A6EAC9D1845507D';
         const scope = 'payment-p2p';
-        const redirect_uri = 'https://s0fw11-176-215-208-47.ru.tuna.am/api/oAuth';
+        const redirect_uri = 'https://c313za-176-215-208-51.ru.tuna.am/api/oAuth';
         const response_type = 'code';
 
         const authUrl = `https://yoomoney.ru/oauth/authorize?client_id=${client_id}&scope=${encodeURIComponent(scope)}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=${response_type}`;

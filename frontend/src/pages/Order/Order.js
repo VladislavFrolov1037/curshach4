@@ -58,10 +58,9 @@ const Orders = () => {
 
     const handlePayOrder = async (orderId) => {
         try {
-            const data = await axios.post(`/fake-pay/order/${orderId}`);
-            // const data = await axios.get(`/payment-data/${orderId}`);
-            // const form = createPaymentForm(data.data);
-            // form.submit();
+            const data = await axios.get(`/payment-data/${orderId}`);
+            const form = createPaymentForm(data.data);
+            form.submit();
         } catch (error) {
             console.error('Ошибка при оплате заказа:', error);
             toast.current.show({severity: 'error', summary: 'Ошибка', detail: 'Не удалось оплатить заказ', life: 3000});
@@ -156,9 +155,9 @@ const Orders = () => {
             )}
 
             {activeTab === "purchased" && (
-                <div className="row row-cols-5 g-4 mt-3">
+                <div className="row g-3">
                     {filteredProducts.map((product) => (
-                        <div className="col" key={product.id}>
+                        <div key={product.id} className="col-12 col-sm-6 col-lg-4">
                             <Card product={product} activeMenuRef={activeMenuRef} setActiveMenuRef={setActiveMenuRef}
                                   handleRateProduct={handleRateProduct}/>
                         </div>

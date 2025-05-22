@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { getSellerProducts } from '../../services/product';
-import { useProductActions } from '../../hooks/useProductActions';
+import React, {useEffect, useState} from 'react';
+import {getSellerProducts} from '../../services/product';
+import {useProductActions} from '../../hooks/useProductActions';
 import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader";
-import { getCart } from "../../services/cart";
-import { Link } from 'react-router-dom';
+import {getCart} from "../../services/cart";
+import {Link} from 'react-router-dom';
 import './MyProducts.css';
 
 const MyProducts = () => {
     const [productList, setProductList] = useState([]);
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { handleDeleteProduct, handleHideProduct } = useProductActions();
+    const {handleDeleteProduct, handleHideProduct} = useProductActions();
     const [activeMenuRef, setActiveMenuRef] = useState(null);
 
     const getProductList = async () => {
@@ -44,15 +44,15 @@ const MyProducts = () => {
     };
 
     if (loading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     return (
         <div className="container py-5">
             {productList && productList.length > 0 ? (
-                <div className="row row-cols-5 g-5">
+                <div className="row g-3">
                     {productList.map((product) => (
-                        <div className="col" key={product.id}>
+                        <div key={product.id} className="col-12 col-sm-6 col-lg-4">
                             <Card
                                 product={product}
                                 cartItems={cartItems}

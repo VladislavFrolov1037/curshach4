@@ -19,9 +19,6 @@ class Image
     #[ORM\Column(length: 255)]
     private ?string $url = null;
 
-    #[ORM\Column]
-    private ?int $sequence = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -47,18 +44,6 @@ class Image
     public function setUrl(string $url): static
     {
         $this->url = $url;
-
-        return $this;
-    }
-
-    public function getSequence(): ?int
-    {
-        return $this->sequence;
-    }
-
-    public function setSequence(int $sequence): static
-    {
-        $this->sequence = $sequence;
 
         return $this;
     }

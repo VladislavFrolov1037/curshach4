@@ -20,7 +20,7 @@ export default function Card({
                                  handleRateProduct = null
                              }) {
     const {user} = useContext(AuthContext);
-    const {cartItems, updateCartItems, addCart} = useContext(CartContext);
+    const {cartItems, addCart} = useContext(CartContext);
     const {favorites, addFavoriteItem, removeFavoriteItem} = useContext(FavoriteContext);
     const toast = useRef(null);
     const menuRef = useRef(null);
@@ -159,7 +159,7 @@ export default function Card({
                             <ContextMenu model={menuItems} ref={menuRef}/>
                             <Button
                                 icon="pi pi-ellipsis-v"
-                                className="p-button-rounded p-button-text menu-button"
+                                className="p-button-rounded p-button-text menu-button text-white"
                                 onClick={handleMenuClick}
                             />
                         </>
@@ -167,7 +167,7 @@ export default function Card({
                 </div>
                 <div className="card-body">
                     <h5 className="card-title">
-                        {product.seller.name} / {product.name}
+                        {product.name}
                     </h5>
 
                     <div className="d-flex align-items-center mb-2">
