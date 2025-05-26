@@ -107,7 +107,7 @@ class PaymentWebhookController extends AbstractController
             'body' => http_build_query([
                 'code' => $code,
                 'client_id' => '8919BAD7A0D5603569CA20488C3A66CD561C5E32238BD4CC2A6EAC9D1845507D',
-                'redirect_uri' => 'https://c313za-176-215-208-51.ru.tuna.am/api/oAuth',
+                'redirect_uri' => 'https://wc4k6w-109-195-214-136.ru.tuna.am/api/oAuth',
                 'grant_type' => 'authorization_code',
             ]),
         ]);

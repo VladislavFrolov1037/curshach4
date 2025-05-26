@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AdminOrderController extends AbstractController
@@ -62,7 +61,7 @@ class AdminOrderController extends AbstractController
                 ->from('vladoperation@bk.ru')
                 ->to($user->getEmail())
                 ->subject('Статус заказа')
-                ->text($user->getName() . ', ваш заказ общей суммой в ' . $order->getTotalPrice() . 'р. успешно доставлен по адресу' . $order->getShippingAddress() . ".\nВы можете забрать заказ с 9:00 до 21:00 по указанному адресу в будние дни, в течении 14 дней после доставки.  ");
+                ->text($user->getName().', ваш заказ общей суммой в '.$order->getTotalPrice().'р. успешно доставлен по адресу'.$order->getShippingAddress().".\nВы можете забрать заказ с 9:00 до 21:00 по указанному адресу в будние дни, в течении 14 дней после доставки.  ");
 
             $mailer->send($email);
         }

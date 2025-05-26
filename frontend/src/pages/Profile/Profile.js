@@ -3,7 +3,7 @@ import {FaCoins, FaEye, FaHeart, FaShoppingCart, FaSignOutAlt, FaTelegram, FaTel
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Profile.css';
 import AuthContext from "../../context/AuthContext";
-import {Link} from 'react-router-dom';
+import {Link, Route} from 'react-router-dom';
 import UniversalModal from "../../components/modals/UniversalModal";
 import {editProfile} from "../../services/auth";
 import {filterChangedFields} from "../../utils/objectUtils";
@@ -11,6 +11,7 @@ import Loader from "../../components/Loader";
 import Error from "../../components/Error";
 import {getViewedProducts} from "../../services/product";
 import Card from "../../components/Card/Card";
+import Orders from "../Order/Order";
 
 const Profile = () => {
     const {user, updateUser, logout} = useContext(AuthContext);
@@ -203,7 +204,7 @@ const Profile = () => {
                                 </div>
                             </div>
                         </Link>
-                        <Link to="/viewed-products" className="card-profile shadow-sm p-3 text-decoration-none">
+                        <Link to="/viewed-products" state={{viewedProducts}} className="card-profile shadow-sm p-3 text-decoration-none">
                             <div className="d-flex align-items-center">
                                 <FaEye size={30} className="me-3 text-warning"/>
                                 <div>
@@ -212,7 +213,8 @@ const Profile = () => {
                                 </div>
                             </div>
                         </Link>
-                        <Link to="/purchase-products" className="card-profile shadow-sm p-3 text-decoration-none">
+                        <Link to="/orders" state={{ activeTabDefault: 'purchased' }}
+                              className="card-profile shadow-sm p-3 text-decoration-none">
                             <div className="d-flex align-items-center">
                                 <FaCoins size={30} className="me-3 text-success"/>
                                 <div>
@@ -237,17 +239,30 @@ const Profile = () => {
             <div className="mt-5">
                 <h4>Просмотренные товары</h4>
                 {viewedProducts.length > 0 ? (
-                    <div className="row g-3">
-                        {viewedProducts.map((product) => (
-                            <div key={product.id} className="col-12 col-sm-6 col-lg-4">
-                                <Card
-                                    product={product}
-                                    activeMenuRef={activeMenuRef}
-                                    setActiveMenuRef={setActiveMenuRef}
-                                />
+                    <>
+                        <div className="row g-3">
+                            {viewedProducts.slice(0, 3).map((product) => (
+                                <div key={product.id} className="col-12 col-sm-6 col-lg-4">
+                                    <Card
+                                        product={product}
+                                        activeMenuRef={activeMenuRef}
+                                        setActiveMenuRef={setActiveMenuRef}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        {viewedProducts.length > 3 && (
+                            <div className="text-center mt-3">
+                                <Link
+                                    to="/viewed-products"
+                                    state={{viewedProducts}}
+                                    className="btn btn-outline-primary"
+                                >
+                                    Показать все ({viewedProducts.length}) просмотренные товары
+                                </Link>
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 ) : (
                     <p>Нет данных о просмотренных товарах.</p>
                 )}

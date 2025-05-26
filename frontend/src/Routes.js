@@ -26,6 +26,7 @@ import AdminToken from "./pages/Admin/AdminToken/AdminToken";
 import UserProfile from "./pages/Profile/UserProfile";
 import SellerProfile from "./pages/Seller/SellerProfile";
 import AdminPromoCode from "./pages/Admin/AdminPromocode/AdminPromoCode";
+import UserViewed from "./pages/Profile/UserViewed";
 
 function AppRoutes() {
     return (
@@ -42,7 +43,7 @@ function AppRoutes() {
             <Route path="/products/:categoryId" element={<ProductsPage/>}/>
             <Route path="/cart" element={<Cart/>}/>
             <Route path="/purchase-products" element={<PurchaseProducts/>}/>
-            {/*<Route path="/viewed-products" element={<Cart/>}/>*/}
+            <Route path="/viewed-products" element={<UserViewed/>}/>
             <Route path="/favorites" element={<Favorite/>}/>
             <Route path="/orders" element={<Orders/>}/>
             <Route path="/orders/:orderId" element={<OrderDetails/>}/>

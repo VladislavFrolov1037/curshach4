@@ -17,6 +17,7 @@ use App\Services\TelegramBotService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -65,7 +66,7 @@ class OrderController extends AbstractController
             $orderItem = new OrderItem();
             $orderItem->setProduct($product);
             $orderItem->setQuantity($item->getQuantity());
-            $orderItem->setPrice((int) $product->getPrice() * $item->getQuantity());
+            $orderItem->setPrice((int)$product->getPrice() * $item->getQuantity());
             $orderItem->setRequest($order);
             $this->em->persist($orderItem);
 
@@ -95,7 +96,7 @@ class OrderController extends AbstractController
                 ->from('vladoperation@bk.ru')
                 ->to($user->getEmail())
                 ->subject('Оформление заказа')
-                ->text($user->getName().', ваш заказ успешно оформлен! Общая сумма заказа: '.$order->getTotalPrice()."р.\n".'Не забудьте оплатить заказ.');
+                ->text($user->getName() . ', ваш заказ успешно оформлен! Общая сумма заказа: ' . $order->getTotalPrice() . "р.\n" . 'Не забудьте оплатить заказ.');
 
             $mailer->send($email);
 
@@ -125,13 +126,14 @@ class OrderController extends AbstractController
         return $this->json([
             'orderId' => $order->getId(),
             'receiver' => '4100118924862929',
-            'sum' => $order->getTotalPrice(),
+            'sum' => 5,
             'url' => 'https://yoomoney.ru/quickpay/confirm',
+            'successURL' => "https://pzuzk1-5-164-56-60.ru.tuna.am/api/pay-order/{$order->getId()}",
         ]);
     }
 
-    #[Route('/api/fake-pay/order/{id}', name: 'pay_fake_order', methods: ['POST'])]
-    public function fakePayOrder(Order $order): JsonResponse
+    #[Route('/api/pay-order/{id}', name: 'pay_order', methods: ['GET'])]
+    public function payOrder(Order $order): RedirectResponse
     {
         $order->setStatus(OrderStatus::STATUS_PAID);
         $this->paymentService->distributePaymentAmongSellers($order);
@@ -139,9 +141,9 @@ class OrderController extends AbstractController
         $this->em->persist($order);
         $this->em->flush();
 
-        $this->telegramBotService->buildOrderMessage($order, $this->getUser());
+        $this->telegramBotService->buildOrderMessage($order, $order->getUser());
 
-        return $this->json(['success' => true]);
+        return new RedirectResponse('http://localhost:3000/orders');
     }
 
     #[Route('/api/orders', name: 'get_user_orders', methods: ['GET'])]

@@ -4,13 +4,14 @@ export const createPaymentForm = (data) => {
     form.action = data.url;
 
     const fields = {
-        paymentType: data.paymentType,
+        paymentType: "PC",
         receiver: data.receiver,
         sum: data.sum,
         "quickpay-form": "button",
-        label: data.orderId
+        label: data.orderId,
+        successURL: data.successURL
     };
-
+    console.log(fields)
     Object.entries(fields).forEach(([name, value]) => {
         const input = document.createElement("input");
         input.type = "hidden";
@@ -18,7 +19,7 @@ export const createPaymentForm = (data) => {
         input.value = value;
         form.appendChild(input);
     });
-
+    console.log(form)
     document.body.appendChild(form);
 
     return form;

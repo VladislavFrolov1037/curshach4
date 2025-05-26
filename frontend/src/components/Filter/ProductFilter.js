@@ -26,9 +26,7 @@ const ProductFilter = ({filters, onFilterChange, onResetFilters}) => {
         newPriceRange[index] = value || 0;
         setPriceRange(newPriceRange);
 
-        if (index === 1) {
-            onFilterChange({priceRange: newPriceRange});
-        }
+        onFilterChange({priceRange: newPriceRange});
     };
 
     return (

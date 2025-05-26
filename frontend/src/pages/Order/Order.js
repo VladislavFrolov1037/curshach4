@@ -9,13 +9,16 @@ import OrderCard from "../../components/Order/OrderCard";
 import RateProductModal from "../../components/RateProductModal/RateProductModal";
 import {createReview} from "../../services/review";
 import {createPaymentForm} from "../../services/helpers";
+import {useLocation} from "react-router-dom";
 
 const Orders = () => {
+    const location = useLocation();
+    const activeTabDefault = location.state?.activeTabDefault ?? null;
     const [activeOrders, setActiveOrders] = useState([]);
     const [completedOrders, setCompletedOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filteredProducts, setFilteredProducts] = useState([]);
-    const [activeTab, setActiveTab] = useState("active");
+    const [activeTab, setActiveTab] = useState(activeTabDefault ?? "active");
     const toast = useRef(null);
     const [activeMenuRef, setActiveMenuRef] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -79,10 +82,10 @@ const Orders = () => {
 
             setFilteredProducts(prevProducts =>
                 prevProducts.map(p =>
-                    p.id === product.id ? { ...p, isProductReview: true } : p
+                    p.id === product.id ? {...p, isProductReview: true} : p
                 )
             );
-            
+
             toast.current.show({severity: "success", summary: "Успех", detail: "Отзыв отправлен!", life: 3000});
         } catch (error) {
             toast.current.show({
@@ -155,13 +158,18 @@ const Orders = () => {
             )}
 
             {activeTab === "purchased" && (
-                <div className="row g-3">
-                    {filteredProducts.map((product) => (
-                        <div key={product.id} className="col-12 col-sm-6 col-lg-4">
-                            <Card product={product} activeMenuRef={activeMenuRef} setActiveMenuRef={setActiveMenuRef}
-                                  handleRateProduct={handleRateProduct}/>
-                        </div>
-                    ))}
+                <div className="row g-3 mt-3">
+                    {filteredProducts.length === 0 ? (
+                        <p className="text-center">У вас нет купленных товаров.</p>
+                    ) : (
+                        filteredProducts.map((product) => (
+                            <div key={product.id} className="col-12 col-sm-6 col-lg-4">
+                                <Card product={product} activeMenuRef={activeMenuRef}
+                                      setActiveMenuRef={setActiveMenuRef}
+                                      handleRateProduct={handleRateProduct}/>
+                            </div>
+                        ))
+                    )}
                 </div>
             )}
         </div>
