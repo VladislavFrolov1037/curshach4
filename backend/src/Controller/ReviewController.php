@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Feedback;
 use App\Entity\FeedbackReport;
+use App\Repository\FeedbackRepository;
 use App\Services\ReviewService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ReviewController extends AbstractController
 {
-    public function __construct(private readonly ReviewService $reviewService, private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly ReviewService $reviewService, private readonly EntityManagerInterface $entityManager, private readonly FeedbackRepository $feedbackRepository)
     {
     }
 
@@ -59,7 +60,7 @@ class ReviewController extends AbstractController
     #[Route('/api/review/{id}/report', name: 'report-review', methods: ['POST'])]
     public function reportReview(Feedback $feedback, Request $request): JsonResponse
     {
-        $reason = $request->request->get('reason');
+        $reason = json_decode($request->getContent(), true)['reason'];
 
         $feedbackReport = (new FeedbackReport())
             ->setFeedback($feedback)
@@ -72,5 +73,54 @@ class ReviewController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json($feedbackReport);
+    }
+
+    #[Route('/api/review-reports', name: 'reports-review', methods: ['GET'])]
+    public function getReportsReview(): JsonResponse
+    {
+        $reviews = $this->feedbackRepository->getReviewWithReport();
+
+        $data = [];
+
+        foreach ($reviews as $review) {
+            foreach ($review->getFeedbackReports() as $report) {
+                $data[] = [
+                    'id' => $report->getId(),
+                    'reason' => $report->getReason(),
+                    'createdAt' => $report->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'status' => $report->getStatus(),
+                    'reviewId' => $review->getId(),
+                    'userId' => $report->getUser()->getId(),
+                ];
+            }
+        }
+
+        return $this->json($data);
+    }
+
+    #[Route('/api/review-reports/{id}/approve', name: 'report_approve', methods: ['PATCH'])]
+    public function approveReport(FeedbackReport $report): JsonResponse
+    {
+        if ($report->getStatus() !== 'pending') {
+            return $this->json(['error' => 'Статус уже изменен'], 400);
+        }
+
+        $report->setStatus('approved');
+        $this->entityManager->flush();
+
+        return $this->json(['message' => 'Жалоба одобрена']);
+    }
+
+    #[Route('/api/review-reports/{id}/reject', name: 'report_reject', methods: ['PATCH'])]
+    public function rejectReport(FeedbackReport $report): JsonResponse
+    {
+        if ($report->getStatus() !== 'pending') {
+            return $this->json(['error' => 'Статус уже изменен'], 400);
+        }
+
+        $report->setStatus('rejected');
+        $this->entityManager->flush();
+
+        return $this->json(['message' => 'Жалоба отклонена']);
     }
 }

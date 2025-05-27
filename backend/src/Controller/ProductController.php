@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Dto\Product\EditProductDto;
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Entity\ProductQuestion;
 use App\Enum\ProductStatus;
 use App\Exception\ValidationException;
 use App\Repository\OrderRepository;
@@ -15,6 +16,7 @@ use App\Repository\ViewedProductRepository;
 use App\Services\ProductService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -145,5 +147,70 @@ class ProductController extends AbstractController
         $viewedProducts = $this->viewedProductRepository->findBy(['user' => $user]);
 
         return $this->json($viewedProducts);
+    }
+
+
+    #[Route('/api/product/question', name: 'create_question', methods: ['POST'])]
+    public function createProductQuestion(Request $request, EntityManagerInterface $em, ProductRepository $productRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $productId = $data['product_id'] ?? null;
+        $questionText = $data['question'] ?? null;
+
+        if (!$productId || !$questionText) {
+            return $this->json(['error' => 'Необходимо указать product_id и question'], 400);
+        }
+
+        $product = $productRepository->find($productId);
+
+        if (!$product) {
+            return $this->json(['error' => 'Товар не найден'], 404);
+        }
+
+        $user = $this->getUser();
+
+        $productQuestion = new ProductQuestion();
+        $productQuestion->setProduct($product);
+        $productQuestion->setUser($user);
+        $productQuestion->setQuestion($questionText);
+
+        $em->persist($productQuestion);
+        $em->flush();
+
+        return $this->json([
+            'id' => $productQuestion->getId(),
+            'question' => $productQuestion->getQuestion(),
+            'createdAt' => $productQuestion->getCreatedAt()->format('Y-m-d H:i:s'),
+            'user' => [
+                'id' => $user->getId(),
+                'name' => $user->getName(),
+            ]
+        ]);
+    }
+
+    #[Route('/api/product/question/{id}/answer', name: 'answer_question', methods: ['POST'])]
+    public function answerProductQuestion(ProductQuestion $productQuestion, Request $request, EntityManagerInterface $em, Security $security): JsonResponse
+    {
+        $user = $security->getUser();
+        if (!$user || !$user->isAdmin()) {
+            return $this->json(['error' => 'Доступ запрещен'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $answer = $data['answer'] ?? null;
+
+        if (!$answer) {
+            return $this->json(['error' => 'Ответ не может быть пустым'], 400);
+        }
+
+        $productQuestion->setAnswer($answer);
+        $productQuestion->setAnswerAt(new \DateTimeImmutable());
+        $em->flush();
+
+        return $this->json([
+            'id' => $productQuestion->getId(),
+            'answer' => $productQuestion->getAnswer(),
+            'answerAt' => $productQuestion->getAnswerAt()->format('Y-m-d H:i:s'),
+        ]);
     }
 }

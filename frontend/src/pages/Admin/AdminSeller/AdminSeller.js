@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {getSellers, updateSellerStatus} from "../../../services/admin";
+import React, { useEffect, useState } from 'react';
+import { getSellers, updateSellerStatus } from "../../../services/admin";
 import './AdminSeller.css';
 
 const AdminSeller = () => {
@@ -20,12 +20,15 @@ const AdminSeller = () => {
     }, []);
 
     const handleUpdateStatus = async (sellerId, newStatus) => {
+        if (!window.confirm(`Вы уверены, что хотите изменить статус на "${newStatus}"?`)) {
+            return;
+        }
         try {
             const data = await updateSellerStatus(sellerId, newStatus);
             if (data.success) {
                 setSellers(prevSellers =>
                     prevSellers.map(seller =>
-                        seller.id === sellerId ? {...seller, status: newStatus} : seller
+                        seller.id === sellerId ? { ...seller, status: newStatus } : seller
                     )
                 );
                 alert('Статус обновлен');
@@ -38,34 +41,39 @@ const AdminSeller = () => {
     };
 
     const renderActionButton = (status, sellerId) => {
-        if (status === 'pending') {
-            return (
-                <>
+        switch (status) {
+            case 'На рассмотрении':
+                return (
+                    <>
+                        <button className="action-btn approve"
+                                onClick={() => handleUpdateStatus(sellerId, 'approved')}>Одобрить
+                        </button>
+                        <button className="action-btn reject"
+                                onClick={() => handleUpdateStatus(sellerId, 'rejected')}>Отклонить
+                        </button>
+                    </>
+                );
+            case 'Одобрено':
+                return (
+                    <button className="action-btn deactivate"
+                            onClick={() => handleUpdateStatus(sellerId, 'inactive')}>Деактивировать
+                    </button>
+                );
+            case 'Отклонено':
+                return (
                     <button className="action-btn approve"
                             onClick={() => handleUpdateStatus(sellerId, 'approved')}>Одобрить
                     </button>
-                    <button className="action-btn reject"
-                            onClick={() => handleUpdateStatus(sellerId, 'rejected')}>Отклонить
+                );
+            case 'Неактивный':
+                return (
+                    <button className="action-btn activate"
+                            onClick={() => handleUpdateStatus(sellerId, 'approved')}>Активировать
                     </button>
-                </>
-            );
-        } else if (status === 'approved') {
-            return (
-                <button className="action-btn deactivate"
-                        onClick={() => handleUpdateStatus(sellerId, 'inactive')}>Деактивировать</button>
-            );
-        } else if (status === 'rejected') {
-            return (
-                <button className="action-btn approve"
-                        onClick={() => handleUpdateStatus(sellerId, 'approved')}>Одобрить</button>
-            );
-        } else if (status === 'inactive') {
-            return (
-                <button className="action-btn activate"
-                        onClick={() => handleUpdateStatus(sellerId, 'approved')}>Активировать</button>
-            );
+                );
+            default:
+                return null;
         }
-        return null;
     };
 
     const handleSellerClick = (seller) => {
@@ -82,7 +90,7 @@ const AdminSeller = () => {
                     <th>Имя</th>
                     <th>Email</th>
                     <th>Статус</th>
-                    <th>Количество товаров</th>
+                    <th>Количество товаров</th> {/* ВЕРНУЛ ЭТУ СТРОКУ */}
                     <th>Дата регистрации</th>
                     <th>Действия</th>
                 </tr>
@@ -94,8 +102,8 @@ const AdminSeller = () => {
                         <td>{seller.name}</td>
                         <td>{seller.email}</td>
                         <td>{seller.status}</td>
-                        <td>{seller.products_count}</td>
-                        <td>{seller.registered_at}</td>
+                        <td>{seller.products_count}</td> {/* ВЕРНУЛ ЭТУ СТРОКУ */}
+                        <td>{seller.createdAt}</td>
                         <td>
                             {renderActionButton(seller.status, seller.id)}
                         </td>
@@ -118,7 +126,7 @@ const AdminSeller = () => {
                     <div><strong>Баланс:</strong> {selectedSeller.balance}</div>
                     <div><strong>Изображение:</strong> <img
                         src={`${process.env.REACT_APP_API_BASE_URL}/${selectedSeller.image}`} alt="seller"
-                        className="seller-image"/></div>
+                        className="seller-image" /></div>
                 </div>
             )}
         </div>

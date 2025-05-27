@@ -14,7 +14,7 @@ class FeedbackReaction
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(cascade: ['persist', 'remove'], inversedBy: 'feedbackReactions')]
+    #[ORM\ManyToOne(inversedBy: 'feedbackReactions')]
     private ?Feedback $feedback = null;
 
     #[ORM\ManyToOne(inversedBy: 'feedbackReactions')]

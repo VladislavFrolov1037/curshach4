@@ -27,5 +27,20 @@ export const deleteReview = async (id) => {
 }
 
 export const reportReview = async (id, data) => {
-    await axios.post(`/review/${id}`, {'report': data});
+    await axios.post(`/review/${id}/report`, {'reason': data});
 }
+
+export const getReviewsWithReport = async () => {
+    const response = await axios.get(`/review-reports`);
+
+    return response.data;
+}
+
+
+export const approveReport = async (reportId) => {
+    await axios.patch(`/review-reports/${reportId}/approve`);
+};
+
+export const rejectReport = async (reportId) => {
+    await axios.patch(`/review-reports/${reportId}/reject`);
+};

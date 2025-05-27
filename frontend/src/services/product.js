@@ -88,8 +88,20 @@ export const getProductsByCategory = async (id) => {
     return response.data;
 }
 
-export const getViewedProducts = async() => {
+export const getViewedProducts = async () => {
     const response = await axios.get(`/viewed`);
 
     return response.data;
 }
+
+export const createQuestion = async (productId, question) => {
+    const response = await axios.post("/product/question", {product_id: productId, question});
+
+    return response.data;
+};
+
+export const answerQuestion = async (questionId, answer) => {
+    const response = await axios.post(`/product/question/${questionId}/answer`, {answer});
+
+    return response.data;
+};

@@ -5,6 +5,7 @@ namespace App\Serializer\Normalizer;
 use App\Entity\Product;
 use App\Repository\FeedbackRepository;
 use App\Repository\OrderRepository;
+use App\Repository\ProductQuestionRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
@@ -14,13 +15,30 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
-    public function __construct(private readonly OrderRepository $orderRepository, private readonly Security $security, private readonly FeedbackRepository $feedbackRepository)
+    public function __construct(private readonly ProductQuestionRepository $productQuestionRepository, private readonly OrderRepository $orderRepository, private readonly Security $security, private readonly FeedbackRepository $feedbackRepository)
     {
     }
 
     public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         if ($context['detailed'] ?? false) {
+            $questions = $this->productQuestionRepository->findBy(['product' => $object]);
+
+            $questionsData = array_map(
+                fn ($question) => [
+                    'id' => $question->getId(),
+                    'question' => $question->getQuestion(),
+                    'answer' => $question->getAnswer(),
+                    'user' => [
+                        'id' => $question->getUser()->getId(),
+                        'name' => $question->getUser()->getName(),
+                    ],
+                    'createdAt' => $question->getCreatedAt()->format('Y-m-d H:i:s'),
+                ],
+                $questions
+            );
+
+
             return [
                 'id' => $object->getId(),
                 'name' => $object->getName(),
@@ -55,6 +73,7 @@ class ProductNormalizer implements NormalizerInterface, NormalizerAwareInterface
                     ],
                     $object->getAttributes()->toArray()
                 ),
+                'questions' => $questionsData,
             ];
         }
 

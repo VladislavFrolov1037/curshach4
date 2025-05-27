@@ -126,7 +126,7 @@ class OrderController extends AbstractController
         return $this->json([
             'orderId' => $order->getId(),
             'receiver' => '4100118924862929',
-            'sum' => 5,
+            'sum' => $order->getTotalPrice(),
             'url' => 'https://yoomoney.ru/quickpay/confirm',
             'successURL' => "https://pzuzk1-5-164-56-60.ru.tuna.am/api/pay-order/{$order->getId()}",
         ]);

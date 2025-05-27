@@ -54,6 +54,9 @@ export default function Review({
                             {user.id === feedback.user.id && (
                                 <span className="badge bg-primary text-white">Ваш отзыв</span>
                             )}
+                            {feedback.status === 'deleted' && (
+                                <span className="badge bg-danger text-white mx-1">Удален</span>
+                            )}
                         </div>
                         <small className="text-muted">{feedback.createdAt.date.split(' ')[0]}</small>
                     </div>
@@ -66,16 +69,18 @@ export default function Review({
                     >
                         <MoreVertical size={20}/>
                     </button>
-                    {menuOpen && (
+                    {menuOpen && feedback.status !== 'deleted' && (
                         <ul className="dropdown-menu dropdown-menu-end show">
-                            <li>
-                                <button
-                                    onClick={() => openComplaintDialog(feedback)}
-                                    className="dropdown-item text-danger"
-                                >
-                                    <Flag size={18} className="me-2"/> Пожаловаться
-                                </button>
-                            </li>
+                            {user.id !== feedback.user.id && (
+                                <li>
+                                    <button
+                                        onClick={() => openComplaintDialog(feedback)}
+                                        className="dropdown-item text-danger"
+                                    >
+                                        <Flag size={18} className="me-2"/> Пожаловаться
+                                    </button>
+                                </li>
+                            )}
                             {user.id === feedback.user.id && (
                                 <li>
                                     <button onClick={() => {

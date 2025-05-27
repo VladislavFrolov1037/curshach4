@@ -244,7 +244,7 @@ const CreateProduct = () => {
                                 </div>
 
                                 <button type="submit" className="btn btn-primary w-100">
-                                    Зарегистрировать
+                                    Создать
                                 </button>
                             </form>
                         </div>

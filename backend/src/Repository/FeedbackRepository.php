@@ -20,7 +20,7 @@ class FeedbackRepository extends ServiceEntityRepository
 
     public function hasProductReviewFromUser(UserInterface $user, Product $product): bool
     {
-        return (bool) $this->createQueryBuilder('f')
+        return (bool)$this->createQueryBuilder('f')
             ->select('COUNT(f.id)')
             ->andWhere('f.user = :user')
             ->andWhere('f.product = :product')
@@ -43,9 +43,11 @@ class FeedbackRepository extends ServiceEntityRepository
             ->getResult();
 
         $otherFeedbacks = $this->createQueryBuilder('f')
+            ->andWhere('f.status != :status')
             ->andWhere('f.product = :product')
             ->andWhere('f.user != :user')
             ->setParameter('product', $product)
+            ->setParameter('status', 'deleted')
             ->setParameter('user', $user)
             ->getQuery()
             ->getResult();
@@ -61,5 +63,15 @@ class FeedbackRepository extends ServiceEntityRepository
             ->setParameter('product', $product)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function getReviewWithReport()
+    {
+        return $this->createQueryBuilder('f')
+            ->leftJoin('f.feedbackReports', 'r')
+            ->andWhere('f.status != :status')
+            ->setParameter('status', 'deleted')
+            ->getQuery()
+            ->getResult();
     }
 }

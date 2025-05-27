@@ -9,6 +9,7 @@ use App\Enum\SellerStatus;
 use App\Utils\EntityMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints\Date;
 
 class SellerService
 {
@@ -33,6 +34,7 @@ class SellerService
             ->setEmail($dto->email)
             ->setAddress($dto->address)
             ->setImage($this->fileService->upload($dto->image))
+            ->setCreatedAt(new \DateTimeImmutable())
             ->setBalance(0);
 
         $this->em->persist($user);

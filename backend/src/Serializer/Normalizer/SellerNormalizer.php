@@ -5,15 +5,17 @@ namespace App\Serializer\Normalizer;
 use App\Entity\Seller;
 use App\Enum\ProductStatus;
 use App\Repository\ProductRepository;
+use App\Repository\SellerRepository;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SellerNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
-    public function __construct(private readonly ProductRepository $productRepository)
+    public function __construct(private readonly ProductRepository $productRepository, private readonly TranslatorInterface $translator)
     {
     }
 
@@ -21,10 +23,11 @@ class SellerNormalizer implements NormalizerInterface, NormalizerAwareInterface
     {
         return [
             'id' => $object->getId(),
+            'createdAt' => $object->getCreatedAt()->format('d.m.Y'),
             'name' => $object->getName(),
             'description' => $object->getDescription(),
-            'status' => $object->getStatus(),
-            'type' => $object->getType(),
+            'status' => $this->translator->trans($object->getStatus()->value),
+            'type' => $this->translator->trans($object->getType()),
             'taxId' => $object->getTaxId(),
             'passport' => $object->getPassport(),
             'phone' => $object->getPhone(),

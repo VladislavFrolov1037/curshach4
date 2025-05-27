@@ -4,7 +4,15 @@ import AdminCard from "../../../components/Admin/AdminCard/AdminCard";
 import Loader from "../../../components/Loader";
 import {getDashboard} from "../../../services/admin";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faBox, faChartBar, faKey, faPaperPlane, faUser, faUsers} from '@fortawesome/free-solid-svg-icons';
+import {
+    faBox,
+    faChartBar, faCommenting,
+    faCommentsDollar,
+    faKey,
+    faPaperPlane,
+    faUser,
+    faUsers
+} from '@fortawesome/free-solid-svg-icons';
 
 const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -45,25 +53,19 @@ const AdminDashboard = () => {
             countLabel: 'Количество заказов',
             count: counts.orders,
         },
-        {
-            title: 'Управление пользователями',
-            icon: <FontAwesomeIcon icon={faUser}/>,
-            link: '/admin/users',
-            countLabel: 'Количество пользователей',
-            count: counts.users,
-        },
+        // {
+        //     title: 'Управление пользователями',
+        //     icon: <FontAwesomeIcon icon={faUser}/>,
+        //     link: '/admin/users',
+        //     countLabel: 'Количество пользователей',
+        //     count: counts.users,
+        // },
         {
             title: 'Управление продавцами',
             icon: <FontAwesomeIcon icon={faUsers}/>,
             link: '/admin/sellers',
             countLabel: 'Количество продавцов',
             count: counts.sellers,
-        },
-        {
-            title: 'Статистика сайта',
-            icon: <FontAwesomeIcon icon={faChartBar}/>,
-            link: '/admin/statistics',
-            countLabel: 'Различная статистика сайта',
         },
         {
             title: 'Промокоды',
@@ -76,6 +78,12 @@ const AdminDashboard = () => {
             icon: <FontAwesomeIcon icon={faKey}/>,
             link: '/admin/tokens',
             countLabel: 'Управление токенами',
+        },
+        {
+            title: 'Отзывы',
+            icon: <FontAwesomeIcon icon={faCommenting}/>,
+            link: '/admin/reviews',
+            countLabel: 'Управление отзывами',
         }
     ];
 

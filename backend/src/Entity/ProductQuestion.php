@@ -29,7 +29,7 @@ class ProductQuestion
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $answerAt = null;
 
     public function __construct()

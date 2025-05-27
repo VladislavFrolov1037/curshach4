@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
-import {addView, getProductDetails} from "../../services/product";
+import {addView, createQuestion, getProductDetails} from "../../services/product";
 import Loader from "../../components/Loader";
 import {SplitButton} from "primereact/splitbutton";
 import {Toast} from "primereact/toast";
@@ -12,6 +12,7 @@ import Review from "../../components/Review/Review";
 import {addReactionForReview, deleteReview, reportReview} from "../../services/review";
 import {FaStar} from "react-icons/fa";
 import { Dialog } from 'primereact/dialog';
+import AdminAnswer from "../../components/Admin/AdminAnswer";
 
 const ProductDetails = () => {
     const toast = useRef(null);
@@ -28,6 +29,9 @@ const ProductDetails = () => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [complaintDialogVisible, setComplaintDialogVisible] = useState(false);
     const [selectedReview, setSelectedReview] = useState(null);
+    const [complaintReason, setComplaintReason] = useState('');
+    const [questions, setQuestions] = useState([]);
+    const [newQuestion, setNewQuestion] = useState("");
 
     const openComplaintDialog = (feedback) => {
         setSelectedReview(feedback);
@@ -36,6 +40,7 @@ const ProductDetails = () => {
 
     const closeComplaintDialog = () => {
         setComplaintDialogVisible(false);
+        setComplaintReason(null);
         setSelectedReview(null);
     }
 
@@ -46,6 +51,7 @@ const ProductDetails = () => {
             setProduct(response);
             setCurrentImage(response.images?.[0]?.url || "");
             setFeedbacks(response.feedbacks);
+            setQuestions(response.questions || []);
 
             const updatedViewsCount = await addView(id);
             setProduct((prev) => ({
@@ -167,8 +173,14 @@ const ProductDetails = () => {
     };
 
     const handleReportReview = async (review) => {
-        // await reportReview(review, data)
-    }
+        try {
+            await reportReview(review, complaintReason);
+            closeComplaintDialog();
+            toast.current.show({severity: "success", summary: "Жалоба успешно отправлена"});
+        } catch (error) {
+            toast.current.show({severity: "error", summary: "Жалоба не отправлена"});
+        }
+    };
 
     const getMenuItems = () => [
         {
@@ -315,11 +327,17 @@ const ProductDetails = () => {
                     >
                         Отзывы
                     </button>
+                    <button
+                        className={`tab-button ${activeTab === "questions" ? "active" : ""}`}
+                        onClick={() => handleTabChange("questions")}
+                    >
+                        Вопросы
+                    </button>
                 </div>
                 <div className="tab-content">
                     {activeTab === "description" && (
                         <div>
-                            <h4>Описание</h4>
+                        <h4>Описание</h4>
                             <p>{description}</p>
                         </div>
                     )}
@@ -337,12 +355,16 @@ const ProductDetails = () => {
                                             <h5>{selectedReview.user.name}</h5>
                                             <p>{selectedReview.comment}</p>
                                             <textarea
+                                                name="reason"
                                                 placeholder="Введите описание жалобы"
                                                 rows={5}
                                                 className="form-control"
+                                                value={complaintReason}
+                                                onChange={(e) => setComplaintReason(e.target.value)}
                                             />
                                             <div className="mt-3 text-end">
-                                                <button className="btn btn-danger" onClick={handleReportReview(selectedReview)}>Отправить жалобу</button>
+                                                <button className="btn btn-danger"
+                                                        onClick={() => handleReportReview(selectedReview.id)}>Отправить жалобу</button>
                                                 <button className="btn btn-secondary ms-2" onClick={closeComplaintDialog}>Закрыть</button>
                                             </div>
                                         </div>
@@ -361,6 +383,49 @@ const ProductDetails = () => {
                                     openComplaintDialog={openComplaintDialog}
                                 />
                             ))}
+                        </div>
+                    )}
+                    {activeTab === "questions" && (
+                        <div>
+                            <h4>Вопросы</h4>
+                            {user && (
+                                <div className="mb-3">
+        <textarea
+            className="form-control"
+            rows={2}
+            placeholder="Введите ваш вопрос..."
+            value={newQuestion}
+            onChange={(e) => setNewQuestion(e.target.value)}
+        />
+                                    <button
+                                        className="btn btn-primary mt-2"
+                                        onClick={async () => {
+                                            if (!newQuestion.trim()) return;
+                                            try {
+                                                const newQ = await createQuestion(product.id, newQuestion.trim());
+                                                setQuestions((prev) => [newQ, ...prev]);
+                                                setNewQuestion("");
+                                                toast.current.show({ severity: "success", summary: "Вопрос отправлен!" });
+                                            } catch (error) {
+                                                toast.current.show({ severity: "error", summary: "Ошибка при отправке" });
+                                            }
+                                        }}
+                                    >
+                                        Отправить вопрос
+                                    </button>
+                                </div>
+                            )}
+                            <ul className="list-group">
+                                {questions.map((q) => (
+                                    <li key={q.id} className="list-group-item">
+                                        <div><strong>{q.user.name}:</strong> {q.question}</div>
+                                        {q.answer && <div className="text-success mt-1">Ответ: {q.answer}</div>}
+                                        {user?.isAdmin && !q.answer && (
+                                            <AdminAnswer question={q} setQuestions={setQuestions} />
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     )}
                 </div>

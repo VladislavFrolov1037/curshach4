@@ -101,7 +101,6 @@ class ProductService
 
             $productImage = (new Image())
                 ->setUrl($filePath)
-                ->setSequence($order)
                 ->setProduct($product);
 
             $this->em->persist($productImage);
