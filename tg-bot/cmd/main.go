@@ -143,7 +143,7 @@ func saveUserToDatabase(userID string, tgID int64) bool {
 		return true
 	}
 
-	const Url = "http://127.0.0.1:8000/api/tg/update"
+	const Url = "https://marketskam.ru/api/tg/update"
 
 	resp, err := http.PostForm(Url,
 		url.Values{"id": {userID}, "tg_id": {strconv.FormatInt(tgID, 10)}})
@@ -167,7 +167,7 @@ func getUser(tgID int64) *UserSettings {
 		return settings
 	}
 
-	Url := fmt.Sprintf("http://127.0.0.1:8000/api/tg/check/%d", tgID)
+	Url := fmt.Sprintf("https://marketskam.ru/api/tg/check/%d", tgID)
 
 	resp, err := http.Get(Url)
 
@@ -230,7 +230,7 @@ func updateNotificationSettings(tgID int64, notificationType string, enable bool
 		"action":            {action},
 	}
 
-	Url := "http://127.0.0.1:8000/api/tg/notification/update"
+	Url := "https://marketskam.ru/api/tg/notification/update"
 	resp, err := http.PostForm(Url, data)
 	if err != nil {
 		log.Panic(err)
