@@ -128,7 +128,7 @@ class OrderController extends AbstractController
             'receiver' => '4100118924862929',
             'sum' => $order->getTotalPrice(),
             'url' => 'https://yoomoney.ru/quickpay/confirm',
-            'successURL' => "https://pzuzk1-5-164-56-60.ru.tuna.am/api/pay-order/{$order->getId()}",
+            'successURL' => "https://marketskam.ru/api/pay-order/{$order->getId()}",
         ]);
     }
 
@@ -143,7 +143,7 @@ class OrderController extends AbstractController
 
         $this->telegramBotService->buildOrderMessage($order, $order->getUser());
 
-        return new RedirectResponse('http://localhost:3000/orders');
+        return new RedirectResponse('https://marketskam.online/orders');
     }
 
     #[Route('/api/orders', name: 'get_user_orders', methods: ['GET'])]

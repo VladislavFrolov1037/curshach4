@@ -92,7 +92,7 @@ class PaymentWebhookController extends AbstractController
             $this->em->persist($oAuth);
             $this->em->flush();
 
-            return new RedirectResponse('http://localhost:3000/admin/tokens?success=1');
+            return new RedirectResponse('https://marketskam.online/admin/tokens?success=1');
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 500);
         }
@@ -107,7 +107,7 @@ class PaymentWebhookController extends AbstractController
             'body' => http_build_query([
                 'code' => $code,
                 'client_id' => '8919BAD7A0D5603569CA20488C3A66CD561C5E32238BD4CC2A6EAC9D1845507D',
-                'redirect_uri' => 'https://wc4k6w-109-195-214-136.ru.tuna.am/api/oAuth',
+                'redirect_uri' => 'https://marketskam.ru/api/oAuth',
                 'grant_type' => 'authorization_code',
             ]),
         ]);
