@@ -12,6 +12,7 @@ import Error from "../../components/Error";
 import {getViewedProducts} from "../../services/product";
 import Card from "../../components/Card/Card";
 import Orders from "../Order/Order";
+import {InputMask} from "primereact/inputmask";
 
 const Profile = () => {
     const {user, updateUser, logout} = useContext(AuthContext);
@@ -148,14 +149,11 @@ const Profile = () => {
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="phone" className="form-label">Телефон</label>
-                                    <input
-                                        type="text"
-                                        id="phone"
-                                        className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                                        placeholder="Введите телефон"
-                                        name="phone"
-                                        onChange={handleChange}
-                                        value={formData.phone}
+                                    <InputMask
+                                        type="tel" id="phone" name="phone"
+                                        className={`form-control ${errors.phone ? 'is-invalid' : ''}`} required
+                                        value={formData.phone} onChange={handleChange} mask="89999999999"
+                                        placeholder="89999999999"
                                     />
                                     {errors.phone && <Error error={errors.phone}/>}
                                 </div>

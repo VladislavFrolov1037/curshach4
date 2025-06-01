@@ -95,13 +95,19 @@ export const getViewedProducts = async () => {
 }
 
 export const createQuestion = async (productId, question) => {
-    const response = await axios.post("/product/question", {product_id: productId, question});
+    const response = await axios.post(`/product/${productId}/question`, {product_id: productId, question: question});
 
     return response.data;
 };
 
 export const answerQuestion = async (questionId, answer) => {
     const response = await axios.post(`/product/question/${questionId}/answer`, {answer});
+
+    return response.data;
+};
+
+export const searchProducts = async (query) => {
+    const response = await axios.get(`/product/search?text=${encodeURIComponent(query)}`);
 
     return response.data;
 };

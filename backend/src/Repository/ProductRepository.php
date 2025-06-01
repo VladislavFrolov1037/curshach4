@@ -22,8 +22,11 @@ class ProductRepository extends ServiceEntityRepository
     public function getProductsForFeed()
     {
         return $this->createQueryBuilder('p')
+            ->leftJoin('p.seller', 's')
+            ->andWhere('s.status = :statusSeller')
             ->andWhere('p.status = :status')
             ->setParameter('status', 'available')
+            ->setParameter('statusSeller', 'approved')
             ->getQuery()
             ->getResult();
     }
@@ -61,5 +64,24 @@ class ProductRepository extends ServiceEntityRepository
             ->setParameter('seller', $seller)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function searchProducts(string $text, int $limit = 50): array
+    {
+        if (empty(trim($text))) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.seller', 's')
+            ->leftJoin('p.category', 'c')
+            ->where('(p.name LIKE :text OR p.description LIKE :text OR c.name LIKE :text)')
+            ->andWhere('s.status = :statusSeller')
+            ->andWhere('p.status = :statusProduct')
+            ->setParameter('text', '%' . $text . '%')
+            ->setParameter('statusSeller', 'available')
+            ->setParameter('statusProduct', 'available')
+            ->getQuery()
+            ->getResult();
     }
 }

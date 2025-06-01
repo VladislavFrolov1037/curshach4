@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {editSeller, getSeller} from "../../services/seller";
 import UniversalModal from "../../components/modals/UniversalModal";
@@ -10,7 +10,7 @@ import Card from "../../components/Card/Card";
 import {Link} from "react-router-dom";
 import {InputMask} from "primereact/inputmask";
 import {FaInfoCircle} from "react-icons/fa";
-import { Tooltip } from "primereact/tooltip";
+import {Tooltip} from "primereact/tooltip";
 import {useProductActions} from "../../hooks/useProductActions";
 
 const Seller = () => {
@@ -20,7 +20,7 @@ const Seller = () => {
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
     const [activeMenuRef, setActiveMenuRef] = useState(null);
-    const { handleDeleteProduct, handleHideProduct } = useProductActions();
+    const {handleDeleteProduct, handleHideProduct} = useProductActions();
 
     const fetchSellerData = async () => {
         const sellerData = await getSeller();
@@ -96,22 +96,27 @@ const Seller = () => {
                                 {seller.description || "Описание отсутствует"}
                             </p>
                             <div className="row">
-                                <div className="col-md-6 mb-3">
+                                <div className="col-md-12 mb-3">
                                     <strong>Статус:</strong> {seller.status || "Неизвестен"}
                                 </div>
-                                <div className="col-md-6 mb-3">
+                                <div className="col-md-12 mb-3">
                                     <strong>Тип:</strong> {seller.type || "Не указан"}
                                 </div>
-                                <div className="col-md-6 mb-3">
+                                <div className="col-md-12 mb-3">
                                     <strong>ИНН:</strong> {seller.taxId || "Не указан"}
                                 </div>
-                                <div className="col-md-6 mb-3">
+                                {seller.type !== 'Компания' && (
+                                    <div className="col-md-12 mb-3">
+                                        <strong>Паспорт:</strong> {seller.passport || "Не указан"}
+                                    </div>
+                                )}
+                                <div className="col-md-12 mb-3">
                                     <strong>Телефон:</strong> {seller.phone || "Не указан"}
                                 </div>
-                                <div className="col-md-6 mb-3">
+                                <div className="col-md-12 mb-3">
                                     <strong>Email:</strong> {seller.email || "Не указан"}
                                 </div>
-                                <div className="col-md-6 mb-3">
+                                <div className="col-md-12 mb-3">
                                     <strong>Адрес:</strong> {seller.address || "Не указан"}
                                 </div>
                                 <div className="col-md-12 mb-3">
@@ -168,28 +173,24 @@ const Seller = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="taxId" className="form-label">ИНН</label>
-                                        <input
-                                            type="text"
-                                            id="taxId"
-                                            className={`form-control ${errors.taxId ? 'is-invalid' : ''}`}
-                                            name="taxId"
-                                            value={formData.taxId}
-                                            placeholder="Введите ИНН"
-                                            onChange={handleChange}
+                                        <InputMask
+                                            type="text" id="taxId" name="taxId"
+                                            className={`form-control ${errors.taxId ? 'is-invalid' : ''}`} required
+                                            value={formData.taxId} onChange={handleChange}
+                                            mask={seller.type === "individual" ? "999999999999" : "9999999999"}
+                                            placeholder="ИНН"
                                         />
                                         {errors.taxId && <div className="invalid-feedback">{errors.taxId}</div>}
                                     </div>
-                                    {formData.passport && (
+                                    {seller.passport && (
                                         <div className="mb-3">
                                             <label htmlFor="passport" className="form-label">Паспорт</label>
-                                            <input
-                                                type="text"
-                                                id="passport"
+                                            <InputMask
+                                                type="text" id="passport" name="passport"
                                                 className={`form-control ${errors.passport ? 'is-invalid' : ''}`}
-                                                name="passport"
-                                                value={formData.passport}
-                                                placeholder="Введите паспортные данные"
-                                                onChange={handleChange}
+                                                required
+                                                value={formData.passport} onChange={handleChange} mask="9999 999999"
+                                                placeholder="Паспорт"
                                             />
                                             {errors.passport &&
                                                 <Error error={errors.passport}/>}
@@ -225,14 +226,11 @@ const Seller = () => {
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="phone" className="form-label">Телефон</label>
-                                        <input
-                                            type="text"
-                                            id="phone"
-                                            className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                                            placeholder="Введите телефон"
-                                            name="phone"
-                                            onChange={handleChange}
-                                            value={formData.phone}
+                                        <InputMask
+                                            type="tel" id="phone" name="phone"
+                                            className={`form-control ${errors.phone ? 'is-invalid' : ''}`} required
+                                            value={formData.phone} onChange={handleChange} mask="89999999999"
+                                            placeholder="89999999999"
                                         />
                                         {errors.phone && <Error error={errors.phone}/>}
                                     </div>

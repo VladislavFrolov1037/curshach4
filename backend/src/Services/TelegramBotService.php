@@ -12,10 +12,11 @@ use Symfony\Component\Notifier\Bridge\Telegram\TelegramOptions;
 use Symfony\Component\Notifier\ChatterInterface;
 use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TelegramBotService
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly ChatterInterface $chatter, private readonly UserRepository $userRepository, private readonly CategoryRepository $categoryRepository)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly ChatterInterface $chatter, private readonly UserRepository $userRepository, private readonly CategoryRepository $categoryRepository, private readonly TranslatorInterface $translator)
     {
     }
 
@@ -81,13 +82,13 @@ class TelegramBotService
 
     public function buildOrderMessage(Order $order, UserInterface $user): void
     {
-        $orderUrl = 'https://marketskam.online/orders';
+        $orderUrl = 'http://127.0.0.1:3000/orders';
 
         $message = new ChatMessage(match ($order->getStatus()) {
-            OrderStatus::STATUS_NEW => sprintf('Здравствуйте, %s! Ваш заказ на сумму %s руб, создан и находится в обработке. Подробнее: %s', $order->getTotalPrice(), $user->getName(), $orderUrl),
-            OrderStatus::STATUS_PAID => sprintf('Ваш заказ на сумму %s руб, оплачен. Спасибо за покупку, %s! Подробнее: %s', $order->getTotalPrice(), $user->getName(), $orderUrl),
-            OrderStatus::STATUS_DELIVERED => sprintf('%s, ваш заказ на сумму %s руб, доставлен. Надеемся, вам понравится! Подробнее: %s', $order->getTotalPrice(), $user->getName(), $orderUrl),
-            default => sprintf('Статус вашего заказа на сумму %s руб, обновлён на %s. Подробнее: %s', $order->getTotalPrice(), $order->getStatus(), $orderUrl),
+            OrderStatus::STATUS_NEW => sprintf('Здравствуйте, %s! Ваш заказ на сумму %s руб, создан и находится в обработке. Подробнее: %s', $user->getName(),$order->getTotalPrice(),  $orderUrl),
+            OrderStatus::STATUS_PAID => sprintf('Ваш заказ на сумму %s руб, оплачен. Спасибо за покупку, %s! Подробнее: %s', $user->getName(), $order->getTotalPrice(), $orderUrl),
+            OrderStatus::STATUS_DELIVERED => sprintf('%s, ваш заказ на сумму %s руб, доставлен. Надеемся, вам понравится! Подробнее: %s', $user->getName(),  $order->getTotalPrice(),$orderUrl),
+            default => sprintf('Статус вашего заказа на сумму %s руб, обновлён на %s. Подробнее: %s', $order->getTotalPrice(), $this->translator->trans($order->getStatus()), $orderUrl),
         });
 
         $this->sendMessage($message, $user->getTelegramId());

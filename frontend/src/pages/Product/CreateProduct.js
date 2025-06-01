@@ -141,6 +141,7 @@ const CreateProduct = () => {
                                         name="price"
                                         id="price"
                                         placeholder="Цена"
+                                        type="number"
                                         className={`form-control ${errors.price ? "is-invalid" : ""}`}
                                         value={formData.price || ""}
                                         onChange={handleChange}
@@ -157,6 +158,7 @@ const CreateProduct = () => {
                                         name="quantity"
                                         id="quantity"
                                         placeholder="Количество"
+                                        type="number"
                                         className={`form-control ${errors.quantity ? "is-invalid" : ""}`}
                                         value={formData.quantity || ""}
                                         onChange={handleChange}
@@ -228,6 +230,7 @@ const CreateProduct = () => {
                                         Изображения
                                     </label>
                                     <FileUpload
+                                        required
                                         name="images[]"
                                         multiple
                                         auto

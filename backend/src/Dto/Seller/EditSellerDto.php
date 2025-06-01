@@ -2,12 +2,15 @@
 
 namespace App\Dto\Seller;
 
+use App\Entity\Seller;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator as AcmeAssert;
 
 class EditSellerDto
 {
     #[Assert\Email()]
     #[Assert\NotBlank(allowNull: true)]
+    #[AcmeAssert\UniqueEmail(['entityClass' => Seller::class])]
     public ?string $email = null;
 
     #[Assert\Length(min: 2, max: 255)]

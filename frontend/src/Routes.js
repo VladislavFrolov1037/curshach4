@@ -28,6 +28,7 @@ import SellerProfile from "./pages/Seller/SellerProfile";
 import AdminPromoCode from "./pages/Admin/AdminPromocode/AdminPromoCode";
 import UserViewed from "./pages/Profile/UserViewed";
 import AdminReview from "./pages/Admin/AdminReview/AdminReview";
+import SearchResults from "./pages/Product/SearchResults";
 
 function AppRoutes() {
     return (
@@ -50,7 +51,7 @@ function AppRoutes() {
             <Route path="/orders/:orderId" element={<OrderDetails/>}/>
             <Route path="/user/:userId" element={<UserProfile/>}/>
             <Route path="/seller/:sellerId" element={<SellerProfile/>}/>
-
+                <Route path="/search" element={<SearchResults />} />
             {/*  For admins  */}
             <Route path="/admin" element={<AdminDashboard/>}/>
             <Route path="/admin/orders" element={<AdminOrder/>}/>

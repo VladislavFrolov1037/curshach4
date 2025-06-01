@@ -11,8 +11,9 @@ import FavoriteContext from "../../context/FavouriteContext";
 import Review from "../../components/Review/Review";
 import {addReactionForReview, deleteReview, reportReview} from "../../services/review";
 import {FaStar} from "react-icons/fa";
-import { Dialog } from 'primereact/dialog';
+import {Dialog} from 'primereact/dialog';
 import AdminAnswer from "../../components/Admin/AdminAnswer";
+import UniversalModal from "../../components/modals/UniversalModal";
 
 const ProductDetails = () => {
     const toast = useRef(null);
@@ -101,7 +102,7 @@ const ProductDetails = () => {
 
     const handleDeleteReview = async (id) => {
         try {
-            setFeedbacks(feedbacks.filter((feedback) => feedback.id !== id ));
+            setFeedbacks(feedbacks.filter((feedback) => feedback.id !== id));
 
             await deleteReview(id);
         } catch (e) {
@@ -138,7 +139,7 @@ const ProductDetails = () => {
     }
 
     if (loading) {
-        return <Loader />;
+        return <Loader/>;
     }
 
     if (!product) {
@@ -188,33 +189,11 @@ const ProductDetails = () => {
             icon: "pi pi-heart",
             command: isFavorite() ? handleRemoveFavorites : handleAddToFavorites,
         },
-        ...(isOwner
-            ? [
-                {
-                    label: "Редактировать",
-                    icon: "pi pi-pencil",
-                    command: () => alert(`Редактирование товара ${product?.id}`),
-                },
-                {
-                    label: status === "available" ? "Снять с продажи" : "Вернуть в продажу",
-                    icon: "pi pi-eye-slash",
-                    command: () =>
-                        alert(
-                            `Смена статуса товара: ${status === "available" ? "discontinued" : "available"}`
-                        ),
-                },
-                {
-                    label: "Удалить",
-                    icon: "pi pi-trash",
-                    command: () => alert(`Удаление товара ${product?.id}`),
-                },
-            ]
-            : []),
     ];
     const items = [
-        { label: "Редактировать", icon: "pi pi-pencil", command: () => alert("Редактирование") },
-        { label: "Удалить", icon: "pi pi-trash", command: () => alert("Удаление") },
-        { label: "Просмотр", icon: "pi pi-eye", command: () => alert("Просмотр") }
+        {label: "Редактировать", icon: "pi pi-pencil", command: () => alert("Редактирование")},
+        {label: "Удалить", icon: "pi pi-trash", command: () => alert("Удаление")},
+        {label: "Просмотр", icon: "pi pi-eye", command: () => alert("Просмотр")}
     ];
     return (
         <div className="product-details container">
@@ -300,9 +279,9 @@ const ProductDetails = () => {
                             model={getMenuItems()}
                             buttonClassName={product.status === 'discontinued' || product.status === 'removed' ? 'opacity-50 cursor-not-allowed' : ''}
                             pt={{
-                                menu: { className: "bg-white border border-gray-300 rounded-lg shadow-lg mt-2" },
+                                menu: {className: "bg-white border border-gray-300 rounded-lg shadow-lg mt-2"},
                                 menulist: "space-y-2",
-                                menubutton: { className: "block w-full text-left px-4 py-2 hover:bg-gray-100 rounded transition" }
+                                menubutton: {className: "block w-full text-left px-4 py-2 hover:bg-gray-100 rounded transition"}
                             }}
                         />
 
@@ -337,7 +316,7 @@ const ProductDetails = () => {
                 <div className="tab-content">
                     {activeTab === "description" && (
                         <div>
-                        <h4>Описание</h4>
+                            <h4>Описание</h4>
                             <p>{description}</p>
                         </div>
                     )}
@@ -345,7 +324,7 @@ const ProductDetails = () => {
                         <div>
                             <Dialog
                                 visible={complaintDialogVisible}
-                                style={{ width: '50vw' }}
+                                style={{width: '50vw'}}
                                 header="Пожаловаться на отзыв"
                                 onHide={closeComplaintDialog}
                             >
@@ -355,6 +334,7 @@ const ProductDetails = () => {
                                             <h5>{selectedReview.user.name}</h5>
                                             <p>{selectedReview.comment}</p>
                                             <textarea
+                                                required
                                                 name="reason"
                                                 placeholder="Введите описание жалобы"
                                                 rows={5}
@@ -421,7 +401,7 @@ const ProductDetails = () => {
                                         <div><strong>{q.user.name}:</strong> {q.question}</div>
                                         {q.answer && <div className="text-success mt-1">Ответ: {q.answer}</div>}
                                         {user?.isAdmin && !q.answer && (
-                                            <AdminAnswer question={q} setQuestions={setQuestions} />
+                                            <AdminAnswer question={q} setQuestions={setQuestions}/>
                                         )}
                                     </li>
                                 ))}
@@ -432,7 +412,7 @@ const ProductDetails = () => {
             </div>
         </div>
     );
-};
+}
 
 
 export default ProductDetails;

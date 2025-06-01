@@ -40,6 +40,8 @@ const AdminOrders = () => {
 
     const statusText = (status) => {
         switch (status) {
+            case 'new':
+                return 'Новый';
             case 'paid':
                 return 'Оплачен';
             case 'processing':

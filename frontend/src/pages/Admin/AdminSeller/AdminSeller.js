@@ -1,16 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { getSellers, updateSellerStatus } from "../../../services/admin";
 import './AdminSeller.css';
+import {Toast} from "primereact/toast";
 
 const AdminSeller = () => {
     const [sellers, setSellers] = useState([]);
     const [selectedSeller, setSelectedSeller] = useState(null);
+    const toast = useRef(null);
+
+    // Добавляем функцию для перевода статусов
+    const translateStatus = (status) => {
+        const statusMap = {
+            'pending': 'На рассмотрении',
+            'approved': 'Одобрено',
+            'rejected': 'Отклонено',
+            'inactive': 'Неактивный'
+        };
+        return statusMap[status] || status;
+    };
 
     useEffect(() => {
         const fetchSellers = async () => {
             try {
                 const data = await getSellers();
-                setSellers(data);
+                // Переводим статусы при загрузке
+                const translatedSellers = data.map(seller => ({
+                    ...seller,
+                    status: translateStatus(seller.status)
+                }));
+                setSellers(translatedSellers);
             } catch (error) {
                 console.error('Ошибка при загрузке данных:', error);
             }
@@ -20,20 +38,17 @@ const AdminSeller = () => {
     }, []);
 
     const handleUpdateStatus = async (sellerId, newStatus) => {
-        if (!window.confirm(`Вы уверены, что хотите изменить статус на "${newStatus}"?`)) {
-            return;
-        }
         try {
             const data = await updateSellerStatus(sellerId, newStatus);
             if (data.success) {
                 setSellers(prevSellers =>
                     prevSellers.map(seller =>
-                        seller.id === sellerId ? { ...seller, status: newStatus } : seller
+                        seller.id === sellerId ? { ...seller, status: translateStatus(newStatus) } : seller
                     )
                 );
-                alert('Статус обновлен');
+                toast.current.show({severity: "success", summary: "Статус обновлен!"});
             } else {
-                alert('Ошибка: ' + data.error);
+                toast.current.show({severity: "error", summary: "Не удалось обновить статус"});
             }
         } catch (error) {
             console.error('Ошибка при обновлении статуса:', error);
@@ -82,6 +97,7 @@ const AdminSeller = () => {
 
     return (
         <div className="admin-container">
+            <Toast ref={toast}/>
             <h1 className="page-title">Управление Продавцами</h1>
             <table className="styled-table">
                 <thead>
@@ -90,7 +106,7 @@ const AdminSeller = () => {
                     <th>Имя</th>
                     <th>Email</th>
                     <th>Статус</th>
-                    <th>Количество товаров</th> {/* ВЕРНУЛ ЭТУ СТРОКУ */}
+                    <th>Количество товаров</th>
                     <th>Дата регистрации</th>
                     <th>Действия</th>
                 </tr>
@@ -102,7 +118,7 @@ const AdminSeller = () => {
                         <td>{seller.name}</td>
                         <td>{seller.email}</td>
                         <td>{seller.status}</td>
-                        <td>{seller.products_count}</td> {/* ВЕРНУЛ ЭТУ СТРОКУ */}
+                        <td>{seller.products_count}</td>
                         <td>{seller.createdAt}</td>
                         <td>
                             {renderActionButton(seller.status, seller.id)}

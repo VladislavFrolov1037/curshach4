@@ -1,11 +1,12 @@
 import React, {useContext, useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import Sidebar from "./Sidebar";
 import AuthContext from "../../context/AuthContext";
 
 function Header() {
     const [searchTerm, setSearchTerm] = useState('');
     const {user, logout} = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
@@ -13,7 +14,10 @@ function Header() {
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        console.log('Search:', searchTerm);
+        if (searchTerm.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+            setSearchTerm('');
+        }
     };
 
     return (
@@ -80,21 +84,20 @@ function Header() {
                                         <Link className="dropdown-item" to="/register">Зарегистрироваться</Link>
                                     </>
                                 )}
-
                             </div>
                         </li>
                     </ul>
-                    <form className="d-flex ms-auto" onSubmit={handleSearchSubmit}>
-                        <input
-                            className="form-control me-2"
-                            type="search"
-                            placeholder="Search"
-                            aria-label="Search"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                        />
-                        <button className="btn btn-outline-success" type="submit">Search</button>
-                    </form>
+                    {/*<form className="d-flex ms-auto" onSubmit={handleSearchSubmit}>*/}
+                    {/*    <input*/}
+                    {/*        className="form-control me-2"*/}
+                    {/*        type="search"*/}
+                    {/*        placeholder="Поиск товаров..."*/}
+                    {/*        aria-label="Search"*/}
+                    {/*        value={searchTerm}*/}
+                    {/*        onChange={handleSearchChange}*/}
+                    {/*    />*/}
+                    {/*    <button className="btn btn-outline-success" type="submit">Search</button>*/}
+                    {/*</form>*/}
                 </div>
             </div>
         </nav>

@@ -1,17 +1,19 @@
-import { useParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Card from "../../components/Card/Card";
 import React, { useEffect, useState } from "react";
 import Loader from "../../components/Loader";
-import { getProductsByCategory } from "../../services/product";
+import { searchProducts } from "../../services/product";
 import ProductFilter from "../../components/Filter/ProductFilter";
 import useProductFilter from "../../hooks/useProductFilter";
 import Pagination from "../../utils/Pagination";
 
-const ProductsPage = () => {
-    const { categoryId } = useParams();
+const SearchResults = () => {
+    const [searchParams] = useSearchParams();
+    const query = searchParams.get('q') || '';
     const [loading, setLoading] = useState(true);
     const [allProducts, setAllProducts] = useState([]);
     const [activeMenuRef, setActiveMenuRef] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const {
         products,
@@ -26,20 +28,29 @@ const ProductsPage = () => {
     } = useProductFilter(allProducts, 12);
 
     useEffect(() => {
-        const fetchData = async () => {
+        if (!query.trim()) {
+            setAllProducts([]);
+            setLoading(false);
+            return;
+        }
+
+        setSearchQuery(query);
+
+        const fetchSearchResults = async () => {
             setLoading(true);
             try {
-                const fetchedProducts = await getProductsByCategory(categoryId);
+                const fetchedProducts = await searchProducts(query);
                 setAllProducts(fetchedProducts);
             } catch (error) {
+                console.error('Ошибка поиска:', error);
                 setAllProducts([]);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
-    }, [categoryId]);
+        fetchSearchResults();
+    }, [query]);
 
     if (loading && allProducts.length === 0) {
         return <Loader />;
@@ -47,6 +58,8 @@ const ProductsPage = () => {
 
     return (
         <div className="container py-5">
+            <h2 className="mb-4">Результаты поиска: "{searchQuery}"</h2>
+
             <ProductFilter
                 filters={filters}
                 onFilterChange={setFilters}
@@ -55,7 +68,9 @@ const ProductsPage = () => {
 
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>Найдено товаров: {allFilteredProducts.length}</div>
-                <div>Страница {currentPage} из {totalPages}</div>
+                {allFilteredProducts.length > 0 && (
+                    <div>Страница {currentPage} из {totalPages}</div>
+                )}
             </div>
 
             {products.length > 0 ? (
@@ -85,11 +100,11 @@ const ProductsPage = () => {
             ) : (
                 <div className="text-center py-5">
                     <h4>Товары не найдены</h4>
-                    <p>Попробуйте изменить параметры фильтрации</p>
+                    <p>{searchQuery ? 'Попробуйте изменить параметры поиска' : 'Введите поисковый запрос'}</p>
                 </div>
             )}
         </div>
     );
 };
 
-export default ProductsPage;
+export default SearchResults;

@@ -23,8 +23,8 @@ export const getSellers = async () => {
     return response.data;
 }
 
-export const updateSellerStatus = async (id) => {
-    const response = await axios.post(`/admin-seller/${id}/update-status`);
+export const updateSellerStatus = async (id, status) => {
+    const response = await axios.post(`/admin-seller/${id}/update-status`, { status: status});
 
     return response.data;
 }

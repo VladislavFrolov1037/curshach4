@@ -31,6 +31,14 @@ class ProductController extends AbstractController
     {
     }
 
+    #[Route('/api/product/search', name: 'search_product', methods: ['GET'])]
+    public function searchProduct(Request $request)
+    {
+        $query = $request->get('text') ?? $request->get('q');
+        $products = $this->productRepository->searchProducts($query);
+        return $this->json($products);
+    }
+
     #[Route('/api/products/create', name: 'create_product', methods: ['POST'])]
     public function createProduct(Request $request): JsonResponse
     {
@@ -66,6 +74,7 @@ class ProductController extends AbstractController
     }
 
     #[Route('/api/product/{id}', name: 'edit_product', methods: ['PATCH'])]
+
     public function edit(Request $request, Product $product): JsonResponse
     {
         if (!$product->isOwnedBy($this->getUser())) {
@@ -150,22 +159,11 @@ class ProductController extends AbstractController
     }
 
 
-    #[Route('/api/product/question', name: 'create_question', methods: ['POST'])]
-    public function createProductQuestion(Request $request, EntityManagerInterface $em, ProductRepository $productRepository): JsonResponse
+    #[Route('/api/product/{id}/question', name: 'create_question', methods: ['POST'])]
+    public function createProductQuestion(Product $product, Request $request, EntityManagerInterface $em, ProductRepository $productRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $productId = $data['product_id'] ?? null;
-        $questionText = $data['question'] ?? null;
-
-        if (!$productId || !$questionText) {
-            return $this->json(['error' => 'Необходимо указать product_id и question'], 400);
-        }
-
-        $product = $productRepository->find($productId);
-
-        if (!$product) {
-            return $this->json(['error' => 'Товар не найден'], 404);
-        }
+        $questionText = $data['question'];
 
         $user = $this->getUser();
 

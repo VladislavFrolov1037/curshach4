@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'https://marketskam.ru/api',
+    baseURL: 'http://127.0.0.1:8000/api',
     headers: {
         'Accept': 'application/json',
     },
@@ -41,9 +41,9 @@ axiosInstance.interceptors.response.use(
         }
 
         if (error.response && error.response.status === 404) {
-            window.location.href = '/not-found';
-
-            return new Promise(() => {});
+            // window.location.href = '/not-found';
+            //
+            // return new Promise(() => {});
         }
 
         return Promise.reject(error);
