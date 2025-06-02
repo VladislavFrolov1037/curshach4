@@ -82,7 +82,7 @@ class TelegramBotService
 
     public function buildOrderMessage(Order $order, UserInterface $user): void
     {
-        $orderUrl = 'http://127.0.0.1:3000/orders';
+        $orderUrl = 'https://marketskam.online/orders';
 
         $message = new ChatMessage(match ($order->getStatus()) {
             OrderStatus::STATUS_NEW => sprintf('Здравствуйте, %s! Ваш заказ на сумму %s руб, создан и находится в обработке. Подробнее: %s', $user->getName(),$order->getTotalPrice(),  $orderUrl),
