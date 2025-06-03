@@ -31,14 +31,6 @@ class ProductController extends AbstractController
     {
     }
 
-    #[Route('/api/product/search', name: 'search_product', methods: ['GET'])]
-    public function searchProduct(Request $request)
-    {
-        $query = $request->get('text') ?? $request->get('q');
-        $products = $this->productRepository->searchProducts($query);
-        return $this->json($products);
-    }
-
     #[Route('/api/products/create', name: 'create_product', methods: ['POST'])]
     public function createProduct(Request $request): JsonResponse
     {
@@ -55,6 +47,14 @@ class ProductController extends AbstractController
     public function list(): JsonResponse
     {
         $products = $this->productRepository->getProductsForFeed();
+
+        return $this->json($products);
+    }
+
+    #[Route('/api/product/search', name: 'search_product', methods: ['GET'])]
+    public function searchProduct(Request $request): JsonResponse
+    {
+        $products = $this->productRepository->searchProducts($request->get('text'));
 
         return $this->json($products);
     }

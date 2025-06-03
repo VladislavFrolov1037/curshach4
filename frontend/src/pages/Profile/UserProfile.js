@@ -75,9 +75,6 @@ const UserProfile = () => {
                                 className={`p-button me-2 ${activeTab === "orders" ? "p-button-primary" : ""}`}
                                 onClick={() => setActiveTab("orders")}
                             />
-                            <Button icon="pi pi-cog" className="p-button-text p-ml-2"
-                                    onClick={(e) => menu.current.toggle(e)}/>
-                            <Menu model={adminActions} popup ref={menu}/>
                         </>
                     )}
                 </div>

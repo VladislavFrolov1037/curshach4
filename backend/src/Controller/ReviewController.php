@@ -89,7 +89,7 @@ class ReviewController extends AbstractController
                     'reason' => $report->getReason(),
                     'createdAt' => $report->getCreatedAt()->format('Y-m-d H:i:s'),
                     'status' => $report->getStatus(),
-                    'reviewId' => $review->getId(),
+                    'review' => $review,
                     'userId' => $report->getUser()->getId(),
                 ];
             }

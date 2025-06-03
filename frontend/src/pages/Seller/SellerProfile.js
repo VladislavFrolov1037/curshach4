@@ -64,7 +64,7 @@ const SellerProfile = () => {
                         <FaStar className="text-warning me-1"/> {parseFloat(seller.rating?.rating || 0).toFixed(1)}
                         <span className="mx-2">•</span> {seller.rating?.count || 0} отзывов
                         <span className="mx-2">•</span> <FiShoppingBag
-                        className="mx-1"/> {seller.salesCount || 0} продаж
+                        className="mx-1"/> {seller.salesCount || 0} товаров
                         <span className="mx-2">•</span> <MdDateRange className="mx-1"/> На
                         маркетплейсе {seller.yearsOnPlatform || 0}
                     </div>

@@ -266,6 +266,7 @@ class ProductFixtures extends Fixture
                 $images = $this->getImagesForBrand($pathParts, $brand);
 
                 if (empty($images)) {
+                    continue;
                     $images = ['uploads/default_product.jpg'];
                 }
 

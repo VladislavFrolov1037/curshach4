@@ -30,7 +30,7 @@ class ReviewService
             ->setComment('' !== $data['comment'] ? $data['comment'] : null)
             ->setCreatedAt(new \DateTimeImmutable())
             ->setStatus('active')
-            ->setImage($data['image'] ?? null);
+            ->setImage(!empty($data['image']) ? $this->fileService->upload($data['image']) : null);
 
         $this->em->persist($review);
         $this->em->flush();

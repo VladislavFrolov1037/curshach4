@@ -68,19 +68,23 @@ class ProductRepository extends ServiceEntityRepository
 
     public function searchProducts(string $text, int $limit = 50): array
     {
-        if (empty(trim($text))) {
+        $text = trim($text);
+        if (empty($text)) {
             return [];
         }
 
         return $this->createQueryBuilder('p')
             ->leftJoin('p.seller', 's')
             ->leftJoin('p.category', 'c')
-            ->where('(p.name LIKE :text OR p.description LIKE :text OR c.name LIKE :text)')
+            ->where('LOWER(p.name) LIKE LOWER(:text)')
+            ->orWhere('LOWER(p.description) LIKE LOWER(:text)')
+            ->orWhere('LOWER(c.name) LIKE LOWER(:text)')
             ->andWhere('s.status = :statusSeller')
             ->andWhere('p.status = :statusProduct')
             ->setParameter('text', '%' . $text . '%')
-            ->setParameter('statusSeller', 'available')
+            ->setParameter('statusSeller', 'approved')
             ->setParameter('statusProduct', 'available')
+            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }

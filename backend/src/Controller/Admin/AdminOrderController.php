@@ -61,7 +61,7 @@ class AdminOrderController extends AbstractController
                 ->from('vladoperation@bk.ru')
                 ->to($user->getEmail())
                 ->subject('Статус заказа')
-                ->text($user->getName().', ваш заказ общей суммой в '.$order->getTotalPrice().'р. успешно доставлен по адресу'.$order->getShippingAddress());
+                ->text($user->getName() . ', ваш заказ общей суммой в ' . $order->getTotalPrice() . 'р. успешно доставлен по адресу ' . $order->getShippingAddress());
 
             $mailer->send($email);
         }

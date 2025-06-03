@@ -51,7 +51,7 @@ function AppRoutes() {
             <Route path="/orders/:orderId" element={<OrderDetails/>}/>
             <Route path="/user/:userId" element={<UserProfile/>}/>
             <Route path="/seller/:sellerId" element={<SellerProfile/>}/>
-                <Route path="/search" element={<SearchResults />} />
+            <Route path="/search" element={<SearchResults />} />
             {/*  For admins  */}
             <Route path="/admin" element={<AdminDashboard/>}/>
             <Route path="/admin/orders" element={<AdminOrder/>}/>

@@ -10,6 +10,7 @@ import Pagination from "../../utils/Pagination";
 const SearchResults = () => {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q') || '';
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [loading, setLoading] = useState(true);
     const [allProducts, setAllProducts] = useState([]);
     const [activeMenuRef, setActiveMenuRef] = useState(null);
@@ -28,16 +29,17 @@ const SearchResults = () => {
     } = useProductFilter(allProducts, 12);
 
     useEffect(() => {
+        setLoading(true);
+        setAllProducts([]);
+        setSearchQuery(query);
+
         if (!query.trim()) {
-            setAllProducts([]);
             setLoading(false);
+            setIsInitialLoad(false);
             return;
         }
 
-        setSearchQuery(query);
-
-        const fetchSearchResults = async () => {
-            setLoading(true);
+        const fetchData = async () => {
             try {
                 const fetchedProducts = await searchProducts(query);
                 setAllProducts(fetchedProducts);
@@ -46,14 +48,24 @@ const SearchResults = () => {
                 setAllProducts([]);
             } finally {
                 setLoading(false);
+                setIsInitialLoad(false);
             }
         };
 
-        fetchSearchResults();
+        const timer = setTimeout(fetchData, 300);
+
+        return () => clearTimeout(timer);
     }, [query]);
 
-    if (loading && allProducts.length === 0) {
-        return <Loader />;
+    if (loading || isInitialLoad) {
+        return (
+            <div className="container py-5">
+                <h2 className="mb-4">Поиск: "{query}"</h2>
+                <div className="d-flex justify-content-center py-5">
+                    <Loader />
+                </div>
+            </div>
+        );
     }
 
     return (
